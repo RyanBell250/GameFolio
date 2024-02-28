@@ -47,7 +47,7 @@ def populate_games():
         games_this_query = min(RESULTS_PER_QUERY, games_left)
 
         request = BASE_REQUEST
-        request['data'] += "fields name, summary, genres.name, cover.image_id;"                            #Fields we want
+        request['data'] += "fields name, summary, genres.name, cover.image_id, slug;"                       #Fields we want
         request['data'] += f"limit {games_this_query};"                                                    #Max 500 results per query
         request['data'] += f"offset {offset};"                                                             #Offsets the results
         request['data'] += "where version_parent =n & cover!=n & rating_count >= 0 & parent_game =n;"     #Found this mixture of parameters removes console editions of games etc.
@@ -60,6 +60,7 @@ def populate_games():
         for entry in games_data:
             try:
                 name = entry['name'] 
+                slug = entry['slug']
                 if 'summary' in entry:
                     description = entry['summary']
                 if 'genres' in entry:
@@ -67,7 +68,7 @@ def populate_games():
                 if 'cover' in entry:
                     picture = entry['cover']['image_id']
 
-                game = Game(title = name, description = description, genre = genre, pictureId = picture)
+                game = Game(id = slug, title = name, description = description, genre = genre, pictureId = picture)
                 game.save()
             except Exception as e:
                 print(e)
@@ -97,24 +98,27 @@ def populate_reviews():
     print("Populating reviews...")
     number_of_users = User.objects.count()
     for game in Game.objects.all():
-        avg_rating = random.randint(3, 7)
-        number_of_reviews =int(numpy.random.normal(loc = AVG_REVIEWS_PER_GAME, scale = 5)) #Random number of reviews for each game
+        avg_rating = random.randint(1, 10)
+        number_of_reviews =int(abs(numpy.random.normal(loc = 1, scale = 1)/1.5)*AVG_REVIEWS_PER_GAME) #Random number of reviews for each game
         number_of_reviews = min(number_of_reviews, number_of_users) #Dont want more reviews than users
         number_of_reviews = max(0, number_of_reviews)               #Dont want negative number of reviews
-        users = Author.objects.order_by('?')[:number_of_reviews]    #Gets a random user for each review
+        authors = Author.objects.order_by('?')[:number_of_reviews]    #Gets a random user for each review
 
-        for user in users:             
+        game.views = number_of_reviews * NUMBER_OF_USERS
+        game.save()
+        
+        for author in authors:             
             try:                    
                 content = random.choice(reviews)
-                rating = int(numpy.random.normal(loc = avg_rating, scale = 3))                      #Generates reviews normally around a point for more realism
+                rating = int(abs(numpy.random.normal(loc = 1, scale = 1)/1.5)*avg_rating)            #Generates reviews normally around a point for more realism
                 
-                views = random.randint(0, 10000)
+                views = random.randint(0, game.views)
                 likes = int(views * random.random()*0.5)                                            #Likes will be a percentage of the views
                 
                 random_date = end_date - timedelta(random.randint(1,1000))                 #Generate random date
                 datePosted = random_date
                 
-                review = Review(user = user, game = game, rating = rating, content = content, likes = likes, views = views, datePosted = datePosted)
+                review = Review(author = author, game = game, rating = rating, content = content, likes = likes, views = views, datePosted = datePosted)
                 review.save()
             except Exception as e:
                 print(e)
@@ -123,7 +127,7 @@ def populate_reviews():
 
 def populate_lists():
     print("Populating lists and List Entries...")
-    for user in Author.objects.all():
+    for author in Author.objects.all():
         #Not every user is gonna have lists
         if(random.random() > USER_WITH_LIST_PERCENT):
             continue
@@ -132,9 +136,9 @@ def populate_lists():
         for i in range(1, 5):
             try:
                 #first make list
-                list_name = random.choice(list_names).format(username = user.user.username)
+                list_name = random.choice(list_names).format(username = author.user.username)
                 description = random.choices(["", "This is just a placeholder list description rather than nothing."])
-                list = List(user = user, title = list_name, description = description)
+                list = List(author = author, title = list_name, description = description)
                 list.save()
                 
                 #then make entries
@@ -186,7 +190,7 @@ def clear_database():
 
         users = User.objects.filter(is_superuser = False, is_staff = False)
         count += users.count()
-        for user in range(0, users.count(), ENTRIES_DELETED):
+        for i in range(0, users.count(), ENTRIES_DELETED):
             pks = (User.objects.filter(is_superuser = False, is_staff = False).all().values_list('pk')[:ENTRIES_DELETED])
             User.objects.filter(pk__in=pks).delete()
             

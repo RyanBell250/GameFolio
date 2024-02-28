@@ -7,7 +7,7 @@ class Author(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE) 
 
     website = models.URLField(blank = True)
-    picture = models.ImageField(upload_to="profile_images", blank = True)
+    picture = models.ImageField(upload_to="profile_images", default="defaultprofile.png")
 
     def __str__(self):
         return self.user.username
@@ -17,7 +17,7 @@ class Game(models.Model):
 
     title = models.CharField(max_length = 128, blank = False)
     genre = models.CharField(max_length = 128)                                   
-    pictureId = models.CharField(max_length = 32)                               #Short ID which can be added to an URL to return a picture
+    pictureId = models.CharField(max_length = 32)                               #Short ID which can be added to a URL to return a picture
     description = models.TextField(default = "This game has no description.")   
     views = models.IntegerField(default = 0)
 

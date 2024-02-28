@@ -57,25 +57,38 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
         if int(self.rating) < 1 or int(self.rating) > 10:
-            self.rating = max(min(self.rating, 10), 1)                  #Clamps rating between 1 and 10
+            self.rating = max(min(self.rating, 10), 1) #Clamps rating between 1 and 10
         super(Review, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.user.user.username + " - " + self.game.title + ": " + self.RATING_CHOICES[self.rating-1][1]
           
 
 class List(models.Model):
     user = models.ForeignKey(Author, on_delete = models.CASCADE)
 
-    slug = models.SlugField()                                           #NOT UNIQUE as two users can have list with same name
+    slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name
     title = models.CharField(max_length = 128, blank = False)
     description = models.TextField(default = "", blank = True)
 
     def save(self, *args, **kwargs):
-        slug = slugify(self.title)                                      #Same idea as gameslug, if user has list with two same names, create indexed slug
+        #Same idea as gameslug, if user has list with two same names, create indexed slug
+        slug = slugify(self.title)                                      
         index = List.objects.filter(user=self.user, slug__startswith=slug).count()    
         if(index != 0):                                             
             slug += "-" + str(index)                                
         self.slug = slug                                              
         super(List, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.user.user.username + " - " + self.title
+    
 class ListEntry(models.Model):
     list = models.ForeignKey(List, on_delete = models.CASCADE)
     game = models.ForeignKey(Game, on_delete = models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "List Entries"
+
+    def __str__(self):
+        return str(self.list) + " : " + str(self.game)

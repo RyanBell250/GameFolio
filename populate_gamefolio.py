@@ -6,7 +6,7 @@ django.setup()
 import requests
 import random
 import numpy
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from gamefolio_app.models import Author, Game, Review, List, ListEntry
 from django.contrib.auth.models import User
@@ -25,7 +25,7 @@ descriptors = ["Little", "Big", "Small", "Hidden", "Crazy", "Blue", "Red", "Gree
 usernames = ["Mario", "Link", "Zelda", "Luigi", "Yoshi", "DonkeyKong", "Sonic", "Peach", "Steve", "Mastercheif", "Pikachu", "Goomba", "Bowser"]
 
 #Review Parameters
-AVG_REVIEWS_PER_GAME = 15
+AVG_REVIEWS_PER_GAME = 10
 reviews = ["Great game!", "I hated this.", ":(", "This is maybe the best thing I've ever played in my life!", "This was so horrible", "Ok!", 
            "It was alright", "I've played better.", "I can't believe this cost money.", "How to refund?", 
            "I would sacrifice my first born to play this for the first time again"]
@@ -33,12 +33,13 @@ start_date = datetime(2020, 1, 1)
 end_date = datetime.now()
 
 #List Parameters
-USER_WITH_LIST_PERCENT = 0.7
+USER_WITH_LIST_PERCENT = 0.5
 list_names = ["Worst games of all time", "{username}'s list of best games of all time", "Recommend", "Temp", "My list", "Good", "2024 Ranked", 
               "Games to play on the train", "Games to play on the plane", "Games to never play on the train", "Made me cry", "Good stories",
               "Wishlist", "Play later", "These look good", "Interesting", "Try out?"]
 
 def populate_games():
+    print("Populating games...")
     query_count = 0
     for games_left in range(NUMBER_OF_GAMES, 0, -RESULTS_PER_QUERY):
 
@@ -57,18 +58,26 @@ def populate_games():
         query_count += 1
 
         for entry in games_data:
-            name = entry['name'] 
-            if 'summary' in entry:
-                description = entry['summary']
-            if 'genres' in entry:
-                genre = entry['genres'][0]['name']
-            if 'cover' in entry:
-                picture = entry['cover']['image_id']
+            try:
+                name = entry['name'] 
+                if 'summary' in entry:
+                    description = entry['summary']
+                if 'genres' in entry:
+                    genre = entry['genres'][0]['name']
+                if 'cover' in entry:
+                    picture = entry['cover']['image_id']
 
-            game = Game(title = name, description = description, genre = genre, pictureId = picture)
-            game.save()
+                game = Game(title = name, description = description, genre = genre, pictureId = picture)
+                game.save()
+            except Exception as e:
+                print(e)
+                continue
+        
+        print(f"{Game.objects.count()}/{NUMBER_OF_GAMES}")
+    print("Games populated!")
 
 def populate_users():
+    print("Populating authors and users...")
     for i in range(NUMBER_OF_USERS):
         try:
             #generate random username
@@ -81,28 +90,39 @@ def populate_users():
             author.save()
         except Exception as e:
             print(e)
-            return
+            continue
+    print(f"User and Author populated with {Author.objects.count()} entries!")
 
 def populate_reviews():
-    seconds_delta = ((end_date - start_date).days * 24 * 60 * 60)
-    start_date_seconds = start_date.day *24*60*60
+    print("Populating reviews...")
+    number_of_users = User.objects.count()
     for game in Game.objects.all():
         avg_rating = random.randint(3, 7)
-        for i in range(int(numpy.random.normal(loc = AVG_REVIEWS_PER_GAME, scale = 10))):       #Most games will get 15 reviews, some will get more, others less
-            user = Author.objects.order_by('?').first()                                         #Gets random user
-            content = random.choice(reviews)
-            rating = int(numpy.random.normal(loc = avg_rating, scale = 3))                      #Generates reviews normally around a point for more realism
-            
-            views = random.randint(0, 10000)
-            likes = int(views * random.random()*0.5)                                            #Likes will be a percentage of the views
-            
-            random_date = start_date_seconds + random.randint(0, seconds_delta)
-            datePosted = datetime.fromtimestamp(random_date)    
-            
-            review = Review(user = user, game = game, rating = rating, content = content, likes = likes, views = views, datePosted = datePosted)
-            review.save()
+        number_of_reviews =int(numpy.random.normal(loc = AVG_REVIEWS_PER_GAME, scale = 5)) #Random number of reviews for each game
+        number_of_reviews = min(number_of_reviews, number_of_users) #Dont want more reviews than users
+        number_of_reviews = max(0, number_of_reviews)               #Dont want negative number of reviews
+        users = Author.objects.order_by('?')[:number_of_reviews]    #Gets a random user for each review
+
+        for user in users:             
+            try:                    
+                content = random.choice(reviews)
+                rating = int(numpy.random.normal(loc = avg_rating, scale = 3))                      #Generates reviews normally around a point for more realism
+                
+                views = random.randint(0, 10000)
+                likes = int(views * random.random()*0.5)                                            #Likes will be a percentage of the views
+                
+                random_date = end_date - timedelta(random.randint(1,1000))                 #Generate random date
+                datePosted = random_date
+                
+                review = Review(user = user, game = game, rating = rating, content = content, likes = likes, views = views, datePosted = datePosted)
+                review.save()
+            except Exception as e:
+                print(e)
+                continue
+    print(f"Reviews populated with {Review.objects.count()} entries!")
 
 def populate_lists():
+    print("Populating lists and List Entries...")
     for user in Author.objects.all():
         #Not every user is gonna have lists
         if(random.random() > USER_WITH_LIST_PERCENT):
@@ -110,35 +130,163 @@ def populate_lists():
         
         #Create random number of lists
         for i in range(1, 5):
-            #first make list
-            list_name = random.choice(list_names).format(username = user.user.username)
-            description = random.choices(["", "This is just a placeholder list description rather than nothing."])
-            list = List(user = user, title = list_name, description = description)
-            list.save()
-            
-            #then make entries
-            number_of_games = random.randint(5, 30)
-            games = Game.objects.order_by('?')[:number_of_games]    #Get first x random games
+            try:
+                #first make list
+                list_name = random.choice(list_names).format(username = user.user.username)
+                description = random.choices(["", "This is just a placeholder list description rather than nothing."])
+                list = List(user = user, title = list_name, description = description)
+                list.save()
+                
+                #then make entries
+                number_of_games = random.randint(5, 30)
+                games = Game.objects.order_by('?')[:number_of_games]    #Get first x random games
 
-            for game in games:
-                listEntry = ListEntry(list = list, game = game)
-                listEntry.save()
+                for game in games:
+                    listEntry = ListEntry(list = list, game = game)
+                    listEntry.save()
+            except Exception as e:
+                print(e)
+                continue
+
+    print(f"List populated with {List.objects.count()} entries!")
+    print(f"List Entries populated with {ListEntry.objects.count()} entries!")
 
 
 def clear_database():
-    for listEntry in ListEntry.objects.all():
-        listEntry.delete()
-    for list in List.objects.all():
-        list.delete()
-    for review in Review.objects.all():
-        review.delete()
-    for game in Game.objects.all():
-        review.delete()
-    for user in User.objects.filter(is_superuser = False, is_staff = False).all():
-        user.delete()
+    print("Deleting all records...")
+    print("This may take a while")
+    ENTRIES_DELETED = 500
+    try:
+        count = 0
+
+        count += ListEntry.objects.count()
+        for i in range(0, ListEntry.objects.count(), ENTRIES_DELETED):
+            pks = (ListEntry.objects.all().values_list('pk')[:ENTRIES_DELETED])
+            ListEntry.objects.filter(pk__in=pks).delete()
+
+        count += List.objects.count()
+        for i in range(0, List.objects.count(), ENTRIES_DELETED):
+            pks = (List.objects.all().values_list('pk')[:ENTRIES_DELETED])
+            List.objects.filter(pk__in=pks).delete()
+
+        count += Review.objects.count()
+        for i in range(0, Review.objects.count(), ENTRIES_DELETED):
+            pks = (Review.objects.all().values_list('pk')[:ENTRIES_DELETED])
+            Review.objects.filter(pk__in=pks).delete()
+
+        count += Game.objects.count()
+        for i in range(0, Game.objects.count(), ENTRIES_DELETED):
+            pks = (Game.objects.all().values_list('pk')[:ENTRIES_DELETED])
+            Game.objects.filter(pk__in=pks).delete()
+
+        count += Author.objects.count()
+        for i in range(0, Author.objects.count(), ENTRIES_DELETED):
+            pks = (Author.objects.all().values_list('pk')[:ENTRIES_DELETED])
+            Author.objects.filter(pk__in=pks).delete()
+
+        users = User.objects.filter(is_superuser = False, is_staff = False)
+        count += users.count()
+        for user in range(0, users.count(), ENTRIES_DELETED):
+            pks = (User.objects.filter(is_superuser = False, is_staff = False).all().values_list('pk')[:ENTRIES_DELETED])
+            User.objects.filter(pk__in=pks).delete()
+            
+        print(f"Successfully deleted {count} records")
+    except Exception as e:
+        print("Failed to delete records in database!")
+        print(e)
+        exit()
+
+
+def populate():
+    use_default_params = confirm("use the default population parameters", "Do you want to")
+    all = True
+    if not use_default_params:
+        global NUMBER_OF_GAMES
+        global NUMBER_OF_USERS
+        global AVG_REVIEWS_PER_GAME
+        global USER_WITH_LIST_PERCENT
+
+        all = confirm("Do you want populate all databases (User, Review, Author, List and ListEntry), not just the Game database", "")
+        print(f"How many games do you wish to add to the database? Default: {NUMBER_OF_GAMES}")
+        NUMBER_OF_GAMES = get_integer_input()
+        if all:
+            print(f"How many users do you wish to add to the database? Default: {NUMBER_OF_USERS}")
+            NUMBER_OF_USERS = get_integer_input()
+            print(f"How many reviews should there be on average per game? Default: {AVG_REVIEWS_PER_GAME}")
+            AVG_REVIEWS_PER_GAME = get_integer_input()
+            print(f"What percentage of users should have a list? Default: {USER_WITH_LIST_PERCENT*100}%")
+            USER_WITH_LIST_PERCENT = get_integer_input()/100
+    if confirm("populate the database?"):
+        print("Populating the database...")
+        populate_games()
+        if all:
+            populate_users()
+            populate_reviews()
+            populate_lists()
+    else:
+        print("Exiting the population program!")
+        
+    pass
+
+def get_integer_input():
+    answer = input(">>")
+    try:
+        answer = int(answer)
+        return answer
+    except:
+        print("Please enter a valid integer")
+        return get_integer_input()
+
+def confirm(task_to_confirm, question = "Are you sure you want to"):
+    if question != "":
+        question += " "
+    answer = input(f"{question}{task_to_confirm}? (Y/N)")
+    answer = answer.lower()
+
+    if(answer == "y"):
+        return True
+    elif(answer == "n"):
+        return False
+    else:
+        print("Please enter either Y or N")
+        return confirm(task_to_confirm)
+
+def is_database_full():
+    if(ListEntry.objects.count() > 0):
+        return True
+    if(List.objects.count() > 0):
+        return True
+    if(Review.objects.count() > 0):
+        return True
+    if(Author.objects.count() > 0):
+        return True
+    if(Game.objects.count() > 0):
+        return True
+    if(User.objects.filter(is_superuser = False, is_staff = False).count() > 0):
+        return True
+    return False
+
+def populate_or_delete():
+
+    answer = input("Do you want to delete the current database or populate it? (D/P)")
+    answer = answer.lower()
+
+    if(answer == "p"):
+        if(is_database_full()):
+            print("Old entries were found in the database. Populating the database with entries could lead to duplicates and errors.")
+            if(confirm("delete all the old entries before continuing","Do you want to")):
+                clear_database()
+            else:
+                print("Continuing without deleting old entries.")
+        populate()
+    elif(answer == "d"):
+        if(confirm("delete all records in database except superusers and staff users")):
+            clear_database()
+        else:
+            exit()
+    else:
+        print("Please enter either D or P")
+        populate_or_delete()
 
 if __name__ == '__main__':
-    populate_users()
-    populate_games()
-    populate_reviews()
-    populate_lists()
+    populate_or_delete()

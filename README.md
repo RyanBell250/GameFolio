@@ -10,6 +10,8 @@ GameFolio is a web application that allows users to write a review of their game
 - Django 2.2.28
 - Pillow
 - django-registration-redux 2.2
+- NumPy
+- Requests
 
 **Rules for Commits**
 - Create branches for each new feature

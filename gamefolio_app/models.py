@@ -16,7 +16,7 @@ class Game(models.Model):
     id = models.SlugField(unique = True, primary_key = True)
 
     title = models.CharField(max_length = 128, blank = False)
-    genre = models.IntegerField(default = 0)                                    #Genre is stored as an integer
+    genre = models.CharField(max_length = 128)                                   
     pictureId = models.CharField(max_length = 32)                               #Short ID which can be added to an URL to return a picture
     description = models.TextField(default = "This game has no description.")   
     views = models.IntegerField(default = 0)
@@ -64,13 +64,17 @@ class Review(models.Model):
 class List(models.Model):
     user = models.ForeignKey(Author, on_delete = models.CASCADE)
 
-    slug = models.SlugField(unique = True)
+    slug = models.SlugField()                                           #NOT UNIQUE as two users can have list with same name
     title = models.CharField(max_length = 128, blank = False)
     description = models.TextField(default = "", blank = True)
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
-        super(Game, self).save(*args, **kwargs)
+        slug = slugify(self.title)                                      #Same idea as gameslug, if user has list with two same names, create indexed slug
+        index = List.objects.filter(user=self.user, slug__startswith=slug).count()    
+        if(index != 0):                                             
+            slug += "-" + str(index)                                
+        self.slug = slug                                              
+        super(List, self).save(*args, **kwargs)
 
 class ListEntry(models.Model):
     list = models.ForeignKey(List, on_delete = models.CASCADE)

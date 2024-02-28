@@ -13,10 +13,11 @@ class ModelTests(TestCase):
         self.author.save()
         
     def tearDown(self):
+        #delete everything once done
         self.game.delete()
         self.user.delete()
         self.author.delete()
-        
+
     #This will test that the game has a primary key that is generated as a slug
     def test_game_slug_id(self):
         gameOne = Game(title = "Test Game")

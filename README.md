@@ -19,3 +19,4 @@ GameFolio is a web application that allows users to write a review of their game
 - Make regular commits to branch
 - When satisfied, get code reviewd
 - Merge with main branch
+- git fetch --all after branch is merged

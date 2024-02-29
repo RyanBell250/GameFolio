@@ -18,7 +18,7 @@ class Game(models.Model):
 
     title = models.CharField(max_length = 128, blank = False, db_index = True)
     genre = models.CharField(max_length = 128)                                   
-    pictureId = models.CharField(max_length = 32)                               #Short ID which can be added to a URL to return a picture
+    pictureId = models.CharField(max_length = 32)                               
     description = models.TextField(default = "This game has no description.")   
     views = models.IntegerField(default = 0)
 
@@ -30,6 +30,14 @@ class Game(models.Model):
     def total_reviews(self):
         return Review.objects.filter(game=self.id).count()
     
+    #ImageTypes         Size
+    #micro              35 x 35
+    #thumb              90 x 90
+    #cover_small        90 x 128
+    #cover_big          264 x 374
+    #screenshot_huge    1280 x 720
+    #720p               720 x 1280
+    #1080p              1080 x 1920
     def get_image(self, image_type):
         return f"https://images.igdb.com/igdb/image/upload/t_{image_type}/{self.pictureId}.jpg"
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -15,19 +16,30 @@ class Author(models.Model):
 class Game(models.Model):
     id = models.SlugField(unique = True, primary_key = True)
 
-    title = models.CharField(max_length = 128, blank = False)
+    title = models.CharField(max_length = 128, blank = False, db_index = True)
     genre = models.CharField(max_length = 128)                                   
-    pictureId = models.CharField(max_length = 32)                               #Short ID which can be added to a URL to return a picture
+    pictureId = models.CharField(max_length = 32)                               
     description = models.TextField(default = "This game has no description.")   
     views = models.IntegerField(default = 0)
 
-    def save(self, *args, **kwargs):
-        slug = slugify(self.title)
-        index = Game.objects.filter(id__startswith=slug).count()    #If we already have a game with the same name, we will want to add an
-        if(index != 0):                                             #index to the slug. So we find games with the same slug and if they exist
-            slug += "-" + str(index)                                #we add the index onto the end.
-        self.id = slug                                              #e.g two games called: Test Game we get "test-game" and "test-game-1"
-        super(Game, self).save(*args, **kwargs)
+    def average_rating(self):
+        average = Review.objects.filter(game=self.id).aggregate(Avg('rating'))['rating__avg']
+        average = average * 10 if average != None else 0
+        return int(average)/10
+    
+    def total_reviews(self):
+        return Review.objects.filter(game=self.id).count()
+    
+    #ImageTypes         Size
+    #micro              35 x 35
+    #thumb              90 x 90
+    #cover_small        90 x 128
+    #cover_big          264 x 374
+    #screenshot_huge    1280 x 720
+    #720p               720 x 1280
+    #1080p              1080 x 1920
+    def get_image(self, image_type):
+        return f"https://images.igdb.com/igdb/image/upload/t_{image_type}/{self.pictureId}.jpg"
 
     def __str__(self):
         return self.title
@@ -46,8 +58,8 @@ class Review(models.Model):
         (10, "★★★★★"),
     )
 
-    game = models.ForeignKey(Game, on_delete = models.CASCADE)
-    user = models.ForeignKey(Author, on_delete = models.CASCADE)
+    game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True)
+    author = models.ForeignKey(Author, on_delete = models.CASCADE)
    
     content = models.TextField(blank = False)
     views = models.IntegerField(default = 0)
@@ -61,11 +73,11 @@ class Review(models.Model):
         super(Review, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.user.user.username + " - " + self.game.title + ": " + self.RATING_CHOICES[self.rating-1][1]
+        return self.author.user.username + " - " + self.game.title + ": " + self.RATING_CHOICES[self.rating-1][1]
           
 
 class List(models.Model):
-    user = models.ForeignKey(Author, on_delete = models.CASCADE)
+    author = models.ForeignKey(Author, on_delete = models.CASCADE)
 
     slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name
     title = models.CharField(max_length = 128, blank = False)
@@ -74,14 +86,14 @@ class List(models.Model):
     def save(self, *args, **kwargs):
         #Same idea as gameslug, if user has list with two same names, create indexed slug
         slug = slugify(self.title)                                      
-        index = List.objects.filter(user=self.user, slug__startswith=slug).count()    
+        index = List.objects.filter(author=self.author, slug__startswith=slug).count()    
         if(index != 0):                                             
             slug += "-" + str(index)                                
         self.slug = slug                                              
         super(List, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.user.user.username + " - " + self.title
+        return self.author.user.username + " - " + self.title
     
 class ListEntry(models.Model):
     list = models.ForeignKey(List, on_delete = models.CASCADE)

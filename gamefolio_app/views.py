@@ -2,9 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
 from gamefolio.forms import UserForm , AuthorForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.shortcuts import redirect
+from django.contrib.auth.views import LogoutView
+from django.urls import reverse_lazy
+
 
 # Create your views here.
 class IndexView(View):
@@ -64,6 +67,9 @@ class UserLoginView(View):
         else:
             print(f"Invalid login details: {username}, {password}")
             return HttpResponse("Invalid login details supplied.")
+
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy('gamefolio_app:index')
 
     
 

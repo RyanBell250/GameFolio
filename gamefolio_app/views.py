@@ -6,8 +6,9 @@ from gamefolio_app.models import Game, Review
 
 class IndexView(View):
     def get(self, request):
-        game_list = Game.objects.order_by('-views')[:5]
-        reviews_list = Review.objects.order_by('-likes')[:5]
+        #game_list = Game.objects.order_by('-views')[:5]
+        game_list = sorted(Game.objects.all(), key = lambda p : p.average_rating())[:5]
+        reviews_list = Review.objects.order_by('-likes')[:6]
         
         context_dict = {}
         context_dict['games'] = game_list

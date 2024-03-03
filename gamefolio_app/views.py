@@ -9,6 +9,8 @@ from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from gamefolio_app.models import Author
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -72,10 +74,12 @@ class UserLoginView(View):
             print(f"Invalid login details: {username}, {password}")
             return HttpResponse("Invalid login details supplied.")
 
+@method_decorator(login_required, name='dispatch')
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy('gamefolio_app:index')
 
 
+@method_decorator(login_required, name='dispatch')
 class RegisterProfileView(View):
     template_name = 'gamefolio_app/registration_profile.html'
 
@@ -110,6 +114,8 @@ class ProfileView(View):
 
         return (user, user_profile, form)
     
+
+    @method_decorator(login_required)
     def get(self, request, username):
         try:
             (user, user_profile, form) = self.get_user_details(username)
@@ -120,6 +126,7 @@ class ProfileView(View):
                 
         return render(request, 'gamefolio_app/profile.html', context_dict)
     
+    @method_decorator(login_required)
     def post(self, request, username):
         try:
             (user, user_profile, form) = self.get_user_details(username)
@@ -141,6 +148,7 @@ class ProfileView(View):
         return render(request, 'gamefolio_app/profile.html', context_dict)
 
 class ListProfilesView(View):
+    @method_decorator(login_required)
     def get(self, request):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})

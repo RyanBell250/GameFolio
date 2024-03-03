@@ -48,7 +48,7 @@ class RegisterView(View):
     
 
 class UserLoginView(View):
-    template_name = 'gamefolio_app/login.html'  
+    template_name = 'gamefolio_app/registration/login.html'  
 
     def get(self, request):
         return render(request, self.template_name)

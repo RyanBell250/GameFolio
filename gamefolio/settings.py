@@ -29,6 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Registration config
+
 REGISTRATION_OPEN = True
 
 REGISTRATION_AUTO_LOGIN = True

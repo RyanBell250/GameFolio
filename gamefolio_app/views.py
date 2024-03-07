@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from gamefolio_app.models import Author
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from registration.backends.simple.views import RegistrationView
 
 
 
@@ -27,9 +28,13 @@ class IndexView(View):
         context_dict['reviews'] = reviews_list
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
+      
+class MyRegistrationView(RegistrationView):
+    def get_success_url(self, user):
+        return reverse('gamefolio_app:register_profile')
     
 class RegisterView(View):
-    template_name = 'register.html'  
+    template_name = 'gamefolio/registration_form.html'  
 
     def get(self, request):
         user_form = UserForm()
@@ -160,3 +165,4 @@ class ListProfilesView(View):
     def get(self, request):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
+    

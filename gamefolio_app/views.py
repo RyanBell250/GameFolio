@@ -8,15 +8,11 @@ from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
-from gamefolio_app.models import Author
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
-
-
-
-
-from gamefolio_app.models import Game, Review
+from django.db.models import Q
+from gamefolio_app.models import Game, Review, Author
 
 class IndexView(View):
     def get(self, request):
@@ -168,5 +164,7 @@ class ListProfilesView(View):
     
 class SearchView(View):
     def get(self, request):
-        return render(request, 'gamefolio_app/search.html')
+        query = request.GET['query'].strip()
+        results = Game.objects.filter(title__icontains=query)
+        return render(request, 'gamefolio_app/search.html', {'results' : results})
     

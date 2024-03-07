@@ -166,3 +166,7 @@ class ListProfilesView(View):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
     
+class SearchView(View):
+    def get(self, request):
+        return render(request, 'gamefolio_app/search.html')
+    

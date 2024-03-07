@@ -11,7 +11,6 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
-from django.db.models import Q
 from gamefolio_app.models import Game, Review, Author
 
 class IndexView(View):
@@ -161,10 +160,54 @@ class ListProfilesView(View):
     def get(self, request):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
-    
+
+MAX_RESULTS_PER_PAGE = 8
 class SearchView(View):
     def get(self, request):
-        query = request.GET['query'].strip()
+        try:
+            query = request.GET['query'].strip()
+        except Exception as e:
+            query = ""
+        
+        try:
+            page = int(request.GET['page'].strip())
+        except Exception as e:
+            page = 0
+
         results = Game.objects.filter(title__icontains=query)
-        return render(request, 'gamefolio_app/search.html', {'results' : results})
+        result_count = len(results)
+        offset = page * MAX_RESULTS_PER_PAGE
+        actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]
+        current_page = page + 1
+        
+        page_count = result_count/MAX_RESULTS_PER_PAGE
+        page_count = int(page_count) + 1
+
+        pages = []
+        if(page_count <= 5):
+            pages = [i for i in range(1,int(page_count+1))]
+        else:
+            count = 0
+            for i in range(current_page-1, 1, -1):
+                if(count == 3):
+                    break
+                count += 1;
+                pages.append(i)
+            
+            count = 0
+            for i in range(current_page, page_count, 1):
+                if(count == 4):
+                    break
+                count += 1;
+                pages.append(i)
+
+            if(1 not in pages):
+                pages.append(1)
+            if(page_count not in pages):
+                pages.append(page_count)
+
+            pages.sort()
+
+        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page}
+        return render(request, 'gamefolio_app/search.html', context_dict)
     

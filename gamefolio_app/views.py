@@ -15,9 +15,20 @@ from django.contrib.auth.decorators import login_required
 
 
 
-# Create your views here.
+from gamefolio_app.models import Game, Review
+
 class IndexView(View):
     def get(self, request):
+      game_list = sorted(Game.objects.all(), key = lambda p : p.average_rating())[:5]
+        reviews_list = Review.objects.order_by('-likes')[:6]
+        
+        context_dict = {}
+        context_dict['games'] = game_list
+        context_dict['reviews'] = reviews_list
+        
+        return render(request, 'gamefolio_app/index.html', context=context_dict)
+      
+LoginAndRegister
         return render(request, 'gamefolio_app/index.html')
     
 class RegisterView(View):
@@ -152,12 +163,3 @@ class ListProfilesView(View):
     def get(self, request):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
-
-
-    
-
-        
-         
-
-                
-

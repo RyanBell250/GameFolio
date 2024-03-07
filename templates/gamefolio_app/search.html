@@ -9,18 +9,50 @@
 <div class = "container">
     <div class = "row justify-content-center">
         <div class = "col-8">
-        Search results...
-        {% for result in results %}
-            <div class = "row m-2 justify-content-center">
-                <div class = "col-2">
-                    <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
+
+            <h6 class = "py-3">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
+            {% for result in results %}
+                <div class = "row m-2 justify-content-center">
+                    <div class = "col-2">
+                        <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
+                    </div>
+                    <div class = "col-10">
+                        {{ result.title }}
+                    </div>
                 </div>
-                <div class = "col-10">
-                    {{ result.title }}
-                </div>
-            </div>
-            <hr>
-        {% endfor %}
+                <hr>
+            {% endfor %}
+            
+            <form action="{% url 'gamefolio_app:search' %}" method = "get" id ="search-form">
+                {% if query == "" %}
+                <input type="hidden" name="query" value="" id="query-parameter"/> 
+                {% else %}
+                <input type="hidden" name="query" value={{ query }} id="query-parameter"/> 
+                {% endif %}
+                <input type="hidden" name="page" value="0" id="page-parameter"/> 
+                <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>   
+                    {% for page in pages %}
+                        {% if page == '...' %}
+                        <li class="page-item"><button class="page-link disabled">...</button></li>
+                        {% elif page == current_page %}  
+                            <li class="page-item"><button class="page-link active" type = "submit">{{ page }}</button></li>
+                        {% else %}
+                            <li class="page-item"><button class="page-link" type = "submit">{{ page }}</button></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li>    
+                        <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </form>
+
         </div>
     </div>
 </div>

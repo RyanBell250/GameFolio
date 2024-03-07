@@ -19,7 +19,7 @@ from gamefolio_app.models import Game, Review
 
 class IndexView(View):
     def get(self, request):
-      game_list = sorted(Game.objects.all(), key = lambda p : p.average_rating())[:5]
+        game_list = sorted(Game.objects.all(), key = lambda p : p.average_rating())[:5]
         reviews_list = Review.objects.order_by('-likes')[:6]
         
         context_dict = {}
@@ -27,9 +27,6 @@ class IndexView(View):
         context_dict['reviews'] = reviews_list
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
-      
-LoginAndRegister
-        return render(request, 'gamefolio_app/index.html')
     
 class RegisterView(View):
     template_name = 'register.html'  

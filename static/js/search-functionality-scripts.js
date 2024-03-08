@@ -27,7 +27,7 @@ $(document).ready(function() {
         var pageNumber = 0;
         //If theres no value dont use it
         if(number != null && number != "") {
-            $("#sort-parameter").remove();
+            $("#page-parameter").remove();
             pageNumber = number;
         }
 
@@ -107,6 +107,12 @@ $(document).ready(function() {
 
         //This function takes priority for genre
         $("#genre-parameter").remove();
+        if($(this).val() == "REMOVE") {
+            $('<div>').attr({
+                id: "genre-parameter"
+            }).appendTo($pageForm);
+            return;
+        }
         $('<input>').attr({
             type: 'hidden',
             value: $(this).val(),

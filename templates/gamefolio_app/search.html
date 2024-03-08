@@ -14,19 +14,21 @@
     <div class = "row justify-content-center">
         <div class = "col-sm-12 col-md-10 col-lg-8">
             <form action="{% url 'gamefolio_app:search' %}" method = "get" id ="page-form">
+                <button type="submit" class = "d-none"></button> <!-- This button is holding everything together-->
                 <div class = "row m-2 justify-content-center">
-                    <div class = "col-6">
+                    <div class = "col-8 align-items-center d-flex justify-center">
                         {% if query %}
-                        <h6 class = "py-3 my-0 align-bottom ">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
+                        <h6 class = "py-3 my-0 align-bottom d-inline-block">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
                         {% elif current_genre%}
-                        <h6 class = "py-3 my-0  align-bottom ">Showing all <bold class = "fw-bold">{{ count }}</bold>  {{ current_genre }} games</h6>
+                        <h6 class = "py-3 my-0  align-bottom d-inline-block">Showing all <bold class = "fw-bold">{{ count }}</bold>  {{ current_genre }} games</h6>
                         {% elif results %}
-                        <h6 class = "py-3 my-0  align-bottom ">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
+                        <h6 class = "py-3 my-0  align-bottom d-inline-block">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
                         {% else %}
-                        <h6 class = "py-3 my-0  align-bottom "><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
+                        <h6 class = "py-3 my-0  align-bottom d-inline-block"><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
                         {% endif %}
+                        <button class="my-3 align-center mx-4 genre-button d-inline-block badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "REMOVE" type = "submit">x Remove genre</button>
                     </div>
-                    <div class ="col-6 d-flex justify-content-end align-items-end">
+                    <div class ="col-4 d-flex justify-content-end align-items-end">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Sort by
@@ -58,7 +60,7 @@
                             <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="#!">{{ result.title }}</a></h4>
                             <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/10" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
                             <div row>
-                                <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = {{result.genre}} type = "submit">{{ result.genre }}</button>
+                                <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
                             </div>
                         </div>
                     </div>

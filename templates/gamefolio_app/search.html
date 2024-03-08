@@ -8,16 +8,21 @@
 {% block body_block %}
 <div class = "container">
     <div class = "row justify-content-center">
-        <div class = "col-8">
-
+        <div class = "col-sm-12 col-md-10 col-lg-8">
+            {% if query %}
             <h6 class = "py-3">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
+            {% elif results %}
+            <h6 class = "py-3">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
+            {% else %}
+            <h6 class = "py-3"><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
+            {% endif %}
             {% for result in results %}
                 <div class = "row m-2 justify-content-center">
-                    <div class = "col-2">
+                    <div class = "col-2 p-0">
                         <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
                     </div>
                     <div class = "col-10">
-                        {{ result.title }}
+                        <h5 class = "fw-bold text-truncate py-4">{{ result.title }}</h5>
                     </div>
                 </div>
                 <hr>
@@ -31,25 +36,31 @@
                 {% endif %}
                 <input type="hidden" name="page" value="0" id="page-parameter"/> 
                 <ul class="pagination justify-content-center">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>   
+                    
+                    {% if results %}
+                    {% if current_page > 1%}
+                        <li class = "page-item">    
+                            <button class="page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
+                            </a>
+                        </li> 
+                    {% endif %}
                     {% for page in pages %}
-                        {% if page == '...' %}
-                        <li class="page-item"><button class="page-link disabled">...</button></li>
+                        {% if page == "type" %}
+                            <li class="page-item col-1"><input id="page-search" class="page-link col-12 g-0 justify-content-center" type="input" placeholder="..."></input></li>
                         {% elif page == current_page %}  
-                            <li class="page-item"><button class="page-link active" type = "submit">{{ page }}</button></li>
+                            <li class="page-item"><button class="page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
                         {% else %}
-                            <li class="page-item"><button class="page-link" type = "submit">{{ page }}</button></li>
+                            <li class="page-item"><button class="page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
                         {% endif %}
                     {% endfor %}
-                    <li>    
-                        <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
+                    {% if current_page < page_count %}
+                    <li class = "page-item">    
+                        <button class="page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
                         </a>
                     </li>
+                    {% endif %}
+                    
+                    {% endif %}
                 </ul>
             </form>
 

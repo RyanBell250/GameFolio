@@ -159,7 +159,11 @@ class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
         profiles = Author.objects.all()
-        return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
+        return render(request,'gamefolio_app/list_profiles.html',{'user_profile_list': profiles})
+
+class NotFoundView(View):
+    def get(self, request):
+        return render(request, "gamefolio_app/404.html")
 
 MAX_RESULTS_PER_PAGE = 8
 class SearchView(View):
@@ -170,18 +174,26 @@ class SearchView(View):
             query = ""
         
         try:
-            page = int(request.GET['page'].strip())
+            page = request.GET['page'].strip()
         except Exception as e:
             page = 0
 
         results = Game.objects.filter(title__icontains=query)
         result_count = len(results)
-        offset = page * MAX_RESULTS_PER_PAGE
-        actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]
-        current_page = page + 1
         
         page_count = result_count/MAX_RESULTS_PER_PAGE
         page_count = int(page_count) + 1
+
+        try:
+            page = int(page)
+            assert(page >= 0)
+            assert(page < page_count)
+        except:
+            return redirect(f"gamefolio_app:404")
+
+        offset = page * MAX_RESULTS_PER_PAGE
+        actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]
+        current_page = page + 1
 
         pages = []
         if(page_count <= 5):
@@ -189,14 +201,14 @@ class SearchView(View):
         else:
             count = 0
             for i in range(current_page-1, 1, -1):
-                if(count == 3):
+                if(count == 2):
                     break
                 count += 1;
                 pages.append(i)
             
             count = 0
             for i in range(current_page, page_count, 1):
-                if(count == 4):
+                if(count == 3):
                     break
                 count += 1;
                 pages.append(i)
@@ -208,6 +220,18 @@ class SearchView(View):
 
             pages.sort()
 
-        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page}
+            last_page = pages[0]
+            jump_index = -1
+            i = 0
+            for page in pages:
+                if(page-last_page > 1):
+                    print(page, last_page)
+                    jump_index = i
+                i+=1
+                last_page = page
+        
+            pages.insert(jump_index, "type")
+
+        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count}
         return render(request, 'gamefolio_app/search.html', context_dict)
     

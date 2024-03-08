@@ -1,11 +1,14 @@
 $(window).bind("pageshow", function () {
     
+    //When we go back, the parameters for the URL will stay so we must remove them
     $("#page-parameter").remove();
     $("#query-parameter").remove();
     $("#sort-parameter").remove();
     $("#genre-parameter").remove();
-        
-    if(!$("#searched").length) {
+    
+    //Clear search bar if we don't currently have a query
+    const searchParams = new URLSearchParams(window.location.search);
+    if(!searchParams.has("query")) {
         $('#search-bar').val("")
     }
 })
@@ -19,21 +22,27 @@ $(document).ready(function() {
         $('#search-query-parameter').attr("value", queryTerm)
     });
 
+    //Runs when any button is pressed
     $("#page-form").on("submit", function(e) {
 
+        var $pageForm = $("#page-form");
+        //Get the number from the page input
         var pageSearch = $("#page-search");
         var number = pageSearch.val();
         var pageNumber = 0;
+        //If theres no value dont use it
         if(number != null && number != "") {
             $("#sort-parameter").remove();
             pageNumber = number;
         }
 
+        //Get the current sort parameter
         var currentSort = "0"
         if(searchParams.has("sort")) {
             currentSort = searchParams.get("sort");
         }
         
+        //If we have a valid page number and there isn't already a previous paramater add a page param
         if(pageNumber > 1 && !$("#page-parameter").length) {
             $('<input>').attr({
                 type: 'hidden',
@@ -42,7 +51,8 @@ $(document).ready(function() {
                 id: "page-parameter"
             }).appendTo($pageForm);
         }
-        
+
+        //If current sort isnt the default and there isn't already a previous paramater add a sort param
         if(currentSort != "0" && !$("#sort-parameter").length) {
             $('<input>').attr({
                 type: 'hidden',
@@ -51,12 +61,13 @@ $(document).ready(function() {
                 id: "sort-parameter"
             }).appendTo($pageForm);
         }
-        
+        //Get current query in URL parameter
         var query = ""
         if(searchParams.has("query")) {
             query = searchParams.get("query");
         }
 
+        //If current query isnt the default and there isn't already a previous paramater add a query param
         if(!$("#query-parameter").length && query != "") {
             $('<input>').attr({
                 type: 'hidden',
@@ -66,6 +77,7 @@ $(document).ready(function() {
             }).appendTo($pageForm);
         }
 
+        //If theres a genre search active and not a current param add a genre param
         if(searchParams.has('genre') &&  !$("#genre-parameter").length) {
             $('<input>').attr({
                 type: 'hidden',
@@ -77,25 +89,28 @@ $(document).ready(function() {
 
     })
 
-    var $pageButtons = jQuery('.page-link')
+    //For every numbered button at the bottom of page add this function on click
+    var $pageButtons = jQuery('.number-button')
     $pageButtons.click(function(e) {
         var pageNumber = $(this).val();
+        var $pageForm = $("#page-form");
 
-        $pageForm = $("#page-form");
-        if(pageNumber > 1 && !$("#page-parameter").length) {
-            $('<input>').attr({
-                type: 'hidden',
-                value: pageNumber-1,
-                name: "page",
-                id: "page-parameter"
-            }).appendTo($pageForm);
-        }
-
+        //This function takes priority for page number
+        $("#page-parameter").remove();
+        $('<input>').attr({
+            type: 'hidden',
+            value: pageNumber-1,
+            name: "page",
+            id: "page-parameter"
+        }).appendTo($pageForm);
     });
 
+    //For every genre button add this function on click
     var $genreButtons = jQuery('.genre-button')
     $genreButtons.click(function(e) {
         $pageForm = $("#page-form");
+
+        //This function takes priority for genre
         $("#genre-parameter").remove();
         $('<input>').attr({
             type: 'hidden',
@@ -105,11 +120,15 @@ $(document).ready(function() {
         }).appendTo($pageForm);
     })
 
+    //For every sort button add this function on click
     var $sortButtons = jQuery('.sort-option')
     $sortButtons.click(function (e) {  
+
         var currentSort = $(this).val();
         $pageForm = $("#page-form");
 
+        //When sort is called we want to keep the current search params apart from page
+        //It is easier to clear all and start again
         $("#page-parameter").remove();
         $("#query-parameter").remove();
         $("#sort-parameter").remove();
@@ -123,6 +142,7 @@ $(document).ready(function() {
                 id: "sort-parameter"
             }).appendTo($pageForm);
         } else {
+            //Prevents the form from adding the old sort param when relevance sort is picked
             $('<div>').attr({
                 id: "sort-parameter"
             }).appendTo($pageForm);
@@ -146,6 +166,7 @@ $(document).ready(function() {
         }
     })
     
+    //Tooltips
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 });

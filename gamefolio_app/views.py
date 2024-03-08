@@ -32,12 +32,11 @@ class MyRegistrationView(RegistrationView):
 
 @method_decorator(login_required, name='dispatch')
 class RegisterProfileView(View):
-    template_name = 'gamefolio_app/profile_registration.html'
 
     def get(self, request):
         form = AuthorForm()
         context = {'form': form}
-        return render(request, self.template_name, context)
+        return render(request, 'gamefolio_app/profile_registration.html', context)
 
     def post(self, request):
         form = AuthorForm(request.POST, request.FILES)
@@ -50,7 +49,7 @@ class RegisterProfileView(View):
             print(form.errors)
 
         context = {'form': form}
-        return render(request, self.template_name, context)
+        return render(request, 'gamefolio_app/profile_registration.html', context)
     
 
 class UserLoginView(View):

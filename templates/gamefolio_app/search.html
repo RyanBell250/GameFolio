@@ -14,7 +14,7 @@
     <div class = "row justify-content-center">
         <div class = "col-sm-12 col-md-10 col-lg-8">
             <form action="{% url 'gamefolio_app:search' %}" method = "get" id ="page-form">
-                <button type="submit" class = "d-none"></button> <!-- This button is holding everything together-->
+                <button type="submit" class = "d-none"></button> <!-- This button is holding everything together -->
                 <div class = "row m-2 justify-content-center">
                     <div class = "col-8 align-items-center d-flex justify-center">
                         {% if query %}
@@ -26,9 +26,26 @@
                         {% else %}
                         <h6 class = "py-3 my-0  align-bottom d-inline-block"><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
                         {% endif %}
-                        <button class="my-3 align-center mx-4 genre-button d-inline-block badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "REMOVE" type = "submit">x Remove genre</button>
                     </div>
-                    <div class ="col-4 d-flex justify-content-end align-items-end">
+                    <div class ="col-2 d-flex justify-content-end align-items-end">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Genre
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button class = "dropdown-item genre-button" type = "submit" value = "REMOVE">None</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% for genre in genres %}
+                                {% if genre.genre == current_genre %}
+                                    <li><button class = "dropdown-item genre-button active" type = "submit" value = "{{ genre.genre }}">{{ genre.genre }}</button></li>
+                                {% else %}
+                                    <li><button class = "dropdown-item genre-button" type = "submit" value = "{{ genre.genre }}">{{ genre.genre }}</button></li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class ="col-2 d-flex justify-content-end align-items-end">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Sort by

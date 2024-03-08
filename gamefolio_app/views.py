@@ -287,6 +287,9 @@ class SearchView(View):
                 return pages
         pages = calculate_pages()
 
-        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre}
+        def get_unique_genres():
+            return  Game.objects.values('genre').distinct()
+        genres = get_unique_genres()
+        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres}
         return render(request, 'gamefolio_app/search.html', context_dict)
     

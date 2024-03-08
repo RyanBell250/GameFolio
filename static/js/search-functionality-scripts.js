@@ -58,8 +58,8 @@ $(document).ready(function() {
         }
         //Get current query in URL parameter
         var query = ""
-        if(searchParams.has("query")) {
-            query = searchParams.get("query");
+        if(searchParams.has("query") || $('#search-bar').val() != "") {
+            query = $('#search-bar').val();
         }
 
         //If current query isnt the default and there isn't already a previous paramater add a query param

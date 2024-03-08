@@ -187,6 +187,25 @@ class SearchView(View):
             results = Game.objects.filter(genre__contains=genre)
         else:
             results = Game.objects.filter(title__icontains=query)
+
+        try:
+            sort = request.GET['sort'].strip()
+        except:
+            sort = 0
+
+        if sort == "rd":                   #Rating Descending
+            results = sorted(results, key = lambda p : p.average_rating(), reverse=True)
+        elif sort == "ra":                 #Rating Ascending
+            results = sorted(results, key = lambda p : p.average_rating())
+        elif sort ==  "vd":                #Views Descending
+            results = results.order_by("-views")
+        elif sort ==  "va":                #Views Ascending
+            results = results.order_by("views")
+        elif sort ==  "ta":                #Title Ascending
+            results = results.order_by("title")
+        elif sort ==  "td":                #Title Descending
+            results = results.order_by("-title")
+
         result_count = len(results)
         
         page_count = result_count/MAX_RESULTS_PER_PAGE
@@ -197,8 +216,7 @@ class SearchView(View):
             assert(page >= 0)
             assert(page < page_count)
         except:
-            pass
-            #return redirect(f"gamefolio_app:404")
+            return redirect(f"gamefolio_app:404")
 
         offset = page * MAX_RESULTS_PER_PAGE
         actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]

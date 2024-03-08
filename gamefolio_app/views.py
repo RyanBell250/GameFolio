@@ -168,8 +168,16 @@ class NotFoundView(View):
 MAX_RESULTS_PER_PAGE = 8
 class SearchView(View):
     def get(self, request):
+        query = ""
+        SQL_QUERY = f"""
+                    SELECT G.id, title, pictureID, avg(rating) AS average 
+                    FROM game G LEFT JOIN review R
+                        ON G.id == R.game
+                    """
         try:
             query = request.GET['query'].strip()
+            if(query != ""):
+                SQL_QUERY += f"WHERE title LIKE '%{query}%'\n"
         except Exception as e:
             query = ""
         
@@ -180,32 +188,31 @@ class SearchView(View):
 
         try:
             genre = request.GET['genre'].strip()
+            SQL_QUERY += f"WHERE genre = '{genre}'\n"
         except Exception as e:
             genre = ""
-
-        if(genre != ""):
-            results = Game.objects.filter(genre__contains=genre)
-        else:
-            results = Game.objects.filter(title__icontains=query)
 
         try:
             sort = request.GET['sort'].strip()
         except:
             sort = 0
 
-        if sort == "rd":                   #Rating Descending
-            results = sorted(results, key = lambda p : p.average_rating(), reverse=True)
-        elif sort == "ra":                 #Rating Ascending
-            results = sorted(results, key = lambda p : p.average_rating())
-        elif sort ==  "vd":                #Views Descending
-            results = results.order_by("-views")
-        elif sort ==  "va":                #Views Ascending
-            results = results.order_by("views")
-        elif sort ==  "ta":                #Title Ascending
-            results = results.order_by("title")
-        elif sort ==  "td":                #Title Descending
-            results = results.order_by("-title")
+        SQL_QUERY += "GROUP BY G.id, title\n"
 
+        if sort == "rd":                   #Rating Descending
+            SQL_QUERY += "ORDER BY average DESC"
+        elif sort == "ra":                 #Rating Ascending
+            SQL_QUERY += "ORDER BY average ASC"
+        elif sort ==  "vd":                #Views Descending
+            SQL_QUERY += "ORDER BY G.views DESC"
+        elif sort ==  "va":                #Views Ascending
+            SQL_QUERY += "ORDER BY G.views ASC"
+        elif sort ==  "ta":                #Title Ascending
+            SQL_QUERY += "ORDER BY title ASC"
+        elif sort ==  "td":                #Title Descending
+            SQL_QUERY += "ORDER BY title DESC"
+
+        results = Game.objects.raw( SQL_QUERY )
         result_count = len(results)
         
         page_count = result_count/MAX_RESULTS_PER_PAGE

@@ -47,6 +47,9 @@ class Game(models.Model):
 
     def __str__(self):
         return self.title
+    
+    class Meta:
+        db_table = 'game'
 
 class Review(models.Model):
     RATING_CHOICES = (
@@ -79,6 +82,9 @@ class Review(models.Model):
 
     def __str__(self):
         return self.author.user.username + " - " + self.game.title + ": " + self.RATING_CHOICES[self.rating-1][1]
+    
+    class Meta:
+        db_table = 'review'
           
 
 class List(models.Model):

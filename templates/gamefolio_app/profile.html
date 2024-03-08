@@ -9,7 +9,7 @@
         <h1>{{ selected_user.username }}'s Profile</h1>
     </div>
     <div>
-        <img src="{{ MEDIA_URL }}{{ user_profile.picture }}" width="300" height="300" alt="{{ selected_user.username }}'s profile image" />
+        <img src="{{ MEDIA_URL }}profile_images/{{ user_profile.picture }}" width="300" height="300" alt="{{ selected_user.username }}'s profile image" />
         <br />
         <div>
             {% if selected_user == user %}

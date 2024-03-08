@@ -24,7 +24,8 @@ $(document).ready(function() {
         var pageSearch = $("#page-search");
         var number = pageSearch.val();
         var pageNumber = 0;
-        if(number != "") {
+        if(number != null) {
+            alert(number)
             $("#sort-parameter").remove();
             pageNumber = number;
         }
@@ -51,11 +52,10 @@ $(document).ready(function() {
                 id: "sort-parameter"
             }).appendTo($pageForm);
         }
-        return;
         
         var query = ""
         if(searchParams.has("query")) {
-            currentSort = searchParams.get("query");
+            query = searchParams.get("query");
         }
 
         if(!$("#query-parameter").length && query != "") {
@@ -91,30 +91,6 @@ $(document).ready(function() {
                 id: "page-parameter"
             }).appendTo($pageForm);
         }
-
-        /*var currentSort = "0"
-        if(searchParams.has("sort")) {
-            currentSort = searchParams.get("sort");
-        }
-        
-
-        if(currentSort != "0" && !$("#sort-parameter").length) {
-            $('<input>').attr({
-                type: 'hidden',
-                value: currentSort,
-                name: "sort",
-                id: "sort-parameter"
-            }).appendTo($pageForm);
-        }
-        
-        if(!$("#query-parameter").length) {
-            $('<input>').attr({
-                type: 'hidden',
-                value: $('#search-bar').val(),
-                name: "query",
-                id: "query-parameter"
-            }).appendTo($pageForm);
-        }*/
 
     });
 

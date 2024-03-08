@@ -165,15 +165,19 @@ class NotFoundView(View):
     def get(self, request):
         return render(request, "gamefolio_app/404.html")
 
-MAX_RESULTS_PER_PAGE = 8
 class SearchView(View):
     def get(self, request):
-        query = ""
+        
+        #Parameters
+        MAX_RESULTS_PER_PAGE = 8
         SQL_QUERY = f"""
-                    SELECT G.id, title, pictureID, avg(rating) AS average 
-                    FROM game G LEFT JOIN review R
-                        ON G.id == R.game
-                    """
+        SELECT G.id, title, pictureID, avg(rating) AS average 
+        FROM game G LEFT JOIN review R
+            ON G.id == R.game
+        """
+        #We do a LEFT JOIN to include games with 0 reviews
+        
+        #Getting URL parameters
         try:
             query = request.GET['query'].strip()
             if(query != ""):
@@ -197,8 +201,10 @@ class SearchView(View):
         except:
             sort = 0
 
+        #Prevent duplicate results
         SQL_QUERY += "GROUP BY G.id, title\n"
 
+        #Sorting
         if sort == "rd":                   #Rating Descending
             SQL_QUERY += "ORDER BY average DESC"
         elif sort == "ra":                 #Rating Ascending
@@ -214,57 +220,63 @@ class SearchView(View):
 
         results = Game.objects.raw( SQL_QUERY )
         result_count = len(results)
-        
         page_count = result_count/MAX_RESULTS_PER_PAGE
-        page_count = int(page_count) + 1
+        if(page_count == int(page_count)):
+            page_count = int(page_count)
+        else:
+            page_count = int(page_count) + 1
 
         try:
             page = int(page)
             assert(page >= 0)
             assert(page < page_count)
         except:
-            return redirect(f"gamefolio_app:404")
+            return redirect("gamefolio_app:404")
 
         offset = page * MAX_RESULTS_PER_PAGE
         actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]
         current_page = page + 1
 
-        pages = []
-        if(page_count <= 5):
-            pages = [i for i in range(1,int(page_count+1))]
-        else:
-            count = 0
-            for i in range(current_page-1, 1, -1):
-                if(count == 2):
-                    break
-                count += 1;
-                pages.append(i)
+        #Calculates what page buttons we need to show at the bottom
+        def calculate_pages():
+            pages = []
+            if(page_count <= 5):
+                return [i for i in range(1,int(page_count+1))]
+            else:
+                count = 0
+                for i in range(current_page-1, 1, -1):
+                    if(count == 2):
+                        break
+                    count += 1;
+                    pages.append(i)
+                
+                count = 0
+                for i in range(current_page, page_count, 1):
+                    if(count == 3):
+                        break
+                    count += 1;
+                    pages.append(i)
+
+                if(1 not in pages):
+                    pages.append(1)
+                if(page_count not in pages):
+                    pages.append(page_count)
+
+                pages.sort()
+
+                last_page = pages[0]
+                jump_index = -1
+                i = 0
+                for page in pages:
+                    if(page-last_page > 1):
+                        print(page, last_page)
+                        jump_index = i
+                    i+=1
+                    last_page = page
             
-            count = 0
-            for i in range(current_page, page_count, 1):
-                if(count == 3):
-                    break
-                count += 1;
-                pages.append(i)
-
-            if(1 not in pages):
-                pages.append(1)
-            if(page_count not in pages):
-                pages.append(page_count)
-
-            pages.sort()
-
-            last_page = pages[0]
-            jump_index = -1
-            i = 0
-            for page in pages:
-                if(page-last_page > 1):
-                    print(page, last_page)
-                    jump_index = i
-                i+=1
-                last_page = page
-        
-            pages.insert(jump_index, "type")
+                pages.insert(jump_index, "type")
+                return pages
+        pages = calculate_pages()
 
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre}
         return render(request, 'gamefolio_app/search.html', context_dict)

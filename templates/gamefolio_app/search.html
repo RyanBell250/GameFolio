@@ -13,19 +13,41 @@
     <div class = "row justify-content-center">
         <div class = "col-sm-12 col-md-10 col-lg-8">
             <form action="{% url 'gamefolio_app:search' %}" method = "get" id ="page-form">
-                {% if current_genre %}
-                <input type = "hidden" value = {{ current_genre }} name = "genre"/>
-                {% endif %}
-
-                {% if query %}
-                <h6 class = "py-3">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
-                {% elif current_genre%}
-                <h6 class = "py-3">Showing all <bold class = "fw-bold">{{ count }}</bold>  {{ current_genre }} games</h6>
-                {% elif results %}
-                <h6 class = "py-3">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
-                {% else %}
-                <h6 class = "py-3"><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
-                {% endif %}
+                <div class = "row m-2 justify-content-center">
+                    <div class = "col-6">
+                        {% if query %}
+                        <h6 class = "py-3 my-0 align-bottom ">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
+                        {% elif current_genre%}
+                        <h6 class = "py-3 my-0  align-bottom ">Showing all <bold class = "fw-bold">{{ count }}</bold>  {{ current_genre }} games</h6>
+                        {% elif results %}
+                        <h6 class = "py-3 my-0  align-bottom ">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
+                        {% else %}
+                        <h6 class = "py-3 my-0  align-bottom "><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
+                        {% endif %}
+                    </div>
+                    <div class ="col-6 d-flex justify-content-end align-items-end">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Sort by
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button class = "dropdown-item sort-option" type = "submit" value = "0">Relevance</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class = "dropdown-item disabled ">Rating</button></li>
+                                <li><button class="dropdown-item sort-option" type = "submit" value = "rd">Highest first</button></li>
+                                <li><button class="dropdown-item sort-option" type = "submit" value = "ra">Lowest first</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class = "dropdown-item disabled ">Views</button></li>
+                                <li><button class="dropdown-item sort-option" type = "submit" value = "vd">Most viewed first</button></li>
+                                <li><button class="dropdown-item sort-option" type = "submit" value = "va">Least viewed first</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><button class = "dropdown-item disabled ">Alphabetical</button></li>
+                                <li><button class="dropdown-item sort-option" type = "submit" value = "ta">A-Z</button></li>
+                                <li><button class="dropdown-item sort-option" type = "submit" value = "td">Z-A</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 {% for result in results %}
                     <div class = "row m-2 justify-content-center">
                         <div class = "col-2 p-0">

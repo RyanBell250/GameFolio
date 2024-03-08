@@ -178,7 +178,15 @@ class SearchView(View):
         except Exception as e:
             page = 0
 
-        results = Game.objects.filter(title__icontains=query)
+        try:
+            genre = request.GET['genre'].strip()
+        except Exception as e:
+            genre = ""
+
+        if(genre != ""):
+            results = Game.objects.filter(genre__contains=genre)
+        else:
+            results = Game.objects.filter(title__icontains=query)
         result_count = len(results)
         
         page_count = result_count/MAX_RESULTS_PER_PAGE
@@ -189,7 +197,8 @@ class SearchView(View):
             assert(page >= 0)
             assert(page < page_count)
         except:
-            return redirect(f"gamefolio_app:404")
+            pass
+            #return redirect(f"gamefolio_app:404")
 
         offset = page * MAX_RESULTS_PER_PAGE
         actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]
@@ -232,6 +241,6 @@ class SearchView(View):
         
             pages.insert(jump_index, "type")
 
-        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count}
+        context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre}
         return render(request, 'gamefolio_app/search.html', context_dict)
     

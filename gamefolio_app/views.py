@@ -178,10 +178,12 @@ class SearchView(View):
         #We do a LEFT JOIN to include games with 0 reviews
         
         #Getting URL parameters
+        params = []
         try:
             query = request.GET['query'].strip()
             if(query != ""):
-                SQL_QUERY += f"WHERE title LIKE '%{query}%'\n"
+                SQL_QUERY += f"WHERE title LIKE %s\n"
+                params.append("%"+query+"%")
         except Exception as e:
             query = ""
         
@@ -192,7 +194,8 @@ class SearchView(View):
 
         try:
             genre = request.GET['genre'].strip()
-            SQL_QUERY += f"WHERE genre = '{genre}'\n"
+            SQL_QUERY += f"WHERE genre = %s\n"
+            params.append(genre)
         except Exception as e:
             genre = ""
 
@@ -218,19 +221,24 @@ class SearchView(View):
         elif sort ==  "td":                #Title Descending
             SQL_QUERY += "ORDER BY title DESC"
 
-        results = Game.objects.raw( SQL_QUERY )
+        print(SQL_QUERY)
+        results = Game.objects.raw( SQL_QUERY, params )
         result_count = len(results)
         page_count = result_count/MAX_RESULTS_PER_PAGE
         if(page_count == int(page_count)):
             page_count = int(page_count)
         else:
             page_count = int(page_count) + 1
-
+        page_count = max(page_count,1)
+        
         try:
+            print("pagecount" + str(page_count))
             page = int(page)
             assert(page >= 0)
             assert(page < page_count)
-        except:
+        except Exception as e:
+            print("Error: " + str(page))
+            print(e)
             return redirect("gamefolio_app:404")
 
         offset = page * MAX_RESULTS_PER_PAGE

@@ -27,6 +27,11 @@ class Game(models.Model):
         average = average * 10 if average != None else 0
         return int(average)/10
     
+    def average_text_rating(self):
+        average = self.average_rating()
+        average = int(average)
+        return Review.RATING_CHOICES[average][1]
+    
     def total_reviews(self):
         return Review.objects.filter(game=self.id).count()
     
@@ -46,6 +51,7 @@ class Game(models.Model):
 
 class Review(models.Model):
     RATING_CHOICES = (
+        (0, "No Ratings"),
         (1, "½"), 
         (2, "★"),
         (3, "★½"),

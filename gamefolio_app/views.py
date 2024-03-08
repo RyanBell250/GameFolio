@@ -29,41 +29,33 @@ class IndexView(View):
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
+      
 class MyRegistrationView(RegistrationView):
     def get_success_url(self, user):
         return reverse('gamefolio_app:register_profile')
     
-class RegisterView(View):
-    template_name = 'gamefolio/registration_form.html'  
+
+@method_decorator(login_required, name='dispatch')
+class RegisterProfileView(View):
+    template_name = 'gamefolio_app/profile_registration.html'
 
     def get(self, request):
-        user_form = UserForm()
-        author_form = AuthorForm()
-        return render(request, self.template_name, {'user_form': user_form, 'author_form': author_form})
+        form = AuthorForm()
+        context = {'form': form}
+        return render(request, self.template_name, context)
 
     def post(self, request):
-        registered = False
-        user_form = UserForm(request.POST)
-        author_form = AuthorForm(request.POST)
-
-        if user_form.is_valid() and author_form.is_valid():
-            user = user_form.save()
-            user.set_password(user.password)
-            user.save()
-
-            author = author_form.save(commit=False)
-            author.user = user
-
-            if 'picture' in request.FILES:
-                author.picture = request.FILES['picture']
-
-            author.save()
-
-            registered = True
+        form = AuthorForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
+            return redirect(reverse('gamefolio_app:index'))
         else:
-            print(user_form.errors, author_form.errors)
+            print(form.errors)
 
-        return render(request, self.template_name, {'registered': registered, 'user_form': user_form, 'author_form': author_form})
+        context = {'form': form}
+        return render(request, self.template_name, context)
     
 
 class UserLoginView(View):
@@ -87,33 +79,10 @@ class UserLoginView(View):
             print(f"Invalid login details: {username}, {password}")
             return HttpResponse("Invalid login details supplied.")
 
+
 @method_decorator(login_required, name='dispatch')
 class UserLogoutView(LogoutView):
-    next_page = reverse_lazy('gamefolio_app:index')
-
-
-@method_decorator(login_required, name='dispatch')
-class RegisterProfileView(View):
-    template_name = 'gamefolio_app/registration_profile.html'
-
-    def get(self, request):
-        form = AuthorForm()
-        context = {'form': form}
-        return render(request, self.template_name, context)
-
-    def post(self, request):
-        form = AuthorForm(request.POST, request.FILES)
-        if form.is_valid():
-            user_profile = form.save(commit=False)
-            user_profile.user = request.user
-            user_profile.save()
-            return redirect(reverse('gamefolio_app:index'))
-        else:
-            print(form.errors)
-
-        context = {'form': form}
-        return render(request, self.template_name, context)
-    
+    next_page = reverse_lazy('gamefolio_app:index')    
 
 
 class ProfileView(View):
@@ -159,6 +128,7 @@ class ProfileView(View):
 
         context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form}
         return render(request, 'gamefolio_app/profile.html', context_dict)
+
 
 class ListProfilesView(View):
     @method_decorator(login_required)

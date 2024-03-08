@@ -7,7 +7,14 @@ $(document).ready(function() {
 
     var $pageButtons = jQuery('.page-link')
     $pageButtons.click(function(e) {
-        var pageNumber = $(this).html();
-        $('#page-parameter').attr("value", pageNumber-1)
+        var pageNumber = $(this).val();
+        if(e.screenX == 0) {
+            var pageSearch = $("#page-search");
+            var number = pageSearch.val();
+            if(number != "") {
+                pageNumber = number;
+            }
+        }
+        $('#page-parameter').attr("value", pageNumber-1);
     });
 });

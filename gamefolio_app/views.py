@@ -171,7 +171,7 @@ class SearchView(View):
         #Parameters
         MAX_RESULTS_PER_PAGE = 8
         SQL_QUERY = f"""
-        SELECT G.id, title, pictureID, avg(rating) AS average 
+        SELECT G.id, title, pictureID, genre, avg(rating) AS average
         FROM game G LEFT JOIN review R
             ON G.id == R.game
         """
@@ -194,7 +194,8 @@ class SearchView(View):
 
         try:
             genre = request.GET['genre'].strip()
-            SQL_QUERY += f"WHERE genre = %s\n"
+            joining_word = "AND" if "LIKE" in SQL_QUERY else "WHERE"
+            SQL_QUERY += f"{joining_word} genre = %s\n"
             params.append(genre)
         except Exception as e:
             genre = ""
@@ -205,7 +206,7 @@ class SearchView(View):
             sort = 0
 
         #Prevent duplicate results
-        SQL_QUERY += "GROUP BY G.id, title\n"
+        SQL_QUERY += "GROUP BY G.id, title, genre\n"
 
         #Sorting
         if sort == "rd":                   #Rating Descending

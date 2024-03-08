@@ -24,7 +24,7 @@ $(document).ready(function() {
         var pageSearch = $("#page-search");
         var number = pageSearch.val();
         var pageNumber = 0;
-        if(number != null) {
+        if(number != null && number != "") {
             $("#sort-parameter").remove();
             pageNumber = number;
         }

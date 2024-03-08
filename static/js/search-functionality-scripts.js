@@ -17,11 +17,6 @@ $(document).ready(function() {
 
     const searchParams = new URLSearchParams(window.location.search);
 
-    $('#search-button').click(function(e) {
-        var queryTerm = $('#search-bar').val()
-        $('#search-query-parameter').attr("value", queryTerm)
-    });
-
     //Runs when any button is pressed
     $("#page-form").on("submit", function(e) {
 

@@ -25,7 +25,6 @@ $(document).ready(function() {
         var number = pageSearch.val();
         var pageNumber = 0;
         if(number != null) {
-            alert(number)
             $("#sort-parameter").remove();
             pageNumber = number;
         }

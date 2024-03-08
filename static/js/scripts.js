@@ -14,8 +14,6 @@ $(document).ready(function() {
         $('#search-bar').val("");
         if($('#page-form').length) {
             $('#page-form').trigger("submit");
-        } else {
-            $('#search-form').trigger("submit");
         }
     });
 });

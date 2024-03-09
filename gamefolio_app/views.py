@@ -222,7 +222,6 @@ class SearchView(View):
         elif sort ==  "td":                #Title Descending
             SQL_QUERY += "ORDER BY title DESC"
 
-        print(SQL_QUERY)
         results = Game.objects.raw( SQL_QUERY, params )
         result_count = len(results)
         page_count = result_count/MAX_RESULTS_PER_PAGE
@@ -233,12 +232,10 @@ class SearchView(View):
         page_count = max(page_count,1)
         
         try:
-            print("pagecount" + str(page_count))
             page = int(page)
             assert(page >= 0)
             assert(page < page_count)
         except Exception as e:
-            print("Error: " + str(page))
             print(e)
             return redirect("gamefolio_app:404")
 
@@ -278,7 +275,6 @@ class SearchView(View):
                 i = 0
                 for page in pages:
                     if(page-last_page > 1):
-                        print(page, last_page)
                         jump_index = i
                     i+=1
                     last_page = page

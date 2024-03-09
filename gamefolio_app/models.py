@@ -24,12 +24,12 @@ class Game(models.Model):
 
     def average_rating(self):
         average = Review.objects.filter(game=self.id).aggregate(Avg('rating'))['rating__avg']
-        average = average * 10 if average != None else 0
+        average = average * 5 if average != None else 0
         return int(average)/10
     
     def average_text_rating(self):
         average = self.average_rating()
-        average = int(average)
+        average = int(average*2+0.25)
         return Review.RATING_CHOICES[average][1]
     
     def total_reviews(self):

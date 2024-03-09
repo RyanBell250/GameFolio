@@ -14,7 +14,9 @@
     <div class = "row justify-content-center">
         <div class = "col-sm-12 col-md-10 col-lg-8">
             <form action="{% url 'gamefolio_app:search' %}" method = "get" id ="page-form">
-                <button type="submit" class = "d-none"></button> <!-- This button is holding everything together -->
+                <button type="submit" class = "d-none"></button> <!-- This button is holding everything together. DO NOT REMOVE -->
+
+                <!-- Result Status and Sort Options -->
                 <div class = "row m-2 justify-content-start">
                     <div class = "col-sm-12  col-md-6 align-items-center d-flex justify-center">
                         {% if query and current_genre %}
@@ -30,6 +32,7 @@
                         {% endif %}
                     </div>
                     <div class ="col-sm-12  col-md-6 d-flex justify-content-end align-items-end">
+                        <!-- Genre Buttons -->
                         <div class="dropdown mx-2">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if current_genre %} {{current_genre}} {% else %} Genre {% endif %}
@@ -46,6 +49,7 @@
                                 {% endfor %}
                             </ul>
                         </div>
+                        <!-- Sort Options -->
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ sort_name }}
@@ -68,30 +72,35 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Results -->
                 {% for result in results %}
-                    <div class = "row m-2 justify-content-center">
-                        <div class = "col-2 p-0">
-                            <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
-                        </div>
-                        <div class = "col-10">
-                            <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="#!">{{ result.title }}</a></h4>
-                            <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/5" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
-                            <div row>
-                                <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
-                            </div>
+                <div class = "row m-2 justify-content-center">
+                    <div class = "col-2 p-0">
+                        <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
+                    </div>
+                    <div class = "col-10">
+                        <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="#!">{{ result.title }}</a></h4>
+                        <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/5" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
+                        <div row>
+                            <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
                         </div>
                     </div>
-                    <hr>
+                </div>
+                <hr>
                 {% endfor %}
+
+                <!-- Page Numbers -->
                 <ul class="pagination justify-content-center">
-                    
                     {% if results %}
+                    <!-- Previous Button -->
                     {% if current_page > 1%}
-                        <li class = "page-item">    
-                            <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
-                            </a>
-                        </li> 
+                    <li class = "page-item">    
+                        <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
+                        </a>
+                    </li> 
                     {% endif %}
+                    <!-- Page Numbers -->
                     {% for page in pages %}
                         {% if page == "type" %}
                             <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="..."></input></li>
@@ -101,6 +110,7 @@
                             <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
                         {% endif %}
                     {% endfor %}
+                    <!-- Next Button -->
                     {% if current_page < page_count %}
                     <li class = "page-item">    
                         <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>

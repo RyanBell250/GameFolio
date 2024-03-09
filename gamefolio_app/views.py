@@ -100,10 +100,11 @@ class ProfileView(View):
     def get(self, request, username):
         try:
             (user, user_profile, form) = self.get_user_details(username)
+            user_reviews = Review.objects.filter(author=user_profile)
         except TypeError:
             return redirect(reverse('gamefolio_app:index'))
         
-        context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form}
+        context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form, 'user_reviews': user_reviews}
                 
         return render(request, 'gamefolio_app/profile.html', context_dict)
     

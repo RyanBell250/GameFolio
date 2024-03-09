@@ -25,6 +25,26 @@
                 </p>
             {% endif %}
         </div>
+
+        <div>
+            <h2><strong>{{ selected_user.username }}'s Reviews</strong></h2>
+            {% if user_reviews %}
+                <ul>
+                    {% for review in user_reviews %}
+                        <li>
+                            <strong>Game:</strong> {{ review.game.title }}<br>
+                            <strong>Rating:</strong> {{ review.get_rating_display }}<br>
+                            {{ review.content }}<br>
+                            <strong>Views:</strong> {{ review.views }}<br>
+                            <strong>Likes:</strong> {{ review.likes }}<br>
+                            <strong>Date Posted:</strong> {{ review.datePosted|date:"F d, Y H:i" }}<br>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reviews available.</p>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
 

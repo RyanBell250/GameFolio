@@ -15,22 +15,24 @@
         <div class = "col-sm-12 col-md-10 col-lg-8">
             <form action="{% url 'gamefolio_app:search' %}" method = "get" id ="page-form">
                 <button type="submit" class = "d-none"></button> <!-- This button is holding everything together -->
-                <div class = "row m-2 justify-content-center">
-                    <div class = "col-8 align-items-center d-flex justify-center">
-                        {% if query %}
-                        <h6 class = "py-3 my-0 align-bottom d-inline-block">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
+                <div class = "row m-2 justify-content-start">
+                    <div class = "col-sm-12  col-md-6 align-items-center d-flex justify-center">
+                        {% if query and current_genre %}
+                        <h6 class = "py-3 my-0 align-bottom ">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}" with genre {{current_genre}}</h6>
+                        {% elif query %}
+                        <h6 class = "py-3 my-0 align-bottom ">Found <bold class = "fw-bold">{{ count }}</bold> results for "{{ query }}"</h6>
                         {% elif current_genre%}
-                        <h6 class = "py-3 my-0  align-bottom d-inline-block">Showing all <bold class = "fw-bold">{{ count }}</bold>  {{ current_genre }} games</h6>
+                        <h6 class = "py-3 my-0  align-bottom ">Showing all <bold class = "fw-bold">{{ count }}</bold>  {{ current_genre }} games</h6>
                         {% elif results %}
-                        <h6 class = "py-3 my-0  align-bottom d-inline-block">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
+                        <h6 class = "py-3 my-0  align-bottom ">Showing all <bold class = "fw-bold">{{ count }}</bold> games</h6>
                         {% else %}
-                        <h6 class = "py-3 my-0  align-bottom d-inline-block"><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
+                        <h6 class = "py-3 my-0  align-bottom "><bold class = "fw-bold">0</bold> results found for "{{ query }}"</h6>
                         {% endif %}
                     </div>
-                    <div class ="col-2 d-flex justify-content-end align-items-end">
-                        <div class="dropdown">
+                    <div class ="col-sm-12  col-md-6 d-flex justify-content-end align-items-end">
+                        <div class="dropdown mx-2">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Genre
+                                {% if current_genre %} {{current_genre}} {% else %} Genre {% endif %}
                             </button>
                             <ul class="dropdown-menu">
                                 <li><button class = "dropdown-item genre-button" type = "submit" value = "REMOVE">None</button></li>
@@ -44,26 +46,24 @@
                                 {% endfor %}
                             </ul>
                         </div>
-                    </div>
-                    <div class ="col-2 d-flex justify-content-end align-items-end">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Sort by
+                                {{ sort_name }}
                             </button>
                             <ul class="dropdown-menu">
-                                <li><button class = "dropdown-item sort-option" type = "submit" value = "0">Relevance</button></li>
+                                <li><button class = "dropdown-item sort-option {% if sort_id == 0 %}active{%endif%}" type = "submit" value = "0">Relevance</button></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><button class = "dropdown-item disabled ">Rating</button></li>
-                                <li><button class="dropdown-item sort-option" type = "submit" value = "rd">Highest first</button></li>
-                                <li><button class="dropdown-item sort-option" type = "submit" value = "ra">Lowest first</button></li>
+                                <li><button class="dropdown-item sort-option {% if sort_id == "rd" %}active{%endif%}" type = "submit" value = "rd">Highest first</button></li>
+                                <li><button class="dropdown-item sort-option {% if sort_id == "ra" %}active{%endif%}" type = "submit" value = "ra">Lowest first</button></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><button class = "dropdown-item disabled ">Views</button></li>
-                                <li><button class="dropdown-item sort-option" type = "submit" value = "vd">Most viewed first</button></li>
-                                <li><button class="dropdown-item sort-option" type = "submit" value = "va">Least viewed first</button></li>
+                                <li><button class="dropdown-item sort-option {% if sort_id == "vd" %}active{%endif%}" type = "submit" value = "vd">Most viewed first</button></li>
+                                <li><button class="dropdown-item sort-option {% if sort_id == "va" %}active{%endif%}" type = "submit" value = "va">Least viewed first</button></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><button class = "dropdown-item disabled ">Alphabetical</button></li>
-                                <li><button class="dropdown-item sort-option" type = "submit" value = "ta">A-Z</button></li>
-                                <li><button class="dropdown-item sort-option" type = "submit" value = "td">Z-A</button></li>
+                                <li><button class="dropdown-item sort-option {% if sort_id == "ta" %}active{%endif%}" type = "submit" value = "ta">A-Z</button></li>
+                                <li><button class="dropdown-item sort-option {% if sort_id == "td" %}active{%endif%}" type = "submit" value = "td">Z-A</button></li>
                             </ul>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                         </div>
                         <div class = "col-10">
                             <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="#!">{{ result.title }}</a></h4>
-                            <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/10" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
+                            <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/5" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
                             <div row>
                                 <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
                             </div>

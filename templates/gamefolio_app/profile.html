@@ -18,41 +18,53 @@
                     </h1>
                 </div>
             </div>
-            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"> <img class="header-image-fixed rounded-3 my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" style="width: 250px; height: 250px;" alt="{{ selected_user.username }}'s profile image" /></div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
+                <img class="header-image-fixed rounded-3 my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" style="width: 250px; height: 250px;" alt="{{ selected_user.username }}'s profile image" />
+            </div>
         </div>
     </div>
 </header>
 
-    <div>
-        <div>
-            {% if selected_user == user %}
-                <form method="post" action="." enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <input type="submit" value="Update" />
-                </form>
-            {% endif %}
-        </div>
-
-        <div>
-            <h2><strong>{{ selected_user.username }}'s Reviews</strong></h2>
-            {% if user_reviews %}
-                <ul>
-                    {% for review in user_reviews %}
-                        <li>
-                            <strong>Game:</strong> {{ review.game.title }}<br>
-                            <strong>Rating:</strong> {{ review.get_rating_display }}<br>
-                            {{ review.content }}<br>
-                            <strong>Views:</strong> {{ review.views }}<br>
-                            <strong>Likes:</strong> {{ review.likes }}<br>
-                            <strong>Date Posted:</strong> {{ review.datePosted|date:"F d, Y H:i" }}<br>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No reviews available.</p>
-            {% endif %}
+<div class="container mt-4">
+    <h2><strong>Edit Your Profile</strong></h2>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    {% if selected_user == user %}
+                        <form method="post" action="." enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-outline-success">Update</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-{% endblock %}
 
+    <h2><strong>{{ selected_user.username }}'s Wishlist</strong></h2>
+    <p>We will display the user's self made wishlist to display.</p>
+
+    <div class="mt-4">
+        <h2><strong>{{ selected_user.username }}'s Reviews</strong></h2>
+        {% if user_reviews %}
+            <ul class="list-group">
+                {% for review in user_reviews %}
+                    <li class="list-group-item">
+                        <strong>Game:</strong> {{ review.game.title }}<br>
+                        <strong>Rating:</strong> {{ review.get_rating_display }}<br>
+                        {{ review.content }}<br>
+                        <strong>Views:</strong> {{ review.views }}<br>
+                        <strong>Likes:</strong> {{ review.likes }}<br>
+                        <strong>Date Posted:</strong> {{ review.datePosted|date:"F d, Y H:i" }}<br>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No reviews available.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

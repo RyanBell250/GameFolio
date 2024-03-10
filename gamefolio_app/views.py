@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
-from gamefolio_app.forms import UserForm , AuthorForm
-from django.contrib.auth import authenticate, login, logout
+from gamefolio_app.forms import AuthorForm
+from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView

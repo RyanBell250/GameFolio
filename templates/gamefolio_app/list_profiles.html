@@ -1,31 +1,46 @@
 {% extends 'gamefolio_app/base.html' %}
+{% load staticfiles %}
 
 {% block title_block %}
     Authors
 {% endblock %}
 
 {% block body_block %}
-    <div>
-        <h1>Authors</h1>
-    </div>
-    <div class="container"> 
-        <div class="row">
-            {% if authors %} 
-            <div class="panel-body">
-                <div class="list-group">
-                {% for author in authors %}
-                    <div class="list-group-item">
-                        <h4 class="list-group-item-heading">
-                            <a href="{% url 'gamefolio_app:profile' author.user.username %}"> 
-                                {{ author.user.username }}
-                            </a> 
-                        </h4>
-                    </div> 
-                {% endfor %}
-                </div> 
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">GameFolio Users</h1>
+                </div>
             </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="header-image-fixed rounded-3 my-5" src="{% static "images/homepage.png" %}" alt="homepage image" /></div>
+        </div>
+    </div>
+</header>
+
+    <div class="container">
+        <div class="row gx-5">
+            {% if authors %}
+                {% for author in authors %}
+                    <div class="col-lg-4 col-md-6 mt-3">  
+                        <div class="card h-100 shadow border-0">
+                            <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
+
+                            <div class="card-body p-4 d-flex flex-column">
+                                <h5 class="card-title mb-3">
+                                    <a class="text-decoration-none link-dark title-link" href="{% url 'gamefolio_app:profile' author.user.username %}">
+                                        {{ author.user.username }}
+                                    </a>
+                                </h5>
+                                <p>Total Reviews: {{ author.review_set.count }}</p>
+                                <p>Total Likes Received: {{ author.total_likes }}</p>                                <!-- Add more content here if needed -->
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             {% else %}
-            <p>There are no users present on Rango.</p> 
+                <p>There are no users present on Rango.</p>
             {% endif %}
         </div>
     </div>

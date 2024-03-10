@@ -85,7 +85,7 @@
 
 .game-hover:hover h5,
 .game-hover:hover h3 {
-  color: #198754 !important; /* Change this to the desired text color on hover */
+  color: #198754 !important;
 }
 
 .small-profile-picture {
@@ -638,6 +638,11 @@ progress {
 .img-fluid {
   max-width: 100%;
   height: auto;
+}
+
+.header-image-fixed{
+  max-width: 250px; 
+  height: 250px;
 }
 
 .img-thumbnail {

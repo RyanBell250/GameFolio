@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
-from gamefolio_app.forms import UserForm , AuthorForm
-from django.contrib.auth import authenticate, login, logout
+from gamefolio_app.forms import AuthorForm
+from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
@@ -17,6 +17,7 @@ from registration.backends.simple.views import RegistrationView
 
 
 from gamefolio_app.models import Game, Review
+from django.db.models import Sum
 
 class IndexView(View):
     def get(self, request):
@@ -133,6 +134,6 @@ class ProfileView(View):
 class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
-        profiles = Author.objects.all()
+        profiles = Author.objects.annotate(total_likes=Sum('review__likes'))
         return render(request,'gamefolio_app/list_profiles.html',{'authors': profiles})
     

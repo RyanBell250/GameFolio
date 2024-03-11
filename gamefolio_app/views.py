@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
-from gamefolio_app.models import Game, Review, Author
+
+from gamefolio_app.models import Game, Review, List, ListEntry
 
 class IndexView(View):
     def get(self, request):
@@ -268,3 +269,16 @@ class SearchView(View):
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
     
+        return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
+    
+
+class ListsView(View):
+    def get(self, request):
+        lists = List.objects.all()
+        list = ListEntry.objects.all()
+
+        context_dict = {'all_lists': lists,
+                        'user_list' : list,}
+        
+        return render(request,'gamefolio_app/lists.html', context_dict)
+

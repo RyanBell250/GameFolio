@@ -1,0 +1,28 @@
+{% extends 'gamefolio_app/base.html' %}
+
+{% block title_block %}
+    User Created Lists
+{% endblock %}
+
+{% block body_block %}
+
+    <div>
+        <h1>User Created Lists</h1>
+    </div>
+
+    <div>
+        {% if all_lists %}
+            <div>
+                {% for list in all_lists %}
+                    <div>
+                        <h4>
+                            </a>
+                        </h4>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>There are no lists available in Gamefolio.</p>
+        {% endif %}
+    </div>
+{% endblock %}

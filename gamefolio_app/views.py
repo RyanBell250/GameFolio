@@ -1,3 +1,4 @@
+from django.db.models import Count, Sum
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
@@ -134,6 +135,13 @@ class ProfileView(View):
 class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
-        profiles = Author.objects.annotate(total_likes=Sum('review__likes'))
+        sort_by = request.GET.get('sort_by', 'reviews')
+        profiles = Author.objects.annotate(total_reviews=Count('review'), total_likes=Sum('review__likes'))
+        
+        if sort_by == 'likes':
+            profiles = profiles.order_by('-total_likes')
+        else:
+            profiles = profiles.order_by('-total_reviews')
+            
         return render(request,'gamefolio_app/list_profiles.html',{'authors': profiles})
     

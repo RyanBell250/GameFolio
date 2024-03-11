@@ -11,12 +11,16 @@
     </div>
 
     <div>
+        <h3>These are lists of games that our users have collated together.</h3>
+    </div>
+
+    <div>
         {% if all_lists %}
             <div>
                 {% for list in all_lists %}
                     <div>
                         <h4>
-                            </a>
+                            <a href="{% url 'gamefolio_app:list' %}">{{ list.title }} by {{ list.author }}</a>
                         </h4>
                     </div>
                 {% endfor %}

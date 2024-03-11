@@ -16,7 +16,7 @@ from registration.backends.simple.views import RegistrationView
 
 
 
-from gamefolio_app.models import Game, Review
+from gamefolio_app.models import Game, Review, List, ListEntry
 
 class IndexView(View):
     def get(self, request):
@@ -166,3 +166,14 @@ class ListProfilesView(View):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
     
+
+class ListsView(View):
+    def get(self, request):
+        lists = List.objects.all()
+        list = ListEntry.objects.all()
+
+        context_dict = {'all_lists': lists,
+                        'user_list' : list,}
+        
+        return render(request,'gamefolio_app/lists.html', context_dict)
+

@@ -166,6 +166,9 @@ class ListProfilesView(View):
         profiles = Author.objects.all()
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
     
+class ListView(View):
+    pass
+
 
 class ListsView(View):
     def get(self, request):
@@ -176,4 +179,6 @@ class ListsView(View):
                         'user_list' : list,}
         
         return render(request,'gamefolio_app/lists.html', context_dict)
+
+
 

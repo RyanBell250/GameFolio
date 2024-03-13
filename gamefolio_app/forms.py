@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from gamefolio_app.models import Author
+from gamefolio_app.models import Author, List, Game
 
 
 
@@ -14,4 +14,12 @@ class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
         fields = ('website', 'picture',)
+
+class CreateListForm(forms.ModelForm):
+    games = forms.ModelMultipleChoiceField(queryset=Game.objects.all(), widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = List
+        fields = ['title', 'description', 'games']
+
 

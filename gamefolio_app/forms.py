@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from gamefolio_app.models import Author
+from gamefolio_app.models import Author, List, Game
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -40,3 +40,12 @@ class AuthorForm(forms.ModelForm):
             'website': 'Website',
             'picture': 'Profile Picture',
         }
+
+class CreateListForm(forms.ModelForm):
+    games = forms.ModelMultipleChoiceField(queryset=Game.objects.all(), widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = List
+        fields = ['title', 'description', 'games']
+
+

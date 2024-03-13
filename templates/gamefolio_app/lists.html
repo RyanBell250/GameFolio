@@ -30,4 +30,15 @@
             <p>There are no lists available in Gamefolio.</p>
         {% endif %}
     </div>
+
+    {% if user.is_authenticated %}
+        <div>
+            <h3>Create a New List:</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ create_list_form.as_p }}
+                <button type="submit">Create List</button>
+            </form>
+        </div>
+    {% endif %}
 {% endblock %}

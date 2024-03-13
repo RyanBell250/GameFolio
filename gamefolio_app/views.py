@@ -2,7 +2,7 @@ from django.db.models import Count, Sum
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
-from gamefolio_app.forms import AuthorForm
+from gamefolio_app.forms import AuthorForm, UserForm
 from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.shortcuts import redirect
@@ -12,12 +12,9 @@ from django.contrib.auth.models import User
 from gamefolio_app.models import Author
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-
-
-
-
 from gamefolio_app.models import Game, Review
 from django.db.models import Sum
+from registration.backends.simple.views import RegistrationView
 
 class IndexView(View):
     def get(self, request):
@@ -30,6 +27,11 @@ class IndexView(View):
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
+class MyRegistrationView(RegistrationView):
+    def get_success_url(self, user=None):
+        return reverse('gamefolio_app:register_profile')
+    
+
 @method_decorator(login_required, name='dispatch')
 class RegisterProfileView(View):
 
@@ -44,12 +46,39 @@ class RegisterProfileView(View):
             user_profile = form.save(commit=False)
             user_profile.user = request.user
             user_profile.save()
-            return redirect(reverse('gamefolio_app:profile'))
+            return redirect(reverse('gamefolio_app:index'))
         else:
             print(form.errors)
 
         context = {'form': form}
         return render(request, 'gamefolio_app/profile_registration.html', context)
+    
+
+class UserLoginView(View):
+    template_name = 'gamefolio_app/registration/login.html'  
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+
+        if user:
+            if user.is_active:
+                login(request, user)
+                return redirect(reverse('gamefolio_app:profile'))
+            else:
+                return HttpResponse("Your Gamefolio account is disabled")
+        else:
+            print(f"Invalid login details: {username}, {password}")
+            return HttpResponse("Invalid login details supplied.")
+
+
+@method_decorator(login_required, name='dispatch')
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy('gamefolio_app:index')
     
 class ProfileView(View):
     def get_user_details(self, username):

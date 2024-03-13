@@ -1,5 +1,6 @@
 from django.db.models import Count, Sum
 from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.views import View
 from gamefolio_app.forms import AuthorForm, UserForm
@@ -86,9 +87,8 @@ class ProfileView(View):
         except User.DoesNotExist:
             return None
         user_profile = Author.objects.get_or_create(user=user)[0]
-        form = AuthorForm({'website': user_profile.website, 'picture': user_profile.picture})
 
-        return (user, user_profile, form)
+        return (user, user_profile)
     
 
     @method_decorator(login_required)
@@ -272,10 +272,14 @@ class SearchView(View):
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
     
 class ListView(View):
-    pass
+    @method_decorator(login_required)
+    def get(self, request, author_username, list_title):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title)
+        return render(request, 'gamefolio_app/list.html', {'list': list_obj})
 
 
 class ListsView(View):
+    @method_decorator(login_required)
     def get(self, request):
         lists = List.objects.all()
         list = ListEntry.objects.all()

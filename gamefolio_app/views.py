@@ -30,7 +30,27 @@ class IndexView(View):
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
+@method_decorator(login_required, name='dispatch')
+class RegisterProfileView(View):
 
+    def get(self, request):
+        form = AuthorForm()
+        context = {'form': form}
+        return render(request, 'gamefolio_app/profile_registration.html', context)
+
+    def post(self, request):
+        form = AuthorForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
+            return redirect(reverse('gamefolio_app:profile'))
+        else:
+            print(form.errors)
+
+        context = {'form': form}
+        return render(request, 'gamefolio_app/profile_registration.html', context)
+    
 class ProfileView(View):
     def get_user_details(self, username):
         try:

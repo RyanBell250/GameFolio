@@ -1,5 +1,25 @@
 {% extends 'gamefolio_app/base.html' %}
 
 {% block title_block %}
-    
+    {{ list.title }} by {{ list.author }}
+{% endblock %}
+
+{% block body_block %}
+    <div>
+        <h1>{{ list.title }}</h1>
+        <p>Description: {{ list.description }}</p>
+    </div>
+
+    <div>
+        <h2>Games in the List:</h2>
+        {% if list.entries.all %}
+            <ul>
+                {% for entry in list.entries.all %}
+                    <li>{{ entry.game.title }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>This list is empty.</p>
+        {% endif %}
+    </div>
 {% endblock %}

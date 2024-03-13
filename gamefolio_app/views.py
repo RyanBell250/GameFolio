@@ -166,10 +166,10 @@ class ListProfilesView(View):
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
     
 class ListView(View):
-    @method_decorator(login_required)
-    def get(self, request, author_username, list_title):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title)
-        return render(request, 'gamefolio_app/list.html', {'list': list_obj})
+    def get(self, request, author_username, list_title, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+        context = {'list': list_obj}
+        return render(request, 'gamefolio_app/list.html', context)
 
 
 class ListsView(View):

@@ -25,60 +25,6 @@ class IndexView(View):
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
-      
-class MyRegistrationView(RegistrationView):
-    def get_success_url(self):
-        return reverse('gamefolio_app/profile_registration.html')
-    
-
-@method_decorator(login_required, name='dispatch')
-class RegisterProfileView(View):
-
-    def get(self, request):
-        form = AuthorForm()
-        context = {'form': form}
-        return render(request, 'gamefolio_app/profile_registration.html', context)
-
-    def post(self, request):
-        form = AuthorForm(request.POST, request.FILES)
-        if form.is_valid():
-            user_profile = form.save(commit=False)
-            user_profile.user = request.user
-            user_profile.save()
-            return redirect(reverse('gamefolio_app:profile'))
-        else:
-            print(form.errors)
-
-        context = {'form': form}
-        return render(request, 'gamefolio_app/profile_registration.html', context)
-    
-
-class UserLoginView(View):
-    template_name = 'gamefolio_app/registration/login.html'  
-
-    def get(self, request):
-        return render(request, self.template_name)
-
-    def post(self, request):
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
-
-        if user:
-            if user.is_active:
-                login(request, user)
-                return redirect(reverse('gamefolio_app:profile'))
-            else:
-                return HttpResponse("Your Gamefolio account is disabled")
-        else:
-            print(f"Invalid login details: {username}, {password}")
-            return HttpResponse("Invalid login details supplied.")
-
-
-@method_decorator(login_required, name='dispatch')
-class UserLogoutView(LogoutView):
-    next_page = reverse_lazy('gamefolio_app:index')    
-
 
 class ProfileView(View):
     def get_user_details(self, username):

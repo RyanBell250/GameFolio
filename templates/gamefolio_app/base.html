@@ -60,7 +60,6 @@
                             </form>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">About</a></li>
                         {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio:list_profiles' %}">List Profiles</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:profile' user.username %}">Profile</a></li>

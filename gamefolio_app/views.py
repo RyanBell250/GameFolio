@@ -280,6 +280,7 @@ class ListView(View):
         context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
         return render(request, 'gamefolio_app/list.html', context)
     
+    @method_decorator(login_required)
     def post(self, request, author_username, list_title, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
         if request.user == list_obj.author.user:

@@ -1,4 +1,5 @@
 {% extends 'gamefolio_app/base.html' %}
+{% load tags %}
 
 {% block title_block %}
     {{ list_obj.title }} - Games List
@@ -14,6 +15,7 @@
         <h3>Games:</h3>
         <ul>
             {% for entry in list_entries %}
+                <img src="{% get_image entry.game 'cover_small' %}" alt="{{ entry.game.title }}" />
                 <li>{{ entry.game.title }}</li>
             {% endfor %}
         </ul>

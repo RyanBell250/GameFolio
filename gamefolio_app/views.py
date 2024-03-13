@@ -166,10 +166,21 @@ class ListProfilesView(View):
         return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
     
 class ListView(View):
+    @method_decorator(login_required)
     def get(self, request, author_username, list_title, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
-        context = {'list': list_obj}
+        list_entries = list_obj.listentry_set.all()
+        all_games = Game.objects.all()
+        context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
         return render(request, 'gamefolio_app/list.html', context)
+    
+    def post(self, request, author_username, list_title, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+        if request.user == list_obj.author.user:
+            game_id = request.POST.get('game')
+            game = get_object_or_404(Game, id=game_id)
+            ListEntry.objects.create(list=list_obj, game=game)
+        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
 
 
 class ListsView(View):

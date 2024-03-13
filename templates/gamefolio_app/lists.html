@@ -20,7 +20,7 @@
                 {% for list in all_lists %}
                     <div>
                         <h4>
-                            <a href="{% url 'gamefolio_app:list' %}">{{ list.title }} by {{ list.author }}</a>
+                            <a href="{% url 'gamefolio_app:list' list.author.user.username list.title %}">{{ list.title }} by {{ list.author }}</a>
                         </h4>
                     </div>
                 {% endfor %}

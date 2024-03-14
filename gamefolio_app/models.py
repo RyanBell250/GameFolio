@@ -24,8 +24,13 @@ class Game(models.Model):
 
     def average_rating(self):
         average = Review.objects.filter(game=self.id).aggregate(Avg('rating'))['rating__avg']
-        average = average * 10 if average != None else 0
+        average = average * 5 if average != None else 0
         return int(average)/10
+    
+    def average_text_rating(self):
+        average = self.average_rating()
+        average = int(average*2+0.25)
+        return Review.RATING_CHOICES[average][1]
     
     def total_reviews(self):
         return Review.objects.filter(game=self.id).count()
@@ -46,6 +51,7 @@ class Game(models.Model):
 
 class Review(models.Model):
     RATING_CHOICES = (
+        (0, "No Ratings"),
         (1, "½"), 
         (2, "★"),
         (3, "★½"),
@@ -58,7 +64,7 @@ class Review(models.Model):
         (10, "★★★★★"),
     )
 
-    game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True)
+    game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True, db_column='game')
     author = models.ForeignKey(Author, on_delete = models.CASCADE)
    
     content = models.TextField(blank = False)

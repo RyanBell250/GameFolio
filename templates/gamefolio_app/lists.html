@@ -1,0 +1,44 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load tags %}
+
+{% block title_block %}
+    User Created Lists
+{% endblock %}
+
+{% block body_block %}
+
+    <div>
+        <h1>User Created Lists</h1>
+    </div>
+
+    <div>
+        <h3>These are lists of games that our users have collated together.</h3>
+    </div>
+
+    <div>
+        {% if all_lists %}
+            <div>
+                {% for list in all_lists %}
+                    <div>
+                        <h4>
+                            <a href="{% url 'gamefolio_app:list' list.author.user.username list.title list.slug %}">{{ list.title }} by {{ list.author }}</a>
+                        </h4>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>There are no lists available in Gamefolio.</p>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <div>
+            <h3>Create a New List:</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ create_list_form.as_p }}
+                <button type="submit">Create List</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

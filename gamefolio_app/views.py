@@ -1,9 +1,9 @@
-from django.db.models import Count, Sum
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.views import View
-from gamefolio_app.forms import AuthorForm, UserForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.db.models import Count, Sum
+from django.shortcuts import render
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
@@ -14,6 +14,10 @@ from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
 from gamefolio_app.models import Game, Review, Author
 from django.db.models import Sum
+
+from gamefolio_app.forms import UserForm , AuthorForm, CreateListForm
+from gamefolio_app.models import Game, Review, List, ListEntry
+
 
 class IndexView(View):
     def get(self, request):
@@ -144,6 +148,61 @@ class ListProfilesView(View):
             profiles = profiles.order_by('-total_reviews')
             
         return render(request,'gamefolio_app/list_profiles.html',{'authors': profiles})
+      
+      class ListView(View):
+    @method_decorator(login_required)
+    def get(self, request, author_username, list_title, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+        list_entries = list_obj.listentry_set.all()
+        all_games = Game.objects.all()
+        context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
+        return render(request, 'gamefolio_app/list.html', context)
+    
+    @method_decorator(login_required)
+    def post(self, request, author_username, list_title, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+        if request.user == list_obj.author.user:
+            game_id = request.POST.get('game')
+            game = get_object_or_404(Game, id=game_id)
+            ListEntry.objects.create(list=list_obj, game=game)
+        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
+
+
+class ListsView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        create_list_form = CreateListForm()
+        lists = List.objects.all()
+        list = ListEntry.objects.all()
+
+        context_dict = {'all_lists': lists,
+                        'create_list_form': create_list_form,
+                        'user_list' : list,}
+        
+        return render(request,'gamefolio_app/lists.html', context_dict)
+
+    @method_decorator(login_required)
+    def post(self, request):
+        create_list_form = CreateListForm(request.POST)
+        if create_list_form.is_valid():
+            new_list = create_list_form.save(commit=False)
+            new_list.author = request.user.author
+            new_list.save()
+            games = create_list_form.cleaned_data['games']
+            for game in games:
+                ListEntry.objects.create(list=new_list, game=game)
+            return redirect('gamefolio_app:lists')
+        else:
+            lists = List.objects.all()
+            list = ListEntry.objects.all()
+
+            context_dict = {
+                'create_list_form': create_list_form,
+                'all_lists': lists,
+                'user_list': list,
+            }
+
+            return render(request, 'gamefolio_app/lists.html', context_dict)
 
 class NotFoundView(View):
     def get(self, request):

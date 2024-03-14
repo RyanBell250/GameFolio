@@ -1,0 +1,39 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load tags %}
+
+{% block title_block %}
+    {{ list_obj.title }} - Games List
+{% endblock %}
+
+{% block body_block %}
+    <div>
+        <h1>{{ list_obj.title }}</h1>
+        <p>{{ list_obj.description }}</p>
+    </div>
+
+    <div>
+        <h3>Games:</h3>
+        <ul>
+            {% for entry in list_entries %}
+                <img src="{% get_image entry.game 'cover_small' %}" alt="{{ entry.game.title }}" />
+                <li>{{ entry.game.title }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if user.is_authenticated and user == list_obj.author.user %}
+        <div>
+            <h3>Add Game to List:</h3>
+            <form method="post">
+                {% csrf_token %}
+                <label for="game">Select Game:</label>
+                <select name="game" id="game">
+                    {% for game in all_games %}
+                        <option value="{{ game.id }}">{{ game.title }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Add Game</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

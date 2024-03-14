@@ -14,4 +14,4 @@ urlpatterns = [
   
     path('lists/', views.ListsView.as_view(), name='lists'),
     path('list/<author_username>/<list_title>/<slug:slug>', views.ListView.as_view(), name='list'),
-
+]

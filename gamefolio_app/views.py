@@ -123,8 +123,9 @@ class ProfileView(View):
         except User.DoesNotExist:
             return None
         user_profile = Author.objects.get_or_create(user=user)[0]
+        form = AuthorForm({'website': user_profile.website, 'picture': user_profile.picture})
 
-        return (user, user_profile)
+        return (user, user_profile, form)
     
 
     @method_decorator(login_required)

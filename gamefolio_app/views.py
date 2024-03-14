@@ -1,8 +1,9 @@
+from django.db.models import Count, Sum
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
-from gamefolio_app.forms import UserForm , AuthorForm
-from django.contrib.auth import authenticate, login, logout
+from gamefolio_app.forms import AuthorForm, UserForm
+from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
@@ -11,12 +12,9 @@ from django.contrib.auth.models import User
 from gamefolio_app.models import Author
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from registration.backends.simple.views import RegistrationView
-
-
-
-
 from gamefolio_app.models import Game, Review
+from django.db.models import Sum
+from registration.backends.simple.views import RegistrationView
 
 class IndexView(View):
     def get(self, request):
@@ -30,40 +28,30 @@ class IndexView(View):
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
 class MyRegistrationView(RegistrationView):
-    def get_success_url(self, user):
+    def get_success_url(self, user=None):
         return reverse('gamefolio_app:register_profile')
     
-class RegisterView(View):
-    template_name = 'gamefolio/registration_form.html'  
+
+@method_decorator(login_required, name='dispatch')
+class RegisterProfileView(View):
 
     def get(self, request):
-        user_form = UserForm()
-        author_form = AuthorForm()
-        return render(request, self.template_name, {'user_form': user_form, 'author_form': author_form})
+        form = AuthorForm()
+        context = {'form': form}
+        return render(request, 'gamefolio_app/profile_registration.html', context)
 
     def post(self, request):
-        registered = False
-        user_form = UserForm(request.POST)
-        author_form = AuthorForm(request.POST)
-
-        if user_form.is_valid() and author_form.is_valid():
-            user = user_form.save()
-            user.set_password(user.password)
-            user.save()
-
-            author = author_form.save(commit=False)
-            author.user = user
-
-            if 'picture' in request.FILES:
-                author.picture = request.FILES['picture']
-
-            author.save()
-
-            registered = True
+        form = AuthorForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
+            return redirect(reverse('gamefolio_app:index'))
         else:
-            print(user_form.errors, author_form.errors)
+            print(form.errors)
 
-        return render(request, self.template_name, {'registered': registered, 'user_form': user_form, 'author_form': author_form})
+        context = {'form': form}
+        return render(request, 'gamefolio_app/profile_registration.html', context)
     
 
 class UserLoginView(View):
@@ -80,42 +68,18 @@ class UserLoginView(View):
         if user:
             if user.is_active:
                 login(request, user)
-                return redirect(reverse('gamefolio_app:index'))
+                return redirect(reverse('gamefolio_app:profile'))
             else:
                 return HttpResponse("Your Gamefolio account is disabled")
         else:
             print(f"Invalid login details: {username}, {password}")
             return HttpResponse("Invalid login details supplied.")
 
+
 @method_decorator(login_required, name='dispatch')
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy('gamefolio_app:index')
-
-
-@method_decorator(login_required, name='dispatch')
-class RegisterProfileView(View):
-    template_name = 'gamefolio_app/registration_profile.html'
-
-    def get(self, request):
-        form = AuthorForm()
-        context = {'form': form}
-        return render(request, self.template_name, context)
-
-    def post(self, request):
-        form = AuthorForm(request.POST, request.FILES)
-        if form.is_valid():
-            user_profile = form.save(commit=False)
-            user_profile.user = request.user
-            user_profile.save()
-            return redirect(reverse('gamefolio_app:index'))
-        else:
-            print(form.errors)
-
-        context = {'form': form}
-        return render(request, self.template_name, context)
     
-
-
 class ProfileView(View):
     def get_user_details(self, username):
         try:
@@ -129,14 +93,22 @@ class ProfileView(View):
     
 
     @method_decorator(login_required)
+    
     def get(self, request, username):
         try:
             (user, user_profile, form) = self.get_user_details(username)
+            user_reviews = Review.objects.filter(author=user_profile)
         except TypeError:
             return redirect(reverse('gamefolio_app:index'))
-        
-        context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form}
-                
+
+        sort_reviews_by = request.GET.get('sort_reviews', 'recent')
+
+        if sort_reviews_by == 'liked':
+            user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+        else:
+            user_reviews = user_reviews.order_by('-datePosted')
+
+        context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form, 'user_reviews': user_reviews}
         return render(request, 'gamefolio_app/profile.html', context_dict)
     
     @method_decorator(login_required)
@@ -160,9 +132,17 @@ class ProfileView(View):
         context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form}
         return render(request, 'gamefolio_app/profile.html', context_dict)
 
+
 class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
-        profiles = Author.objects.all()
-        return render(request,'gamefolio_app/list_profiles.html',{'userprofile_list': profiles})
+        sort_by = request.GET.get('sort_by', 'reviews')
+        profiles = Author.objects.annotate(total_reviews=Count('review'), total_likes=Sum('review__likes'))
+        
+        if sort_by == 'likes':
+            profiles = profiles.order_by('-total_likes')
+        else:
+            profiles = profiles.order_by('-total_reviews')
+            
+        return render(request,'gamefolio_app/list_profiles.html',{'authors': profiles})
     

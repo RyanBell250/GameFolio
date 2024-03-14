@@ -172,7 +172,7 @@ class SearchView(View):
         MAX_RESULTS_PER_PAGE = 8
         SQL_QUERY = f"""
         SELECT G.id, title, pictureID, genre, avg(rating) AS average
-        FROM game G LEFT JOIN review R
+        FROM gamefolio_app_game G LEFT JOIN gamefolio_app_review R
             ON G.id == R.game
         """
         #We do a LEFT JOIN to include games with 0 reviews

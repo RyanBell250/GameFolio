@@ -334,3 +334,10 @@ class SearchView(View):
 
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
+    
+
+class GamePageView(View):
+    def get(self, request, game_id):
+        game = Game.objects.get(id=game_id)
+        return render(request, 'gamefolio_app/game.html', {'game':game})
+

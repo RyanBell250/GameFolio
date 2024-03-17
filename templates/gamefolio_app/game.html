@@ -1,0 +1,34 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load tags %}
+
+{% block title_block %}
+    {{ game.title }}
+{% endblock %}
+
+{% block body_block %}
+    <div>
+        <h1>{{ game.title }}</h1>
+        <h3>{{ game.average_rating }}</h3>
+        <img src="{% get_image game '720p' %}" alt="{{ game.title }}" class="img-fluid">
+        <p>{{ game.description }}</p>
+    </div>
+
+    <div>
+        
+    </div>
+
+    {% if user.is_authenticated %}
+        <div>
+            <h3>Leave a review:</h3>
+            <form method="post">
+                <div class="mb-3">
+                    <label for="review">Your Review:</label>
+                    <textarea class="form-control" id="review" name="review" rows="3"></textarea>
+                </div>
+                <button type="submit">Submit Review</button>
+            </form>
+        </div>
+    {% else %}
+        <p>Please <a href="{% url 'auth_login' %}">login</a> to leave a review.</p>
+    {% endif %}
+{% endblock %}

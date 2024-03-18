@@ -2,7 +2,7 @@
 {% load tags %}
 
 {% block title_block %}
-    Profile for {{ selected_user.username }}
+    Profile
 {% endblock %}
 
 {% block body_block %}
@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
-                <img class="header-image-fixed rounded-3 my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" style="width: 250px; height: 250px;" alt="{{ selected_user.username }}'s profile image" />
+                <img class="header-image-fixed rounded-3 my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" alt="{{ selected_user.username }}'s profile image" />
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
                 <div class="text-center">
-                    <h2 class="fw-bolder">{{ selected_user.username }}'s Wishlist</h2>
+                    <h2 class="fw-bolder">{{ selected_user.username }}'s Lists</h2>
                 </div>
             </div>
         </div>

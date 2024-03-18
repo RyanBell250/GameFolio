@@ -33,7 +33,7 @@
 
     {% if user.is_authenticated %}
         <div>
-            <h3>Create a New List:</h3>
+            <h1>Create a New List:</h1>
             <form method="post">
                 {% csrf_token %}
                 {{ create_list_form.as_p }}

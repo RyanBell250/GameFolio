@@ -63,8 +63,27 @@
                 </div>
             </div>
         </div>
-        <div class="row gx-5 d-flex justify-content-left">
-            <p>We will display the user's self made wishlist to display.</p>
+        <div class="container">
+            <div class="row gx-5">
+                {% if user_lists %}
+                    {% for list in user_lists %}
+                        <div class="col-lg-4 col-md-6 mt-3">  
+                            <div class="card h-100 shadow border-0">
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <h5 class="card-title mb-3">
+                                        <a class="game-review-link" href="{% url 'gamefolio_app:list' list.author.user.username list.title list.slug %}">
+                                            {{ list.title }}
+                                        </a>
+                                    </h5>
+                                    <p class="card-text mb-auto">{{ list.description|truncatechars:75 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No lists available.</p>
+                {% endif %}
+
         </div>
     </div>
 </section>

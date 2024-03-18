@@ -88,19 +88,20 @@ class ProfileView(View):
     def get_user_details(self, username):
         try:
             user = User.objects.get(username=username)
+            lists = List.objects.filter(author=user.author)
         except User.DoesNotExist:
             return None
         user_profile = Author.objects.get_or_create(user=user)[0]
         form = AuthorForm({'website': user_profile.website, 'picture': user_profile.picture})
 
-        return (user, user_profile, form)
+        return (user, lists, user_profile, form)
     
 
     @method_decorator(login_required)
     
     def get(self, request, username):
         try:
-            (user, user_profile, form) = self.get_user_details(username)
+            (user, lists, user_profile, form) = self.get_user_details(username)
             user_reviews = Review.objects.filter(author=user_profile)
         except TypeError:
             return redirect(reverse('gamefolio_app:index'))
@@ -112,7 +113,7 @@ class ProfileView(View):
         else:
             user_reviews = user_reviews.order_by('-datePosted')
 
-        context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form, 'user_reviews': user_reviews}
+        context_dict = {'user_profile': user_profile, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': user_reviews}
         return render(request, 'gamefolio_app/profile.html', context_dict)
     
     @method_decorator(login_required)

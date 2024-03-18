@@ -11,6 +11,11 @@ urlpatterns = [
 
     path('profile/<username>/', views.ProfileView.as_view(), name='profile'),
     path('profiles/', views.ListProfilesView.as_view(), name='list_profiles'),
+    
+    path('lists/', views.ListsView.as_view(), name='lists'),
+    path('create_list/', views.CreateListView.as_view(), name='create_list'),
+    path('list/<author_username>/<list_title>/<slug:slug>', views.ListView.as_view(), name='list'),
+    
     path('search/', views.SearchView.as_view(), name='search'),
     path('404/', views.NotFoundView.as_view(), name='404'),
     path('lists/', views.ListsView.as_view(), name='lists'),

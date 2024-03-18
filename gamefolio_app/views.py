@@ -19,7 +19,7 @@ from django.db.models import Avg
 
 class IndexView(View):
     def get(self, request):
-        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:5]
+        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:6]
         reviews_list = Review.objects.order_by('-likes')[:6]
         
         context_dict = {}
@@ -165,20 +165,17 @@ class ListView(View):
             ListEntry.objects.create(list=list_obj, game=game)
         return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
 
-
-class ListsView(View):
+class CreateListView(View):
     @method_decorator(login_required)
     def get(self, request):
         create_list_form = CreateListForm()
-        lists = List.objects.all()
         list = ListEntry.objects.all()
-
-        context_dict = {'all_lists': lists,
-                        'create_list_form': create_list_form,
+        
+        context_dict = {'create_list_form': create_list_form,
                         'user_list' : list,}
         
-        return render(request,'gamefolio_app/lists.html', context_dict)
-
+        return render(request, 'gamefolio_app/create_list.html', context_dict)
+    
     @method_decorator(login_required)
     def post(self, request):
         create_list_form = CreateListForm(request.POST)
@@ -201,6 +198,13 @@ class ListsView(View):
             }
 
             return render(request, 'gamefolio_app/lists.html', context_dict)
+
+class ListsView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        lists = List.objects.all()
+        context_dict = {'all_lists': lists,}
+        return render(request,'gamefolio_app/lists.html', context_dict)
 
 class NotFoundView(View):
     def get(self, request):

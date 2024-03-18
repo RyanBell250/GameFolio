@@ -15,10 +15,11 @@ from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
 
 from gamefolio_app.models import Game, Review, List, ListEntry
+from django.db.models import Avg
 
 class IndexView(View):
     def get(self, request):
-        game_list = sorted(Game.objects.all(), key = lambda p : p.average_rating())[:5]
+        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:5]
         reviews_list = Review.objects.order_by('-likes')[:6]
         
         context_dict = {}

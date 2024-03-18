@@ -1,0 +1,23 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    User Created Lists
+{% endblock %}
+
+{% block body_block %}
+    {% for list in create_list %}
+        <h1>{{ list.name }}</h1>
+        <p>{{ list.description }}</p>
+        <a href="{% url 'gamefolio_app:edit_list' list.id %}">Edit List</a>
+        <a href="{% url 'gamefolio_app:delete_list' list.id %}">Delete List</a>
+    {% endfor %}
+    <div>
+        <h1>Create a New List:</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ create_list_form.as_p }}
+            <button type="submit">Create List</button>
+        </form>
+    </div>
+{% endblock %}

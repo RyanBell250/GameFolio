@@ -1,44 +1,47 @@
 {% extends 'gamefolio_app/base.html' %}
-{% load tags %}
+{% load static %}
 
 {% block title_block %}
     User Created Lists
 {% endblock %}
 
 {% block body_block %}
-
-    <div>
-        <h1>User Created Lists</h1>
-    </div>
-
-    <div>
-        <h3>These are lists of games that our users have collated together.</h3>
-    </div>
-
-    <div>
-        {% if all_lists %}
-            <div>
-                {% for list in all_lists %}
-                    <div>
-                        <h4>
-                            <a href="{% url 'gamefolio_app:list' list.author.user.username list.title list.slug %}">{{ list.title }} by {{ list.author }}</a>
-                        </h4>
-                    </div>
-                {% endfor %}
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">User Created Lists</h1>
+                    <p class="lead fw-normal text-white-50 mb-4">These are lists of games that our users have collated together.</p>
+                </div>
+                <a class="btn btn-outline-success" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
             </div>
-        {% else %}
-            <p>There are no lists available in Gamefolio.</p>
-        {% endif %}
-    </div>
-
-    {% if user.is_authenticated %}
-        <div>
-            <h1>Create a New List:</h1>
-            <form method="post">
-                {% csrf_token %}
-                {{ create_list_form.as_p }}
-                <button type="submit">Create List</button>
-            </form>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="header-image-fixed rounded-3 my-5" src="{% static "images/homepage.png" %}" style="width: 250px; height: 250px;" alt="homepage image" /></div>
         </div>
-    {% endif %}
+    </div>
+</header>
+</br>
+    <div class="container">
+        <div class="row gx-5">
+            {% if all_lists %}
+                    {% for list in all_lists %}
+                        <div class="col-lg-4 col-md-6 mt-3">  
+                            <div class="card h-100 shadow border-0">
+                                <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <h5 class="card-title mb-3">
+                                        <a class="text-decoration-none link-dark title-link" href="{% url 'gamefolio_app:list' list.author.user.username list.title list.slug %}">
+                                            {{ list.title }} by {{ list.author }}
+                                        </a>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+            {% else %}
+               <p>There are no lists available in Gamefolio.</p>
+            {% endif %}
+        </div>
+    </div>
+</br>   
 {% endblock %}

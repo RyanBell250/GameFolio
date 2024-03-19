@@ -17,6 +17,12 @@
         
     </div>
 
+    <div id = "rating-distribution" class = "row" style = "height: 100px"> 
+        {% for rating in review_ratings %}
+            <div class = "col-1 rating-bar" style = "height: 100%">{{rating}}</div>     
+        {% endfor %}
+    </div>
+
     {% if user.is_authenticated %}
         <div>
             <h3>Leave a review:</h3>

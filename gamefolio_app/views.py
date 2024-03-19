@@ -336,8 +336,16 @@ class SearchView(View):
         return render(request, 'gamefolio_app/search.html', context_dict)
     
 
+def get_game_ratings(game_id):
+    reviews = []
+    for i in range(10):
+        query = Review.objects.filter(game=game_id, rating=i+1).aggregate(Count("rating"))["rating__count"]
+        print(query)
+        reviews.append(query)
+
+    return reviews
+
 class GamePageView(View):
     def get(self, request, game_id):
         game = Game.objects.get(id=game_id)
-        return render(request, 'gamefolio_app/game.html', {'game':game})
-
+        return render(request, 'gamefolio_app/game.html', {'game':game, "review_ratings": get_game_ratings(game_id)})

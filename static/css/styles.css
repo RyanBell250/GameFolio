@@ -79,6 +79,16 @@
   --bs-highlight-bg: #fff3cd;
 }
 
+.checkboxes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.checkboxes input[type="checkbox"]:checked {
+  background-color: #198754;
+}
+
 .game-hover:hover .game-review-image {
   filter: sepia(100%) saturate(300%) brightness(70%) hue-rotate(80deg) !important;
 }

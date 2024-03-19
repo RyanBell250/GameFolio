@@ -2,22 +2,56 @@
 {% load static %}
 
 {% block title_block %}
-    User Created Lists
+    Create List 
 {% endblock %}
 
 {% block body_block %}
-    {% for list in create_list %}
-        <h1>{{ list.name }}</h1>
-        <p>{{ list.description }}</p>
-        <a href="{% url 'gamefolio_app:edit_list' list.id %}">Edit List</a>
-        <a href="{% url 'gamefolio_app:delete_list' list.id %}">Delete List</a>
-    {% endfor %}
-    <div>
-        <h1>Create a New List:</h1>
-        <form method="post">
-            {% csrf_token %}
-            {{ create_list_form.as_p }}
-            <button type="submit">Create List</button>
-        </form>
+
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">Create A New List</h1>
+                </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="header-image-fixed rounded-3 my-5" src="{% static "images/homepage.png" %}" style="width: 250px; height: 250px;" alt="homepage image" /></div>
+        </div>
     </div>
+</header>
+
+<br/>
+
+<div>
+    <div class="row gx-5 d-flex justify-content-left">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <form role="form" method="post" action=".">
+                        {% csrf_token %}
+                        <h5>Title:</h5>
+                        {{ form.title }}
+                        <br/>
+                        <h5>Description:</h5>
+                        {{ form.description }}
+                        <br/>
+                        <h5>Select your Games:</h5>
+                        <div class="small row">
+                            <div class ="col-8 text-muted text-end">Don't worry if you forget to add a game, you can always add it later.</div>
+                        </div>
+                        <br/>
+                        <div class="checkboxes">
+                            {% for game in form.games %}
+                                {{ game }}
+                            {% endfor %}
+                        </div>
+                        <br/>
+                        <button type="submit" class="btn btn-outline-success">Create List</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

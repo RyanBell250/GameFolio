@@ -46,6 +46,8 @@
                                     {{ author.user.username }}
                                 </a>
                             </h5>
+                            <p class="card-text mb-auto">{{ author.bio|truncatechars:100 }}</p>
+                        </br>
                             <p>Total Reviews: {{ author.review_set.count }}</p>
                             <p>Total Likes Received: {{ author.total_likes }}</p>                               
                         </div>

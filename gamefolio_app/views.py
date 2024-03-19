@@ -13,9 +13,12 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
+from gamefolio_app.models import Game, Review, Author
 
 from gamefolio_app.models import Game, Review, List, ListEntry
 from django.db.models import Avg
+from django.db.models import Avg, Sum
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class IndexView(View):
     def get(self, request):
@@ -145,8 +148,20 @@ class ListProfilesView(View):
             profiles = profiles.order_by('-total_likes')
         else:
             profiles = profiles.order_by('-total_reviews')
+        
+        paginator = Paginator(profiles, 18)  # Assuming 20 profiles per page
+        page_number = request.GET.get('page')
+        
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page_obj = paginator.page(paginator.num_pages)
             
-        return render(request,'gamefolio_app/list_profiles.html',{'authors': profiles})
+        return render(request, 'gamefolio_app/list_profiles.html', {'authors': page_obj})
       
 class ListView(View):
     @method_decorator(login_required)

@@ -148,16 +148,14 @@ class ListProfilesView(View):
         else:
             profiles = profiles.order_by('-total_reviews')
         
-        paginator = Paginator(profiles, 18)  # Assuming 20 profiles per page
+        paginator = Paginator(profiles, 18)  
         page_number = request.GET.get('page')
         
         try:
             page_obj = paginator.page(page_number)
         except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
             page_obj = paginator.page(1)
         except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
             page_obj = paginator.page(paginator.num_pages)
             
         return render(request, 'gamefolio_app/list_profiles.html', {'authors': page_obj})

@@ -185,7 +185,8 @@ class CreateListView(View):
         list = ListEntry.objects.all()
         
         context_dict = {'create_list_form': create_list_form,
-                        'user_list' : list,}
+                        'user_list' : list,
+                        'form': create_list_form,}
         
         return render(request, 'gamefolio_app/create_list.html', context_dict)
     
@@ -199,7 +200,7 @@ class CreateListView(View):
             games = create_list_form.cleaned_data['games']
             for game in games:
                 ListEntry.objects.create(list=new_list, game=game)
-            return redirect('gamefolio_app:lists')
+            return redirect('gamefolio_app:profile', request.user.username)
         else:
             lists = List.objects.all()
             list = ListEntry.objects.all()
@@ -210,7 +211,7 @@ class CreateListView(View):
                 'user_list': list,
             }
 
-            return render(request, 'gamefolio_app/lists.html', context_dict)
+            return render(request, 'gamefolio_app/create_list.html', context_dict)
 
 class ListsView(View):
     @method_decorator(login_required)

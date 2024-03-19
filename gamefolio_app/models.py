@@ -7,7 +7,8 @@ from django.utils import timezone
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE)
     website = models.URLField(blank = True)
-    picture = models.ImageField(upload_to="profile_images", blank = True)
+    picture = models.ImageField(upload_to="profile_images", default="defaultprofile.png")
+    bio = models.TextField(default = "This user has no bio.")
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

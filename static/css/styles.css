@@ -79,6 +79,10 @@
   --bs-highlight-bg: #fff3cd;
 }
 
+.gap-between-select-and-button {
+  margin-bottom: 20px; 
+}
+
 .checkboxes {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

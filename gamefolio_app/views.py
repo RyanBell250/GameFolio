@@ -19,6 +19,7 @@ from gamefolio_app.models import Game, Review, List, ListEntry
 from django.db.models import Avg
 from django.db.models import Avg, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
 
 class IndexView(View):
     def get(self, request):
@@ -166,7 +167,7 @@ class ListView(View):
     def get(self, request, author_username, list_title, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
         list_entries = list_obj.listentry_set.all()
-        all_games = Game.objects.all()
+        all_games = Game.objects.all().order_by('title')
         context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
         return render(request, 'gamefolio_app/list.html', context)
     
@@ -177,6 +178,16 @@ class ListView(View):
             game_id = request.POST.get('game')
             game = get_object_or_404(Game, id=game_id)
             ListEntry.objects.create(list=list_obj, game=game)
+        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
+
+class RemoveGameView(View):
+    @method_decorator(login_required)
+    def post(self, request, author_username, list_title, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+        if request.user == list_obj.author.user:
+            game_id = request.POST.get('game_id')
+            game_to_remove = get_object_or_404(ListEntry, list=list_obj, game_id=game_id)
+            game_to_remove.delete()
         return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
 
 class CreateListView(View):
@@ -201,7 +212,7 @@ class CreateListView(View):
             games = create_list_form.cleaned_data['games']
             for game in games:
                 ListEntry.objects.create(list=new_list, game=game)
-            return redirect('gamefolio_app:profile', request.user.username)
+            return redirect('gamefolio_app:profile', username=request.user.username)
         else:
             lists = List.objects.all()
             list = ListEntry.objects.all()
@@ -213,7 +224,19 @@ class CreateListView(View):
             }
 
             return render(request, 'gamefolio_app/create_list.html', context_dict)
+        
+class ListDeleteView(View):
+    def post(self, request, author_username, list_title, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
 
+        if request.user == list_obj.author.user:
+            list_obj.delete()
+            messages.success(request, "List deleted successfully.")
+        else:
+            messages.error(request, "You are not authorized to delete this list.")
+        
+        return redirect(reverse('gamefolio_app:profile', kwargs={'username': author_username}))
+    
 class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):

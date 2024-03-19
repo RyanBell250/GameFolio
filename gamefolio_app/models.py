@@ -9,6 +9,7 @@ class Author(models.Model):
 
     website = models.URLField(blank = True)
     picture = models.ImageField(upload_to="profile_images", default="defaultprofile.png")
+    bio = models.TextField(default = "This user has no bio.")
 
     def __str__(self):
         return self.user.username

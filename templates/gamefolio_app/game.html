@@ -17,10 +17,13 @@
         
     </div>
 
-    <div id = "rating-distribution" class = "row" style = "height: 100px"> 
-        {% for rating in review_ratings %}
-            <div class = "col-1 rating-bar" style = "height: 100%">{{rating}}</div>     
-        {% endfor %}
+    <div style = "width: 300px">
+        <div id = "rating-distribution" class = "row mx-1 align-items-end" style = "height: 100px"> 
+            {% for rating in review_ratings %}
+                <div class = "col rating-bar" style = "height: {{rating.height}}%" data-bs-toggle="tooltip" data-bs-title="{{rating.count}} {{rating.rating}} reviews">
+                </div>     
+            {% endfor %}
+        </div>
     </div>
 
     {% if user.is_authenticated %}

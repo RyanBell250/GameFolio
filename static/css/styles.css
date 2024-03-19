@@ -118,8 +118,13 @@
 }
 
 .rating-bar {
-  background-color: #0d6efd;
-  border-radius: 10px;
+  background-color: #59635f;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: 2px;
+}
+.rating-bar:hover {
+  background-color: #198754;
 }
 
 *,

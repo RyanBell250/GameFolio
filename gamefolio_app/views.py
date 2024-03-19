@@ -337,11 +337,28 @@ class SearchView(View):
     
 
 def get_game_ratings(game_id):
+
+    class RatingDistribution():
+        
+
+        def __init__(self, rating, count):
+            self.rating = ["½", "★", "★½","★★", "★★½", "★★★", "★★★½", "★★★★", "★★★★½", "★★★★★"][rating-1]
+            self.count = count
+            self.height = 0
+
+        def set_height(self, max_count):
+            self.height = (self.count/max_count) * 90 + 10
+
     reviews = []
+    max_count = 0
     for i in range(10):
-        query = Review.objects.filter(game=game_id, rating=i+1).aggregate(Count("rating"))["rating__count"]
-        print(query)
-        reviews.append(query)
+        count = Review.objects.filter(game=game_id, rating=i+1).aggregate(Count("rating"))["rating__count"]
+        rating = RatingDistribution(i+1, count)
+        max_count = max(count, max_count)
+        reviews.append(rating)
+
+    for rating in reviews:
+        rating.set_height(max_count)
 
     return reviews
 

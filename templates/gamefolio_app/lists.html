@@ -45,4 +45,21 @@
         </div>
     </div>
 </br>   
+<div class="container">
+    <div class="row gx-5 justify-content-center">
+        <div class="col-md-4"></div> 
+        <div class="col-md-4 text-center"> 
+            {% if all_lists.has_previous %}
+                 <a href="?page={{ all_lists.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ all_lists.number }} of {{ all_lists.paginator.num_pages }}.
+            </span>
+            {% if all_lists.has_next %}
+                <a href="?page={{ all_lists.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+        <div class="col-md-4"></div> 
+    </div>
+</div>
 {% endblock %}

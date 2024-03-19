@@ -9,7 +9,7 @@ class ModelTests(TestCase):
         self.game = Game(title = "Game")
         self.game.save()
         self.user = User.objects.create_user("Mario", "mario@mario.com", "yoshi123")
-        self.author = Author(user = self.user)
+        self.author = Author(user = self.user, bio="This is a test bio")
         self.author.save()
         
     def tearDown(self):

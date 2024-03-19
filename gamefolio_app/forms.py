@@ -31,14 +31,16 @@ class UserForm(forms.ModelForm):
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
-        fields = ('website', 'picture',)
+        fields = ('website', 'picture', 'bio',)
         widgets = {
             'website': forms.URLInput(attrs={'class': 'form-control'}),
             'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': '5'}),
         }
         labels = {
             'website': 'Website',
             'picture': 'Profile Picture',
+            'bio': 'Bio',
         }
 
 class CreateListForm(forms.ModelForm):

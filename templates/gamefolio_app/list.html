@@ -12,7 +12,7 @@
         <div class="row gx-5 align-items-center justify-content-center">
             <div class="col-lg-8 col-xl-7 col-xxl-6">
                 <div class="my-5 text-center text-xl-start">
-                    <h1 class="display-5 fw-bolder text-white mb-2">{{ list_obj.title }}</h1>
+                    <h1 class="display-5 fw-bolder text-white mb-2">{{ list_obj.title }} by {{ list_obj.author.user.username }} </h1>
                     <p class="lead fw-normal text-white mb-4">{{ list_obj.description }}</p>
 
                     {% if user.is_authenticated and user == list_obj.author.user %}

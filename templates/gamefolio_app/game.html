@@ -9,12 +9,28 @@
     <div>
         <h1>{{ game.title }}</h1>
         <h3>{{ game.average_rating }}</h3>
+        <p>Total Reviews: {{ game.total_reviews }}</p>
         <img src="{% get_image game '720p' %}" alt="{{ game.title }}" class="img-fluid">
         <p>{{ game.description }}</p>
     </div>
 
     <div>
-        
+        <h3>Reviews</h3>
+        {% if reviews %}
+        <ul>
+            {% for review in reviews %}
+            <li>
+                <strong>Author: {{ review.author }}</strong></br>
+                <strong>Date Posted: {{ review.datePosted }}</strong></br>
+                <strong>Rating: {{ review.rating }}</strong></br>
+                <p>{{ review.content }}</p>
+                <strong>Likes: {{ review.likes }}</strong>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No reviews have been made for this game yet.</p>
+        {% endif %}
     </div>
 
     {% if user.is_authenticated %}

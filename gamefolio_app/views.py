@@ -339,5 +339,6 @@ class SearchView(View):
 class GamePageView(View):
     def get(self, request, game_id):
         game = Game.objects.get(id=game_id)
-        return render(request, 'gamefolio_app/game.html', {'game':game})
+        reviews = Review.objects.filter(game=game_id)
+        return render(request, 'gamefolio_app/game.html', {'game':game, 'reviews':reviews})
 

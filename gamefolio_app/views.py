@@ -216,7 +216,17 @@ class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):
         lists = List.objects.all()
-        context_dict = {'all_lists': lists,}
+        paginator = Paginator(lists, 18)
+        page_number = request.GET.get('page')
+        
+        try: 
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+            
+        context_dict = {'all_lists': page_obj,}
         return render(request,'gamefolio_app/lists.html', context_dict)
 
 class NotFoundView(View):

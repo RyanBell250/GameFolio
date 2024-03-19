@@ -347,6 +347,9 @@ def get_game_ratings(game_id):
             self.height = 0
 
         def set_height(self, max_count):
+            if(max_count == 0):
+                self.height = 10
+                return
             self.height = (self.count/max_count) * 90 + 10
 
     reviews = []

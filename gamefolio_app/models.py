@@ -5,13 +5,12 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete = models.CASCADE) 
-
+    user = models.OneToOneField(User, on_delete = models.CASCADE)
     website = models.URLField(blank = True)
-    picture = models.ImageField(upload_to="profile_images", default="defaultprofile.png")
+    picture = models.ImageField(upload_to="profile_images", blank = True)
 
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username}'s Profile"
 
 class Game(models.Model):
     id = models.SlugField(unique = True, primary_key = True)
@@ -24,8 +23,13 @@ class Game(models.Model):
 
     def average_rating(self):
         average = Review.objects.filter(game=self.id).aggregate(Avg('rating'))['rating__avg']
-        average = average * 10 if average != None else 0
+        average = average * 5 if average is not None else 0
         return int(average)/10
+    
+    def average_text_rating(self):
+        average = self.average_rating()
+        average = int(average*2+0.25)
+        return Review.RATING_CHOICES[average][1]
     
     def total_reviews(self):
         return Review.objects.filter(game=self.id).count()
@@ -46,6 +50,7 @@ class Game(models.Model):
 
 class Review(models.Model):
     RATING_CHOICES = (
+        (0, "No Ratings"),
         (1, "½"), 
         (2, "★"),
         (3, "★½"),
@@ -58,14 +63,14 @@ class Review(models.Model):
         (10, "★★★★★"),
     )
 
-    game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True)
-    author = models.ForeignKey(Author, on_delete = models.CASCADE)
+    game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True, db_column='game')
+    author = models.ForeignKey(Author, on_delete = models.CASCADE, null=True)
    
     content = models.TextField(blank = False)
     views = models.IntegerField(default = 0)
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)  #Only allows 1-10 ratings or 1/2-5 stars
-    datePosted = models.DateTimeField(default = timezone.now())
-    likes = models.IntegerField(default = 0)
+    datePosted = models.DateTimeField(default=timezone.now())
+    likes = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if int(self.rating) < 1 or int(self.rating) > 10:
@@ -80,8 +85,8 @@ class List(models.Model):
     author = models.ForeignKey(Author, on_delete = models.CASCADE)
 
     slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name
-    title = models.CharField(max_length = 128, blank = False)
-    description = models.TextField(default = "", blank = True)
+    title = models.CharField(max_length=128, blank=False)
+    description = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         #Same idea as gameslug, if user has list with two same names, create indexed slug

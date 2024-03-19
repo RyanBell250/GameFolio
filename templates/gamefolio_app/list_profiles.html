@@ -21,41 +21,59 @@
 
 <br/>
 
-    <div class="container">
-        <div class="row justify-content-end">
-            <div class="col-md-12">
-                <div class="btn-group" role="group" aria-label="Sort by">
-                    <a href="?sort_by=reviews" class="btn btn-outline-success">Sort by Reviews</a>
-                    <a href="?sort_by=likes" class="btn btn-outline-success">Sort by Likes</a>
-                </div>
+<div class="container">
+    <div class="row justify-content-end">
+        <div class="col-md-12">
+            <div class="btn-group" role="group" aria-label="Sort by">
+                <a href="?sort_by=reviews" class="btn btn-outline-success">Sort by Reviews</a>
+                <a href="?sort_by=likes" class="btn btn-outline-success">Sort by Likes</a>
             </div>
         </div>
     </div>
+</div>
 <br/>
 
-    <div class="container">
-        <div class="row gx-5">
-            {% if authors %}
-                {% for author in authors %}
-                    <div class="col-lg-4 col-md-6 mt-3">  
-                        <div class="card h-100 shadow border-0">
-                            <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
-
-                            <div class="card-body p-4 d-flex flex-column">
-                                <h5 class="card-title mb-3">
-                                    <a class="text-decoration-none link-dark title-link" href="{% url 'gamefolio_app:profile' author.user.username %}">
-                                        {{ author.user.username }}
-                                    </a>
-                                </h5>
-                                <p>Total Reviews: {{ author.review_set.count }}</p>
-                                <p>Total Likes Received: {{ author.total_likes }}</p>                               
-                            </div>
+<div class="container">
+    <div class="row gx-5">
+        {% if authors %}
+            {% for author in authors %}
+                <div class="col-lg-4 col-md-6 mt-3">  
+                    <div class="card h-100 shadow border-0">
+                        <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
+                        <div class="card-body p-4 d-flex flex-column">
+                            <h5 class="card-title mb-3">
+                                <a class="game-review-link" href="{% url 'gamefolio_app:profile' author.user.username %}">
+                                    {{ author.user.username }}
+                                </a>
+                            </h5>
+                            <p>Total Reviews: {{ author.review_set.count }}</p>
+                            <p>Total Likes Received: {{ author.total_likes }}</p>                               
                         </div>
                     </div>
-                {% endfor %}
-            {% else %}
-                <p>There are no users present on Rango.</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>There are no users present on Rango.</p>
+        {% endif %}
+    </div>
+</div>
+<br/>
+<div class="container">
+    <div class="row gx-5 justify-content-center">
+        <div class="col-md-4"></div> 
+        <div class="col-md-4 text-center"> 
+            {% if authors.has_previous %}
+                 <a href="?page={{ authors.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ authors.number }} of {{ authors.paginator.num_pages }}.
+            </span>
+            {% if authors.has_next %}
+                <a href="?page={{ authors.next_page_number }}">Next</a>
             {% endif %}
         </div>
+        <div class="col-md-4"></div> 
     </div>
+</div>
+<br/>
 {% endblock %}

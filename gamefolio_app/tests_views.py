@@ -1,5 +1,6 @@
 import os
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.conf import settings
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -16,7 +17,6 @@ FAILURE_FOOTER = f"{os.linesep}"
 
 class IndexViewTests(TestCase):
     def setUp(self):
-        populate()
         self.response = self.client.get(reverse('gamefolio_app:index'))
         self.content = self.response.content.decode()
 

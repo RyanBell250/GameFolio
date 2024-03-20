@@ -16,7 +16,7 @@
                     <p class="lead fw-normal text-white mb-4">{{ list_obj.description }}</p>
 
                     {% if user.is_authenticated and user == list_obj.author.user %}
-                        <form method="post" action="{% url 'gamefolio_app:list_delete' author_username=list_obj.author.user.username list_title=list_obj.title slug=list_obj.slug %}">
+                        <form method="post" action="{% url 'gamefolio_app:list_delete' author_username=list_obj.author.user.username slug=list_obj.slug %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger">Delete List</button>
                         </form>
@@ -85,7 +85,7 @@
                         <p class="card-text mb-0">{{ entry.game.description|truncatechars:100 }}</p>
 
                         {% if user.is_authenticated and user == list_obj.author.user %}
-                            <form method="post" action="{% url 'gamefolio_app:remove_game' author_username=list_obj.author.user.username list_title=list_obj.title slug=list_obj.slug %}">
+                            <form method="post" action="{% url 'gamefolio_app:remove_game' author_username=list_obj.author.user.username slug=list_obj.slug %}">
                                 {% csrf_token %}
                                 <div class="gap-between-select-and-button">
                                     <input type="hidden" name="game_id" value="{{ entry.game.id }}">

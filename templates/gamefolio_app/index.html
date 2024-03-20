@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 <div class = "row mt-3">
-                    <div>{{review.content}}</div>
+                    <div>{{review.content|truncatechars:100}}</div>
                 </div>
                 <div class="small row mt-4">
                     <div class ="col-6 text-muted"> {{ review.datePosted }}  </div>

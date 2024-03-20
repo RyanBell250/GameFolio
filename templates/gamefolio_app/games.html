@@ -1,4 +1,4 @@
-<ul class="nav flex-column"> 
+<!-- <ul class="nav flex-column"> 
     {% if games %}
         {% for game in games %}
         {% if game == current_game %}
@@ -8,7 +8,7 @@
             </li> 
         {% else %}
             <li class="nav-item">
-            <a class="nav-link" href="{% url 'rango:game' game.slug %}"> 
+            <a class="nav-link" href="{% url 'gamefolio_app:game' game.slug %}"> 
             <span data-feather="archive"></span>{{ game.title }}
             </a>
             </li>
@@ -17,4 +17,4 @@
     {% else %}
         <li class="nav-item">There are no games present.</li> 
     {% endif %}
-    </ul>
+    </ul> -->

@@ -85,7 +85,7 @@
                                 </div>
                             </div>
                         <div class = "row-2 mt-2">
-                            <h4 class="mb-1 fw-semibold text-truncate"><a class="game-review-link " href="#!">{{ review.game.title }}</a></h4>
+                            <h4 class="mb-1 fw-semibold text-truncate"><a class="game-review-link " href="{% url 'gamefolio_app:game' review.game.id %}">{{ review.game.title }}</a></h4>
                             <div style = "color: #198754">{{review.get_rating_display}}</div>
                         </div>
                     </div>

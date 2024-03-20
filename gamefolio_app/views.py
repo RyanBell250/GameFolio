@@ -216,7 +216,7 @@ class GamePageView(View):
 
     def post(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
-        reviews = Review.objects.filter(game=game)
+        reviews = Review.objects.filter(game=game_id)
 
         form = ReviewForm(request.POST)  
         if form.is_valid():

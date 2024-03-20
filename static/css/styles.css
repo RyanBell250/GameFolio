@@ -125,11 +125,26 @@
   filter: sepia(100%) saturate(300%) brightness(70%) hue-rotate(80deg) !important;
 }
 
+.user-review-image {
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: cover;
+}
+
 .user-review-image:hover {
   filter:  brightness(80%) saturate(150%) !important;
   border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
   --bs-border-width: 1px;
 }
+
+/* clears the ‘X’ from Internet Explorer */
+input[type=search]::-ms-clear { display: none; width : 0; height: 0; }
+input[type=search]::-ms-reveal { display: none; width : 0; height: 0; }
+/* clears the ‘X’ from Chrome */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }
 
 *,
 *::before,

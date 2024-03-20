@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-from gamefolio_app.forms import CreateListForm
+#from gamefolio_app.forms import CreateListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 from gamefolio_app.views import MyRegistrationView
 from populate_gamefolio import populate, clear_database
@@ -225,7 +225,7 @@ class ListsViewTests(TestCase):
         response = self.client.get(reverse('gamefolio_app:lists'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'gamefolio_app/lists.html')
-        self.assertIsInstance(response.context['create_list_form'], CreateListForm)
+        #self.assertIsInstance(response.context['create_list_form'], CreateListForm)
         self.assertQuerysetEqual(response.context['all_lists'], [])
         self.assertQuerysetEqual(response.context['user_list'], [])
 

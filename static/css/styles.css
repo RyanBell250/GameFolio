@@ -126,8 +126,10 @@
 }
 
 .user-review-image {
-  width: 40px !important;
-  height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  width: 100%;
+  height :auto;
   object-fit: cover;
 }
 

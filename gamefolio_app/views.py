@@ -22,10 +22,12 @@ class IndexView(View):
     def get(self, request):
         game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:6]
         reviews_list = Review.objects.order_by('-likes')[:6]
+        visitor_cookie_handler(request)
         
         context_dict = {}
         context_dict['games'] = game_list
         context_dict['reviews'] = reviews_list
+        context_dict['visits'] = request.session['visits']
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
@@ -164,10 +166,10 @@ class ListView(View):
     def get(self, request, author_username, list_title, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
         list_obj.views += 1
-        list_obj.save()
+        list_obj.save()      
         list_entries = list_obj.listentry_set.all()
         all_games = Game.objects.all().order_by('title')
-        context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
+        context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games, 'views': request.session['visits']}
         return render(request, 'gamefolio_app/list.html', context)
     
     @method_decorator(login_required)
@@ -385,13 +387,29 @@ class SearchView(View):
         return render(request, 'gamefolio_app/search.html', context_dict)
     
 #Helper Functions 
-def visitor_cookie_handler(request, response):
-    visits = int(request.COOKIES.get('visits', '1'))
-    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
-    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1')) 
+    last_visit_cookie = get_server_side_cookie(request,
+                                               'last_visit',
+                                               str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+                                        '%Y-%m-%d %H:%M:%S')
+
+    
+    #if it's been more than a day since last visit 
     if (datetime.now() - last_visit_time).seconds > 0:
         visits = visits + 1
-        response.set_cookie('last_visit', str(datetime.now()))
+        # Update the last visit cookie now that we have updated the count
+        request.session['last_visit'] = str(datetime.now())
     else:
-        response.set_cookie('last_visit', last_visit_cookie)
-    response.set_cookie('visits', visits)
+        # Set the last visit cookie 
+        request.session['last_visit'] = last_visit_cookie
+
+    # Update/set the visits cookie
+    request.session['visits'] = visits
+
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val

@@ -89,6 +89,7 @@ class List(models.Model):
     slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name
     title = models.CharField(max_length = 128, blank = False)
     description = models.TextField(default = "", blank = True)
+    views = models.IntegerField(default = 0)
 
     def save(self, *args, **kwargs):
         #Same idea as gameslug, if user has list with two same names, create indexed slug

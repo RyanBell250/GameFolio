@@ -111,6 +111,16 @@
   text-decoration: underline !important;
 }
 
+.list-profile-link {
+  text-decoration: none !important;
+  color: green; /* Change color to green */
+}
+
+.list-profile-link:hover {
+  color: #198754 !important; /* Change hover color to your desired color */
+  text-decoration: underline !important;
+}
+
 .game-review-link {
   text-decoration: none !important;
   color: black;
@@ -8138,7 +8148,7 @@ textarea.form-control-lg {
 
 .text-white {
   --bs-text-opacity: 1;
-  color: rgba(var(--bs-white-rgb), var(--bs-text-opacity)) !important;
+  color: rgba(var(--bs-white-rgb), var(--bs-text-opacity)) 
 }
 
 .text-body {

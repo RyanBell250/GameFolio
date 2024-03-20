@@ -1,11 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from datetime import datetime
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from django.db.models import Count, Sum
-from django.shortcuts import render
+from django.db.models import Count, Sum, Avg
 from django.urls import reverse
-from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
@@ -16,7 +15,6 @@ from gamefolio_app.models import Game, Review, Author
 
 from gamefolio_app.forms import UserForm , AuthorForm, CreateListForm
 from gamefolio_app.models import Game, Review, List, ListEntry
-from django.db.models import Avg, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
@@ -165,6 +163,8 @@ class ListView(View):
     @method_decorator(login_required)
     def get(self, request, author_username, list_title, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+        list_obj.views += 1
+        list_obj.save()
         list_entries = list_obj.listentry_set.all()
         all_games = Game.objects.all().order_by('title')
         context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
@@ -383,3 +383,15 @@ class SearchView(View):
 
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
+    
+#Helper Functions 
+def visitor_cookie_handler(request, response):
+    visits = int(request.COOKIES.get('visits', '1'))
+    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+    if (datetime.now() - last_visit_time).seconds > 0:
+        visits = visits + 1
+        response.set_cookie('last_visit', str(datetime.now()))
+    else:
+        response.set_cookie('last_visit', last_visit_cookie)
+    response.set_cookie('visits', visits)

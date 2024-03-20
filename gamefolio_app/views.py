@@ -254,6 +254,18 @@ class ListsView(View):
             
         context_dict = {'all_lists': page_obj,}
         return render(request,'gamefolio_app/lists.html', context_dict)
+    
+class InlineSuggestionsView(View):
+    def get(self, request):
+        if 'suggestion' in request.GET:
+            suggestion = request.GET['suggestion']
+        else:
+            suggestion = ''
+        game_list = get_games_list(max_results=8, starts_with=suggestion)
+
+        if len(game_list) == 0:
+            game_list = Game.objects.order_by('-title')
+        return render(request, 'gamefolio_app/games.html', {'games': game_list})
 
 class NotFoundView(View):
     def get(self, request):
@@ -396,16 +408,12 @@ def visitor_cookie_handler(request):
                                         '%Y-%m-%d %H:%M:%S')
 
     
-    #if it's been more than a day since last visit 
     if (datetime.now() - last_visit_time).seconds > 0:
         visits = visits + 1
-        # Update the last visit cookie now that we have updated the count
         request.session['last_visit'] = str(datetime.now())
     else:
-        # Set the last visit cookie 
         request.session['last_visit'] = last_visit_cookie
 
-    # Update/set the visits cookie
     request.session['visits'] = visits
 
 def get_server_side_cookie(request, cookie, default_val=None):
@@ -413,3 +421,12 @@ def get_server_side_cookie(request, cookie, default_val=None):
     if not val:
         val = default_val
     return val
+
+def get_games_list(max_results=0, starts_with=''):
+    games_list = []
+    if starts_with:
+        games_list = Game.objects.filter(title__istartswith=starts_with)
+    if max_results > 0:
+        if len(games_list) > max_results:
+            games_list = games_list[:max_results]
+    return games_list

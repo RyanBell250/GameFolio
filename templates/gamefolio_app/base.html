@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+{% load tags %}
 
 <html lang="en">
 <head>
@@ -61,6 +62,9 @@
                                 <button class="btn bg-transparent border-none" style="margin-left: -40px; z-index: 100;"type="reset" id = "reset-button"><div class = "fw-light d-flex align-items-center text-center">&times;</div></button>
                                 <button class="btn btn-outline-success" type="submit" id = "search-button">Search</button>
                             </form>
+                            <div id="search-results">
+                                {% get_games_list games %}
+                            </div>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Home</a></li>
                         {% if user.is_authenticated %}
@@ -104,6 +108,8 @@
     <script src="{% static "js/jquery-3.3.1.min.js" %}" crossorigin="anonymous"></script>
     <!-- Core theme JS-->
     <script src="{% static 'js/scripts.js' %}"></script>
+    <!-- AJAX script -->
+    <script src="{% static 'js/gamefolio-ajax.js' %}"></script>
     {% block footer %}
     {% endblock %}
 </body>

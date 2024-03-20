@@ -110,8 +110,10 @@ class ProfileView(View):
 
         if sort_reviews_by == 'liked':
             user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
-        else:
+        elif sort_reviews_by == 'recent':
             user_reviews = user_reviews.order_by('-datePosted')
+        elif sort_reviews_by == 'rating':
+            user_reviews = user_reviews.order_by('-rating')
 
         context_dict = {'user_profile': user_profile, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': user_reviews}
         return render(request, 'gamefolio_app/profile.html', context_dict)

@@ -39,7 +39,7 @@
             <div class="card h-100 shadow border-0"> 
                 <img class="card-img-top game-review-image" src="{% get_image game "720p" %}" alt="{{ game.title }} thumbnail" />
                 <div class="card-body p-4">
-                    <button type="genre" class="btn btn-outline-success">{{ game.genre }}</button>
+                    <a href = "{% url 'gamefolio_app:search' %}?genre={{game.genre}}"><button type="genre" class="btn btn-outline-success">{{ game.genre }}</button></a>
                     <h5 class="card-title mb-3"></h5>
                     <div style="color: #198754">{{ game.average_text_rating }}</div> 
                     <h3 class="card-title mb-3"><a class="game-review-link"><strong>{{ game.title }}</strong></a></h3>
@@ -93,7 +93,7 @@
                     <div>{{review.content|truncatechars:100}}</div>
                 </div>
                 <div class="small row mt-4">
-                    <div class ="col-6 text-muted"> {{ review.datePosted }}  </div>
+                    <div class ="col-6 text-muted"> {{ review.datePosted|date:"j M Y" }}  </div>
                     <div class ="col-4 text-muted text-end"> {{ review.likes }} likes </div>
                 </div>
                 <hr>

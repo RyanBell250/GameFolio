@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from gamefolio_app.models import Author, List, Game
+from gamefolio_app.models import Author, List, Game, Review
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -39,6 +39,19 @@ class AuthorForm(forms.ModelForm):
         labels = {
             'website': 'Website',
             'picture': 'Profile Picture',
+        }
+        
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'content']
+        widgets = {
+            'rating': forms.Select(choices=Review.RATING_CHOICES, attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+        }
+        labels = {
+            'rating': 'Rating',
+            'content': 'Review Content',
         }
 
 class CreateListForm(forms.ModelForm):

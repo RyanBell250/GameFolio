@@ -12,11 +12,9 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
-from gamefolio_app.models import Game, Review, Author
-from django.db.models import Sum
 
-from gamefolio_app.forms import UserForm , AuthorForm, CreateListForm
-from gamefolio_app.models import Game, Review, List, ListEntry
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
+from gamefolio_app.models import Game, Review, Author, List, ListEntry
 
 
 class IndexView(View):
@@ -204,6 +202,36 @@ class ListsView(View):
 
             return render(request, 'gamefolio_app/lists.html', context_dict)
 
+class GamePageView(View):
+    def get(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        reviews = Review.objects.filter(game=game)
+        form = ReviewForm()  
+        context = {
+            'game': game,
+            'reviews': reviews,
+            'form': form,  
+        }
+        return render(request, 'gamefolio_app/game.html', context)
+
+    def post(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        reviews = Review.objects.filter(game=game)
+
+        form = ReviewForm(request.POST)  
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.game = game  
+            review.author = request.user.author  
+            review.save()
+            return redirect('gamefolio_app:game', game_id=game_id)
+        context = {
+            'game': game,
+            'reviews': reviews,
+            'form': form,
+        }
+        return render(request, 'gamefolio_app/game.html', context)
+
 class NotFoundView(View):
     def get(self, request):
         return render(request, "gamefolio_app/404.html")
@@ -335,10 +363,3 @@ class SearchView(View):
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
     
-
-class GamePageView(View):
-    def get(self, request, game_id):
-        game = Game.objects.get(id=game_id)
-        reviews = Review.objects.filter(game=game_id)
-        return render(request, 'gamefolio_app/game.html', {'game':game, 'reviews':reviews})
-

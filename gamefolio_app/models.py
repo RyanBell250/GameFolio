@@ -93,13 +93,14 @@ class List(models.Model):
 
     def save(self, *args, **kwargs):
         #Same idea as gameslug, if user has list with two same names, create indexed slug
-        slug = slugify(self.title)                                      
-        index = List.objects.filter(author=self.author, slug__startswith=slug).count()    
-        if(index != 0):                   
-            while(List.objects.filter(author=self.author, slug=slug+"-"+str(index)).count() > 0):
-                index += 1;                          
-            slug += "-" + str(index)                                
-        self.slug = slug                                              
+        if(self.slug == ""):
+            slug = slugify(self.title)                                      
+            index = List.objects.filter(author=self.author, slug__startswith=slug).count()    
+            if(index != 0):                   
+                while(List.objects.filter(author=self.author, slug=slug+"-"+str(index)).count() > 0):
+                    index += 1;                          
+                slug += "-" + str(index)                                
+            self.slug = slug                                              
         super(List, self).save(*args, **kwargs)
 
     def __str__(self):

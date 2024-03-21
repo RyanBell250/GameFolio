@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from django.db.models import Count, Sum, Avg
+from django.db.models import Avg, Count, Sum
+from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
@@ -11,12 +12,11 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
-from gamefolio_app.models import Game, Review, Author
-
-from gamefolio_app.forms import UserForm , AuthorForm, CreateListForm
-from gamefolio_app.models import Game, Review, List, ListEntry
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
+from gamefolio_app.models import Game, Review, Author, List, ListEntry
 
 class IndexView(View):
     def get(self, request):
@@ -269,6 +269,36 @@ class InlineSuggestionsView(View):
         print(game_list)
         return return_val
 
+class GamePageView(View):
+    def get(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        reviews = Review.objects.filter(game=game)
+        form = ReviewForm()  
+        context = {
+            'game': game,
+            'reviews': reviews,
+            'form': form,  
+        }
+        return render(request, 'gamefolio_app/game.html', context)
+
+    def post(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        reviews = Review.objects.filter(game=game_id)
+
+        form = ReviewForm(request.POST)  
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.game = game  
+            review.author = request.user.author  
+            review.save()
+            return redirect('gamefolio_app:game', game_id=game_id)
+        context = {
+            'game': game,
+            'reviews': reviews,
+            'form': form,
+        }
+        return render(request, 'gamefolio_app/game.html', context)
+
 class NotFoundView(View):
     def get(self, request):
         return render(request, "gamefolio_app/404.html")
@@ -400,7 +430,7 @@ class SearchView(View):
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
     
-#Helper Functions 
+#Helper Functions
 def visitor_cookie_handler(request):
     visits = int(get_server_side_cookie(request, 'visits', '1')) 
     last_visit_cookie = get_server_side_cookie(request,

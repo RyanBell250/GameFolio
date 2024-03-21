@@ -38,12 +38,12 @@
         {% for game in games %}
         <div class="col-lg-4 mb-5">
             <div class="card h-100 shadow border-0"> 
-                <img class="card-img-top game-review-image" src="{% get_image game "720p" %}" alt="{{ game.title }} thumbnail" />
+                <a href="{% url 'gamefolio_app:game' game.id %}"><img class="card-img-top game-review-image" src="{% get_image game '720p' %}" alt="{{ game.title }} thumbnail" /></a>
                 <div class="card-body p-4">
                     <button type="genre" class="btn btn-outline-success">{{ game.genre }}</button>
                     <h5 class="card-title mb-3"></h5>
                     <div style="color: #198754">{{ game.average_text_rating }}</div> 
-                    <h3 class="card-title mb-3"><a class="game-review-link"><strong>{{ game.title }}</strong></a></h3>
+                    <h3 class="card-title mb-3"><a class="game-review-link" href="{% url 'gamefolio_app:game' game.id %}"><strong>{{ game.title }}</strong></a></h3>
                     <p class="card-text mb-0">{{ game.description|truncatechars:100 }}</p>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                                 </div>
                             </div>
                         <div class = "row-2 mt-2">
-                            <h4 class="mb-1 fw-semibold text-truncate"><a class="game-review-link " href="#!">{{ review.game.title }}</a></h4>
+                            <h4 class="mb-1 fw-semibold text-truncate"><a class="game-review-link " href="{% url 'gamefolio_app:game' review.game.id %}">{{ review.game.title }}</a></h4>
                             <div style = "color: #198754">{{review.get_rating_display}}</div>
                         </div>
                     </div>

@@ -139,6 +139,24 @@
   --bs-border-width: 1px;
 }
 
+.list-game-image {
+  margin: 0px!important;
+  padding: 0px!important;
+  min-width: 50%;
+  max-width: 100%;
+  object-fit: cover;
+  aspect-ratio: 1;
+  display: block;
+}
+
+.list-game-cover {
+  display:grid;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 2% !important;
+}
+
 /* clears the ‘X’ from Internet Explorer */
 input[type=search]::-ms-clear { display: none; width : 0; height: 0; }
 input[type=search]::-ms-reveal { display: none; width : 0; height: 0; }

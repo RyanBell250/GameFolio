@@ -71,7 +71,8 @@
                     {% for list in user_lists %}
                         <div class="col-lg-4 col-md-6 mt-3">  
                             <div class="card h-100 shadow border-0">
-                                <div class="card-body p-4 d-flex flex-column">
+                                <div class="card-body p-4 d-flex flex-column justify-content-center">
+                                    {% render_list_images list %}
                                     <h5 class="card-title mb-3">
                                         <a class="game-review-link" href="{% url 'gamefolio_app:list' list.author.user.username list.slug %}">
                                             {{ list.title }}

@@ -22,3 +22,6 @@ $(document).ready(function() {
     $('#like_btn').click(function() {
         var reviewIdVar;
         reviewIdVar = $(this).attr('data-reviewid');
+
+        $.get('/gamefolio_app/like_review/',
+            {'review_id': reviewIdVar},

@@ -1,0 +1,103 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load tags %}
+
+{% block title_block %}
+    {{ game.title }}
+{% endblock %}
+
+{% block body_block %}
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">{{ game.title }}</h1>
+                    <div style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
+                    <p style = "color: #198754;">Total Reviews: {{ game.total_reviews }}</p>
+                    <p class="lead fw-normal text-white-50 mb-4">{{ game.description }}</p>
+                </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5" src="{% get_image game '720p' %}" style="width: 250px; height: 300px;" alt="{{ game.title }}" /></div>
+        </div>
+    </div>
+</header>
+
+{% if user.is_authenticated %}
+    <section class="py-5">
+        <div class="container px-5 my-5">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-8 col-xl-6">
+                    <div class="text-center">
+                        <h3 class="fw-bolder">Leave a review:</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row gx-5 d-flex justify-content-left">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post" class="text-center">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-outline-success">Submit Review</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% else %}
+    <p>Please <a href="{% url 'auth_login' %}">login</a> to leave a review.</p>
+{% endif %}
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h2 class="fw-bolder">Reviews</h2>
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <div class="col-lg-4 col-xl-4 text-end">
+            <div class="btn-group" role="group" aria-label="Sort reviews">
+                <a href="?sort_reviews=recent" class="btn btn-outline-success">Sort by Recent</a>
+                <a href="?sort_reviews=liked" class="btn btn-outline-success">Sort by Likes</a>
+            </div>
+        </div>
+        <br/>
+
+        <div class="row gx-5">
+            {% for review in reviews %}
+                <div class="col-md-6 col-lg-4 my-3 py-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center mb-3">
+                                <div class="col-md-4">
+                                    <a href="{% url 'gamefolio_app:profile' review.author.user %}">
+                                        <img class="border border-2 border-light shadow-sm img-fluid rounded game-review-image" src="{{ MEDIA_URL}}{{ review.author.picture }}" alt="{{ review.author.user }} profile picture" />
+                                    </a>
+                                </div>
+                                <div class="col-md-8">
+                                    <a class="user-review-link text-decoration-none link-dark" href="{% url 'gamefolio_app:profile' review.author.user %}">
+                                        <h6 class="fw-semibold mb-0">{{ review.author.user }}</h6>
+                                    </a>
+                                    <div class="text-muted">{{ review.datePosted }}</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div style="color: #198754">{{ review.get_rating_display }}</div>
+                                <div>{{ review.content|truncatechars:200 }}</div>
+                            </div>
+                            <div class="small text-muted"> {{ review.likes }} likes </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

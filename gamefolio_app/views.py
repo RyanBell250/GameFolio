@@ -1,33 +1,33 @@
-from django.shortcuts import render, get_object_or_404
+from datetime import datetime
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from django.db.models import Count, Sum
+from django.db.models import Avg, Count, Sum
 from django.shortcuts import render
 from django.urls import reverse
-from django.shortcuts import redirect
 from django.contrib.auth.views import LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
-from gamefolio_app.models import Game, Review, Author
-
-from gamefolio_app.forms import UserForm , AuthorForm, CreateListForm
-from gamefolio_app.models import Game, Review, List, ListEntry
-from django.db.models import Avg, Sum
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
+from gamefolio_app.models import Game, Review, Author, List, ListEntry
 
 class IndexView(View):
     def get(self, request):
         game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:6]
         reviews_list = Review.objects.order_by('-likes')[:6]
+        visitor_cookie_handler(request)
         
         context_dict = {}
         context_dict['games'] = game_list
         context_dict['reviews'] = reviews_list
+        context_dict['visits'] = request.session['visits']
         
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
@@ -167,9 +167,11 @@ class ListView(View):
     @method_decorator(login_required)
     def get(self, request, author_username, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
+        list_obj.views += 1
+        list_obj.save()      
         list_entries = list_obj.listentry_set.all()
         all_games = Game.objects.all().order_by('title')
-        context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games}
+        context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games, 'views': request.session['visits']}
         return render(request, 'gamefolio_app/list.html', context)
     
     @method_decorator(login_required)
@@ -241,7 +243,7 @@ class ListDeleteView(View):
 class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):
-        lists = List.objects.all()
+        lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
         paginator = Paginator(lists, 18)
         page_number = request.GET.get('page')
         
@@ -252,8 +254,59 @@ class ListsView(View):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
             
-        context_dict = {'all_lists': page_obj,}
-        return render(request,'gamefolio_app/lists.html', context_dict)
+        context_dict = {'all_lists': page_obj}
+        return render(request, 'gamefolio_app/lists.html', context_dict)
+    
+class InlineSuggestionsView(View):
+    def get(self, request):
+        if 'suggestion' in request.GET:
+            suggestion = request.GET['suggestion']
+        else:
+            suggestion = ''
+        game_list = get_games_list(max_results=8, starts_with=suggestion)
+
+        if len(game_list) == 0:
+            game_list = Game.objects.order_by('title')[:8]
+        return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
+        print(game_list)
+        return return_val
+
+class GamePageView(View):
+    def get(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        reviews = Review.objects.filter(game=game)
+        
+        sort_reviews_by = request.GET.get('sort_reviews', 'recent')
+        if sort_reviews_by == 'liked':
+            reviews = reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+        else:
+            reviews = reviews.order_by('-datePosted')
+        
+        form = ReviewForm()  
+        context = {
+            'game': game,
+            'reviews': reviews,
+            'form': form,  
+        }
+        return render(request, 'gamefolio_app/game.html', context)
+
+    def post(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        reviews = Review.objects.filter(game=game_id)
+
+        form = ReviewForm(request.POST)  
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.game = game  
+            review.author = request.user.author  
+            review.save()
+            return redirect('gamefolio_app:game', game_id=game_id)
+        context = {
+            'game': game,
+            'reviews': reviews,
+            'form': form,
+        }
+        return render(request, 'gamefolio_app/game.html', context)
 
 class NotFoundView(View):
     def get(self, request):
@@ -385,3 +438,37 @@ class SearchView(View):
 
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
+    
+#Helper Functions
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1')) 
+    last_visit_cookie = get_server_side_cookie(request,
+                                               'last_visit',
+                                               str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+                                        '%Y-%m-%d %H:%M:%S')
+
+    
+    if (datetime.now() - last_visit_time).seconds > 0:
+        visits = visits + 1
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        request.session['last_visit'] = last_visit_cookie
+
+    request.session['visits'] = visits
+
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+def get_games_list(max_results=0, starts_with=''):
+    games_list = []
+    if starts_with:
+        games_list = Game.objects.filter(title__startswith=starts_with)
+    if max_results > 0:
+        if len(games_list) > max_results:
+            games_list = games_list[:max_results]
+    
+    return games_list

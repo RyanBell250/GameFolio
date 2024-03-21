@@ -38,6 +38,7 @@
                                     <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
                                     <p class="card-text mb-0">{{ list.description|truncatechars:75 }}</p>
                                 </div>
+                                <p class="card-text mb-2 ms-2">{{ list.views }} views</p> 
                             </div>
                         </div>
                     {% endfor %}

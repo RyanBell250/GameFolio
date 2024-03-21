@@ -12,8 +12,12 @@
         <div class="row gx-5 align-items-center justify-content-center">
             <div class="col-lg-8 col-xl-7 col-xxl-6">
                 <div class="my-5 text-center text-xl-start">
-                    <h1 class="display-5 fw-bolder text-white mb-2">{{ list_obj.title }} by {{ list_obj.author.user.username }} </h1>
+                    <h1 class="display-5 fw-bolder text-white mb-2">{{ list_obj.title }}</h1>
+                    <p class="lead fw-normal text-white mb-4">  by 
+                        <a class="list-profile-link" href="{% url 'gamefolio_app:profile' list_obj.author.user.username %}" >{{ list_obj.author.user.username }}</a>
+                    </p>
                     <p class="lead fw-normal text-white mb-4">{{ list_obj.description }}</p>
+                    <p class="lead fw-normal text-white mb-4">views: {{ list_obj.views }}</p>
 
                     {% if user.is_authenticated and user == list_obj.author.user %}
                         <form method="post" action="{% url 'gamefolio_app:list_delete' author_username=list_obj.author.user.username slug=list_obj.slug %}">

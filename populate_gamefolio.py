@@ -153,7 +153,7 @@ def populate_lists():
                 #Make List
                 list_name = random.choice(list_names).format(username = author.user.username)
                 description = random.choice(["", "This is just a placeholder list description rather than nothing."])
-                list = List(author = author, title = list_name, description = description)
+                list = List(author = author, title = list_name, description = description, views = random.randint(0, 1000))
                 list.save()
                 
                 #Add entries

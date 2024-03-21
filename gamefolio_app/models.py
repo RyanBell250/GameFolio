@@ -89,16 +89,18 @@ class List(models.Model):
     slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name
     title = models.CharField(max_length = 128, blank = False)
     description = models.TextField(default = "", blank = True)
+    views = models.IntegerField(default = 0)
 
     def save(self, *args, **kwargs):
         #Same idea as gameslug, if user has list with two same names, create indexed slug
-        slug = slugify(self.title)                                      
-        index = List.objects.filter(author=self.author, slug__startswith=slug).count()    
-        if(index != 0):                   
-            while(List.objects.filter(author=self.author, slug=slug+"-"+str(index)).count() > 0):
-                index += 1;                          
-            slug += "-" + str(index)                                
-        self.slug = slug                                              
+        if(self.slug == ""):
+            slug = slugify(self.title)                                      
+            index = List.objects.filter(author=self.author, slug__startswith=slug).count()    
+            if(index != 0):                   
+                while(List.objects.filter(author=self.author, slug=slug+"-"+str(index)).count() > 0):
+                    index += 1;                          
+                slug += "-" + str(index)                                
+            self.slug = slug         
         super(List, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -113,3 +115,4 @@ class ListEntry(models.Model):
 
     def __str__(self):
         return str(self.list) + " : " + str(self.game)
+    

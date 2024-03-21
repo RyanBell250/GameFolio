@@ -46,7 +46,7 @@
 <div style="margin-left: 400px;">
 <body class="d-flex flex-column h-100">
     <main class="flex-shrink-0">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
             <div class="container px-5">
                 <a class="navbar-brand" href="{% url 'gamefolio_app:index' %}">GameFolio</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
                             <form class="d-flex" action="{% url 'gamefolio_app:search' %}" method = "get" id ="search-form">
                                 <input type="hidden" name="query" value="" id="search-query-parameter"/> 
                                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id = "search-bar" value = "{{ query }}">
-                                <button class="btn bg-transparent border-none" style="margin-left: -40px; z-index: 100;"type="reset" id = "reset-button"><div class = "fw-light d-flex align-items-center text-center">&times;</div></button>
+                                <button class="btn bg-transparent border-none" style="margin-left: -40px; z-index: 100;" id = "reset-button"><div class = "fw-light d-flex align-items-center text-center">&times;</div></button>
                                 <button class="btn btn-outline-success" type="submit" id = "search-button">Search</button>
                             </form>
                         </li>

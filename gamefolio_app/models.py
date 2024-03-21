@@ -100,7 +100,7 @@ class List(models.Model):
                 while(List.objects.filter(author=self.author, slug=slug+"-"+str(index)).count() > 0):
                     index += 1;                          
                 slug += "-" + str(index)                                
-            self.slug = slug                                              
+            self.slug = slug         
         super(List, self).save(*args, **kwargs)
 
     def __str__(self):

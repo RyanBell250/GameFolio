@@ -1,0 +1,23 @@
+{% load tags %}
+{% load static %}
+<div class="col-lg-4 mb-5">
+    <div class="card h-100 shadow border-0"> 
+        <img class="card-img-top game-review-image" src="{% get_image game "720p" %}" alt="{{ game.title }} thumbnail" />
+        <div class="card-body p-4">
+            <a href = "{% url 'gamefolio_app:search' %}?genre={{game.genre}}"><button type="genre" class="btn btn-outline-success">{{ game.genre }}</button></a>
+            <h5 class="card-title mb-3"></h5>
+            <div style="color: #198754">{{ game.average_text_rating }}</div> 
+            <h3 class="card-title mb-3"><a class="game-review-link"><strong>{{ game.title }}</strong></a></h3>
+            <p class="card-text mb-0">{{ game.description|truncatechars:100 }}</p>
+            {% if list and user.is_authenticated and user == list.author.user %}
+            <form method="post" action="{% url 'gamefolio_app:remove_game' author_username=list.author.user.username slug=list.slug %}">
+                {% csrf_token %}
+                <div class="gap-between-select-and-button">
+                    <input type="hidden" name="game_id" value="{{ game.id }}">
+                </div>
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -110,8 +110,10 @@ class ProfileView(View):
 
         if sort_reviews_by == 'liked':
             user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
-        else:
+        elif sort_reviews_by == 'recent':
             user_reviews = user_reviews.order_by('-datePosted')
+        elif sort_reviews_by == 'rating':
+            user_reviews = user_reviews.order_by('-rating')
 
         context_dict = {'user_profile': user_profile, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': user_reviews}
         return render(request, 'gamefolio_app/profile.html', context_dict)
@@ -163,8 +165,8 @@ class ListProfilesView(View):
       
 class ListView(View):
     @method_decorator(login_required)
-    def get(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def get(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         list_obj.views += 1
         list_obj.save()      
         list_entries = list_obj.listentry_set.all()
@@ -173,23 +175,23 @@ class ListView(View):
         return render(request, 'gamefolio_app/list.html', context)
     
     @method_decorator(login_required)
-    def post(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def post(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         if request.user == list_obj.author.user:
             game_id = request.POST.get('game')
             game = get_object_or_404(Game, id=game_id)
             ListEntry.objects.create(list=list_obj, game=game)
-        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
+        return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
 class RemoveGameView(View):
     @method_decorator(login_required)
-    def post(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def post(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         if request.user == list_obj.author.user:
             game_id = request.POST.get('game_id')
             game_to_remove = get_object_or_404(ListEntry, list=list_obj, game_id=game_id)
             game_to_remove.delete()
-        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
+        return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
 class CreateListView(View):
     @method_decorator(login_required)
@@ -227,8 +229,8 @@ class CreateListView(View):
             return render(request, 'gamefolio_app/create_list.html', context_dict)
         
 class ListDeleteView(View):
-    def post(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def post(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
 
         if request.user == list_obj.author.user:
             list_obj.delete()

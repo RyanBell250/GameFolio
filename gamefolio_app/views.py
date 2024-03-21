@@ -477,5 +477,15 @@ class LikeReviewView(View):
     @method_decorator(login_required)
     def get(self, request):
         review_id = request.GET.get('review_id')
+        try:
+            review = Review.objects.get(pk=review_id)
+        except Review.DoesNotExist:
+            return HttpResponse(-1)
+        except ValueError:
+            return HttpResponse(-1)
+        review.likes += 1
+        review.save()
         
+        return HttpResponse(review.likes)
+
 

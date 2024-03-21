@@ -183,6 +183,20 @@ class ListView(View):
             ListEntry.objects.create(list=list_obj, game=game)
         return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
+class AddListGame(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        if 'id' in request.GET:
+            id = request.GET['id']
+        else:
+            id = ''
+        game = get_object_or_404(Game, id = id) 
+        context = {'game': game}
+        value = render(request, 'gamefolio_app/list_entry.html', context)
+        print(value);
+        return value
+
+
 class RemoveGameView(View):
     @method_decorator(login_required)
     def post(self, request, author_username, slug):

@@ -14,6 +14,7 @@ urlpatterns = [
     
     path('lists/', views.ListsView.as_view(), name='lists'),
     path('create_list/', views.CreateListView.as_view(), name='create_list'),
+    path('get-game/', views.AddListGame.as_view(), name='get_game'),
     path('<str:author_username>/<slug:slug>/delete/', views.ListDeleteView.as_view(), name='list_delete'),
     path('list/<author_username>/<slug:slug>', views.ListView.as_view(), name='list'),
     path('list/<str:author_username>/<str:slug>/remove_game/', views.RemoveGameView.as_view(), name='remove_game'),

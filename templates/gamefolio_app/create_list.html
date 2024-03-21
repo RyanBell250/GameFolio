@@ -23,8 +23,8 @@
 <br/>
 
 <div>
-    <div class="row gx-5 d-flex justify-content-left">
-        <div class="col-md-6 offset-md-3">
+    <div class="row d-flex justify-content-left">
+        <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-body">
                     <form role="form" method="post" action=".">
@@ -39,13 +39,11 @@
                         <div class="small row">
                             <div class ="col-8 text-muted text-end">Don't worry if you forget to add a game, you can always add it later.</div>
                         </div>
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id = "list-search-bar" value =>
+                                
                         <br/>
-                        <div class="checkboxes">
-                            {% for game in form.games %}
-                                {{ game }}
-                            {% endfor %}
+                        <div class = "row" id = "list-games">
                         </div>
-                        <br/>
                         <button type="submit" class="btn btn-outline-success">Create List</button>
                     </form>
                 </div>

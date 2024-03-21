@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+{% load tags %}
 
 <html lang="en">
 <head>
@@ -57,7 +58,7 @@
                         <li class="nav-item">
                             <form class="d-flex" action="{% url 'gamefolio_app:search' %}" method = "get" id ="search-form">
                                 <input type="hidden" name="query" value="" id="search-query-parameter"/> 
-                                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id = "search-bar" value = {{ query }}></input>
+                                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id = "search-bar" value = "{{ query }}">
                                 <button class="btn bg-transparent border-none" style="margin-left: -40px; z-index: 100;"type="reset" id = "reset-button"><div class = "fw-light d-flex align-items-center text-center">&times;</div></button>
                                 <button class="btn btn-outline-success" type="submit" id = "search-button">Search</button>
                             </form>
@@ -102,8 +103,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- JQuery-->
     <script src="{% static "js/jquery-3.3.1.min.js" %}" crossorigin="anonymous"></script>
+    <script
+    src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
+    integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY="
+    crossorigin="anonymous"></script>
     <!-- Core theme JS-->
     <script src="{% static 'js/scripts.js' %}"></script>
+    <!-- AJAX script -->
+    <script src="{% static 'js/gamefolio-ajax.js' %}"></script>
+    
     {% block footer %}
     {% endblock %}
 </body>

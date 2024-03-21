@@ -101,6 +101,13 @@
 .game-hover:hover h3 {
   color: #198754 !important;
 }
+.ui-autocomplete
+{
+    background-color: white;
+    position:absolute;
+    cursor:default;
+    z-index: 1000001 !important
+}
 
 .small-profile-picture {
   width: 50px; /* Adjust as needed */

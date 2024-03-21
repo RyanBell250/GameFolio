@@ -264,8 +264,10 @@ class InlineSuggestionsView(View):
         game_list = get_games_list(max_results=8, starts_with=suggestion)
 
         if len(game_list) == 0:
-            game_list = Game.objects.order_by('-title')
-        return render(request, 'gamefolio_app/games.html', {'games': game_list})
+            game_list = Game.objects.order_by('title')[:8]
+        return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
+        print(game_list)
+        return return_val
 
 class NotFoundView(View):
     def get(self, request):
@@ -425,8 +427,9 @@ def get_server_side_cookie(request, cookie, default_val=None):
 def get_games_list(max_results=0, starts_with=''):
     games_list = []
     if starts_with:
-        games_list = Game.objects.filter(title__istartswith=starts_with)
+        games_list = Game.objects.filter(title__startswith=starts_with)
     if max_results > 0:
         if len(games_list) > max_results:
             games_list = games_list[:max_results]
+    
     return games_list

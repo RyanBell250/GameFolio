@@ -1,11 +1,15 @@
-
-$('#search-bar').keyup(function() { 
-    var query;
-    query = $(this).val();
-
-        $.get('/gamefolio_app/suggest/',
-              {'suggestion': query},
-              function(data) { 
-                $('#search-results').html(data);
-            }) 
-});
+$(document).ready(function() {
+    
+    $("#search-bar").autocomplete({
+        source: function(request, response) {
+            var query;
+            query = $("#search-bar").val();
+            $.ajax({
+                url: '/gamefolio_app/suggest/?suggestion='+query,
+                success: function(data) {
+                    response(data.split(","))
+                }
+            });
+        }   
+    })
+})

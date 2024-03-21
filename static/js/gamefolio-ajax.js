@@ -28,3 +28,4 @@ $(document).ready(function() {
             function(data) {
                 $('#like_count').html(data);
                 $('#like_btn').hide();
+            }

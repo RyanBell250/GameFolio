@@ -56,8 +56,9 @@ list_names = ["Worst games of all time", "{username}'s list of best games of all
 
 ###########################################################- Population and Deletion Methods -###########################################################
 
-def populate_games():
-    print("Populating games...")
+def populate_games(print_messages = False):
+    if(print_messages):
+        print("Populating games...")
     query_count = 0
     for games_left in range(NUMBER_OF_GAMES, 0, -RESULTS_PER_QUERY):
 
@@ -94,11 +95,16 @@ def populate_games():
         Game.objects.bulk_create(games_to_add)
             
         query_count+=1
-        print(f"{Game.objects.count()}/{NUMBER_OF_GAMES}")
-    print("Games populated!")
+        if(print_messages):
+            print(f"{Game.objects.count()}/{NUMBER_OF_GAMES}")
+        
+    if(print_messages):
+     print("Games populated!")
 
-def populate_users():
-    print("Populating authors and users...")
+def populate_users(print_messages = False):
+    
+    if(print_messages):
+        print("Populating authors and users...")
     authors_batch = []
     for i in range(NUMBER_OF_USERS):
         try:
@@ -113,10 +119,13 @@ def populate_users():
             print(e)
             continue
     Author.objects.bulk_create(authors_batch)
-    print(f"User and Author populated with {Author.objects.count()} entries!")
+    
+    if(print_messages):
+        print(f"User and Author populated with {Author.objects.count()} entries!")
 
-def populate_reviews():
-    print("Populating reviews...")
+def populate_reviews(print_messages = False):
+    if(print_messages):
+        print("Populating reviews...")
     number_of_users = User.objects.count()
     reviews_batch = []
     for game in Game.objects.all():
@@ -147,10 +156,14 @@ def populate_reviews():
             if(len(reviews_batch) > 5000):
                 Review.objects.bulk_create(reviews_batch)
                 reviews_batch.clear()
-    print(f"Reviews populated with {Review.objects.count()} entries!")
+                
+    if(print_messages):
+        print(f"Reviews populated with {Review.objects.count()} entries!")
 
-def populate_lists():
-    print("Populating lists and List Entries...")
+def populate_lists(print_messages = False):
+    
+    if(print_messages):
+        print("Populating lists and List Entries...")
     list_entry_batch = []
     for author in Author.objects.all():
         #Not every user is gonna have lists
@@ -176,9 +189,10 @@ def populate_lists():
                 print(e)
                 continue
     ListEntry.objects.bulk_create(list_entry_batch)
-
-    print(f"List populated with {List.objects.count()} entries!")
-    print(f"List Entries populated with {ListEntry.objects.count()} entries!")
+    
+    if(print_messages):
+        print(f"List populated with {List.objects.count()} entries!")
+        print(f"List Entries populated with {ListEntry.objects.count()} entries!")
 
 def clear_database():
     print("Deleting all records...")
@@ -251,11 +265,11 @@ def populate():
     if confirm("Are you sure you want to populate the database?"):
         random.seed(SEED)
         print("Populating the database...")
-        populate_games()
+        populate_games(True)
         if all:
-            populate_users()
-            populate_reviews()
-            populate_lists()
+            populate_users(True)
+            populate_reviews(True)
+            populate_lists(True)
     else:
         print("Exiting the population program!")
 

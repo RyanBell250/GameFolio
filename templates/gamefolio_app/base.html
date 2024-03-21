@@ -21,27 +21,30 @@
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
 </head>
 
+
+<!-- Sidebar -->
+
 <body class="d-flex flex-column h-100">
-    <!-- Sidebar -->
-    <div class="bg-dark" style="position: fixed; top: 0; bottom: 0; left: 0; width: 200px; color: white; padding: 20px;">
+    <div class="bg-dark" style="position: fixed; top: 0; bottom: 0; left: 0; width: 400px; color: white; padding: 20px;">
         <h3>{{ user }}</h3>
         {% if user.is_authenticated %}
-        <img src="{{ MEDIA_URL }}{{ user.author.picture }}" alt="Profile Picture" style="width: 100px; height: 100px;">
-        {% endif %}
+        <img class="card-img-top" src="{{ MEDIA_URL }}{{ user.author.picture }}" alt="Profile Picture">
         <ul style="list-style: none; padding: 0;">
-            <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">View My List</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">View Profile</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Edit Profile</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Sign Out</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:create_list' %}">Create List</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:profile' user.username %}">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'auth_password_change' %}">Change Password</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'auth_logout' %}?next=/gamefolio_app/">Logout</a></li>
         </ul>
+        {% endif %}
     </div>
+</body>
 
-    <!-- Main content -->
-    <div style="margin-left: 200px;">
 
+<!-- Navigation-->
+
+<div style="margin-left: 400px;">
 <body class="d-flex flex-column h-100">
     <main class="flex-shrink-0">
-        <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container px-5">
                 <a class="navbar-brand" href="{% url 'gamefolio_app:index' %}">GameFolio</a>
@@ -61,11 +64,8 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Home</a></li>
                         {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio:list_profiles' %}">List Profiles</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:lists' %}">Lists</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:profile' user.username %}">Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'auth_logout' %}?next=/gamefolio_app/">Logout</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'auth_password_change' %}">Change Password</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio:list_profiles' %}">Users</a></li>
                         {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'auth_login' %}">Login</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:registration_register' %}">Register</a></li>

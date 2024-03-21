@@ -472,3 +472,8 @@ def get_games_list(max_results=0, starts_with=''):
             games_list = games_list[:max_results]
     
     return games_list
+
+class LikeReviewView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        review_id = request.GET[]

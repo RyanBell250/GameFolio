@@ -260,6 +260,7 @@ class GamePageView(View):
             'game': game,
             'reviews': reviews,
             'form': form,  
+            "review_ratings": get_game_ratings(game_id),
         }
         return render(request, 'gamefolio_app/game.html', context)
 
@@ -278,6 +279,7 @@ class GamePageView(View):
             'game': game,
             'reviews': reviews,
             'form': form,
+            "review_ratings": get_game_ratings(game_id),
         }
         return render(request, 'gamefolio_app/game.html', context)
 
@@ -440,9 +442,4 @@ def get_game_ratings(game_id):
         rating.set_height(max_count)
 
     return reviews
-
-class GamePageView(View):
-    def get(self, request, game_id):
-        game = Game.objects.get(id=game_id)
-        return render(request, 'gamefolio_app/game.html', {'game':game, "review_ratings": get_game_ratings(game_id)})
 

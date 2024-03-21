@@ -131,6 +131,16 @@
   --bs-border-width: 1px;
 }
 
+.rating-bar {
+  background-color: #59635f;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: 2px;
+}
+.rating-bar:hover {
+  background-color: #198754;
+}
+
 *,
 *::before,
 *::after {

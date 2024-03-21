@@ -15,6 +15,14 @@
                     <div style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
                     <p style = "color: #198754;">Total Reviews: {{ game.total_reviews }}</p>
                     <p class="lead fw-normal text-white-50 mb-4">{{ game.description }}</p>
+                    <div style = "width: 300px">
+                      <div id = "rating-distribution" class = "row mx-1 align-items-end" style = "height: 100px"> 
+                        {% for rating in review_ratings %}
+                            <div class = "col rating-bar" style = "height: {{rating.height}}%" data-bs-toggle="tooltip" data-bs-title="{{rating.count}} {{rating.rating}} reviews">
+                            </div>     
+                        {% endfor %}
+                      </div>
+                    </div>
                 </div>
             </div>
             <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5" src="{% get_image game '720p' %}" style="width: 250px; height: 300px;" alt="{{ game.title }}" /></div>

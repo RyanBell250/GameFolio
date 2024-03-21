@@ -31,14 +31,16 @@ class UserForm(forms.ModelForm):
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
-        fields = ('website', 'picture',)
+        fields = ('website', 'picture', 'bio',)
         widgets = {
             'website': forms.URLInput(attrs={'class': 'form-control'}),
             'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': '5'}),
         }
         labels = {
             'website': 'Website',
             'picture': 'Profile Picture',
+            'bio': 'Bio',
         }
         
 class ReviewForm(forms.ModelForm):
@@ -55,10 +57,20 @@ class ReviewForm(forms.ModelForm):
         }
 
 class CreateListForm(forms.ModelForm):
-    games = forms.ModelMultipleChoiceField(queryset=Game.objects.all(), widget=forms.CheckboxSelectMultiple)
+    games = forms.ModelMultipleChoiceField(queryset=Game.objects.all().order_by('title'), widget=forms.CheckboxSelectMultiple)
 
     class Meta:
         model = List
         fields = ['title', 'description', 'games']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'games': forms.CheckboxSelectMultiple(),
+        }
+        labels = {
+            'title': 'Title',
+            'description': 'Description',
+            'games': 'Games',
+        }
 
 

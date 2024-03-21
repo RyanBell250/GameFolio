@@ -30,6 +30,7 @@
         {% if user.is_authenticated %}
         <button id="like_btn"
                 data-reviewid="{{ review.pk }}"
+                class="btn btn-primary btn-sm"
     </div>
     <div class = "row mt-3">
         <div>{{review.content|truncatechars:100}}</div>

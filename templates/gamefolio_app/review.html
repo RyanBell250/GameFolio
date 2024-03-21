@@ -25,6 +25,11 @@
             </div>
         </div>
     </div>
+    <div>
+        <strong id ="like_count">{{review.likes}}</strong>likes
+        {% if user.is_authenticated %}
+        
+    </div>
     <div class = "row mt-3">
         <div>{{review.content|truncatechars:100}}</div>
     </div>

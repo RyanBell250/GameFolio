@@ -74,6 +74,7 @@ def populate_games():
         response = requests.post('https://api.igdb.com/v4/games', **BASE_REQUEST)
         games_data = response.json()
 
+        games_to_add = []
         for entry in games_data:
             try:
                 name = entry['name'] 
@@ -86,10 +87,11 @@ def populate_games():
                     picture = entry['cover']['image_id']
 
                 game = Game(id = slug, title = name, description = description, genre = genre, pictureId = picture)
-                game.save()
+                games_to_add.append(game)
             except Exception as e:
                 print(e)
                 continue
+        Game.objects.bulk_create(games_to_add)
             
         query_count+=1
         print(f"{Game.objects.count()}/{NUMBER_OF_GAMES}")
@@ -97,6 +99,7 @@ def populate_games():
 
 def populate_users():
     print("Populating authors and users...")
+    authors_batch = []
     for i in range(NUMBER_OF_USERS):
         try:
             username = random.choice(descriptors) +  random.choice(usernames) + str(random.randint(1000, 9999))
@@ -105,15 +108,17 @@ def populate_users():
             bio = random.choice(bios)
             user = User.objects.create_user(username, email, password)
             author = Author(user = user, bio = bio)
-            author.save()
+            authors_batch.append(author)
         except Exception as e:
             print(e)
             continue
+    Author.objects.bulk_create(authors_batch)
     print(f"User and Author populated with {Author.objects.count()} entries!")
 
 def populate_reviews():
     print("Populating reviews...")
     number_of_users = User.objects.count()
+    reviews_batch = []
     for game in Game.objects.all():
 
         avg_rating = random.randint(1, 10)
@@ -128,21 +133,25 @@ def populate_reviews():
         for author in authors:             
             try:                    
                 content = random.choice(reviews)                                          #Generate random content for review
-                rating = int(random.normal(loc = avg_rating, scale = 2))                  #Generates reviews normally around a point for more realism
+                rating = max(1, min(int(random.normal(loc = avg_rating, scale = 2)), 10)) #Generates reviews normally around a point for more realism
                 views = random.randint(0, game.views)                                     #A review shoudln't have more views than the game
                 likes = int(views * random.random()*0.5)                                  #Likes will be a percentage of the views
                 random_date = end_date - timedelta(random.randint(1,1000))                #Generate random date
                 datePosted = random_date
                 
                 review = Review(author = author, game = game, rating = rating, content = content, likes = likes, views = views, datePosted = datePosted)
-                review.save()
+                reviews_batch.append(review)
             except Exception as e:
                 print(e)
                 continue
+            if(len(reviews_batch) > 5000):
+                Review.objects.bulk_create(reviews_batch)
+                reviews_batch.clear()
     print(f"Reviews populated with {Review.objects.count()} entries!")
 
 def populate_lists():
     print("Populating lists and List Entries...")
+    list_entry_batch = []
     for author in Author.objects.all():
         #Not every user is gonna have lists
         if(random.random() > USER_WITH_LIST_PERCENT):
@@ -162,10 +171,11 @@ def populate_lists():
 
                 for game in games:
                     listEntry = ListEntry(list = list, game = game)
-                    listEntry.save()
+                    list_entry_batch.append(listEntry)
             except Exception as e:
                 print(e)
                 continue
+    ListEntry.objects.bulk_create(list_entry_batch)
 
     print(f"List populated with {List.objects.count()} entries!")
     print(f"List Entries populated with {ListEntry.objects.count()} entries!")
@@ -173,7 +183,7 @@ def populate_lists():
 def clear_database():
     print("Deleting all records...")
     print("This may take a while")
-    ENTRIES_DELETED = 500
+    ENTRIES_DELETED = 5000
     try:
         count = 0
 

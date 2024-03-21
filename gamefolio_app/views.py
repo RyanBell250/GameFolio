@@ -14,9 +14,10 @@ from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
 from django.contrib import messages
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
+from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 class IndexView(View):
     def get(self, request):
@@ -148,10 +149,10 @@ class ListProfilesView(View):
             profiles = profiles.order_by('-total_likes')
         else:
             profiles = profiles.order_by('-total_reviews')
-        
+
         paginator = Paginator(profiles, 18)  
         page_number = request.GET.get('page')
-        
+
         try:
             page_obj = paginator.page(page_number)
         except PageNotAnInteger:
@@ -241,19 +242,40 @@ class ListDeleteView(View):
 class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):
+        MAX_RESULTS_PER_PAGE = 9
         lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
-        paginator = Paginator(lists, 18)
-        page_number = request.GET.get('page')
+        lists_count = len(lists)
         
-        try: 
-            page_obj = paginator.page(page_number)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            page_obj = paginator.page(paginator.num_pages)
+        try:
+            page = request.GET['page'].strip()
+        except Exception as e:
+            page = 0
             
-        context_dict = {'all_lists': page_obj}
+        page_count = lists_count/MAX_RESULTS_PER_PAGE
+        
+        if(page_count == int(page_count)):
+            page_count = int(page_count)
+        else:
+            page_count = int(page_count) + 1
+        page_count = max(page_count,1)
+        
+        try:
+            page = int(page)
+            assert(page >= 0)
+            assert(page < page_count)
+        except Exception as e:
+            print(e)
+            return redirect("gamefolio_app:404")
+        
+        offset = page * MAX_RESULTS_PER_PAGE
+        actual_results = lists[offset:MAX_RESULTS_PER_PAGE+offset]
+        current_page = page + 1
+        
+        pages = calculate_pages(page_count, current_page)
+        
+        context_dict = {"lists" : actual_results, "count": lists_count, "pages": pages, "current_page": current_page, "page_count": page_count}
         return render(request, 'gamefolio_app/lists.html', context_dict)
+
     
 class InlineSuggestionsView(View):
     def get(self, request):
@@ -388,45 +410,7 @@ class SearchView(View):
         actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]
         current_page = page + 1
 
-        #Calculates what page buttons we need to show at the bottom
-        def calculate_pages():
-            pages = []
-            if(page_count <= 5):
-                return [i for i in range(1,int(page_count+1))]
-            else:
-                count = 0
-                for i in range(current_page-1, 1, -1):
-                    if(count == 2):
-                        break
-                    count += 1;
-                    pages.append(i)
-                
-                count = 0
-                for i in range(current_page, page_count, 1):
-                    if(count == 3):
-                        break
-                    count += 1;
-                    pages.append(i)
-
-                if(1 not in pages):
-                    pages.append(1)
-                if(page_count not in pages):
-                    pages.append(page_count)
-
-                pages.sort()
-
-                last_page = pages[0]
-                jump_index = -1
-                i = 0
-                for page in pages:
-                    if(page-last_page > 1):
-                        jump_index = i
-                    i+=1
-                    last_page = page
-            
-                pages.insert(jump_index, "type")
-                return pages
-        pages = calculate_pages()
+        pages = calculate_pages(page_count, current_page)
 
         def get_unique_genres():
             return  Game.objects.values('genre').distinct()
@@ -470,3 +454,42 @@ def get_games_list(max_results=0, starts_with=''):
             games_list = games_list[:max_results]
     
     return games_list
+
+#Calculates what page buttons we need to show at the bottom
+def calculate_pages(page_count, current_page):
+    pages = []
+    if(page_count <= 5):
+        return [i for i in range(1,int(page_count+1))]
+    else:
+        count = 0
+        for i in range(current_page-1, 1, -1):
+            if(count == 2):
+                break
+            count += 1;
+            pages.append(i)
+        
+        count = 0
+        for i in range(current_page, page_count, 1):
+            if(count == 3):
+                break
+            count += 1;
+            pages.append(i)
+
+        if(1 not in pages):
+            pages.append(1)
+        if(page_count not in pages):
+            pages.append(page_count)
+
+        pages.sort()
+
+        last_page = pages[0]
+        jump_index = -1
+        i = 0
+        for page in pages:
+            if(page-last_page > 1):
+                jump_index = i
+            i+=1
+            last_page = page
+    
+        pages.insert(jump_index, "type")
+        return pages

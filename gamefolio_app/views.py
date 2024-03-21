@@ -241,7 +241,7 @@ class ListDeleteView(View):
 class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):
-        lists = List.objects.all()
+        lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
         paginator = Paginator(lists, 18)
         page_number = request.GET.get('page')
         
@@ -252,8 +252,8 @@ class ListsView(View):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
             
-        context_dict = {'all_lists': page_obj,}
-        return render(request,'gamefolio_app/lists.html', context_dict)
+        context_dict = {'all_lists': page_obj}
+        return render(request, 'gamefolio_app/lists.html', context_dict)
     
 class InlineSuggestionsView(View):
     def get(self, request):
@@ -273,6 +273,13 @@ class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
         reviews = Review.objects.filter(game=game)
+        
+        sort_reviews_by = request.GET.get('sort_reviews', 'recent')
+        if sort_reviews_by == 'liked':
+            reviews = reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+        else:
+            reviews = reviews.order_by('-datePosted')
+        
         form = ReviewForm()  
         context = {
             'game': game,

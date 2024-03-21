@@ -172,6 +172,8 @@ class ListView(View):
         list_entries = list_obj.listentry_set.all()
         all_games = Game.objects.all().order_by('title')
         context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games, 'views': request.session['visits']}
+        if(request.user == list_obj.author.user):
+            return redirect('gamefolio_app:list_edit', author_username=author_username, slug=slug);
         return render(request, 'gamefolio_app/list.html', context)
     
     @method_decorator(login_required)
@@ -182,6 +184,51 @@ class ListView(View):
             game = get_object_or_404(Game, id=game_id)
             ListEntry.objects.create(list=list_obj, game=game)
         return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
+
+class EditListView(View):
+    @method_decorator(login_required)
+    def get(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
+        create_list_form = CreateListForm({"title": list_obj.title, "description": list_obj.description})
+        list = ListEntry.objects.all()
+        
+        context_dict = {'create_list_form': create_list_form,
+                        'user_list' : list,
+                        'form': create_list_form,
+                        "title": list_obj.title,
+                        "entries": ListEntry.objects.filter(list = list_obj)}
+        
+        return render(request, 'gamefolio_app/create_list.html', context_dict)
+    
+    @method_decorator(login_required)
+    def post(self, request, author_username, slug): 
+        create_list_form = CreateListForm(request.POST)
+        if create_list_form.is_valid():
+            list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
+            list_obj.description = create_list_form.cleaned_data["description"]
+            list_obj.save()
+            listEntries = ListEntry.objects.filter(list = list_obj)
+            for entry in listEntries:
+                if(entry.game not in create_list_form.cleaned_data["games"]):
+                    entry.delete()
+            for game in create_list_form.cleaned_data["games"]:
+                if(len(ListEntry.objects.filter(game=game, list=list_obj))==0):
+                    ListEntry.objects.create(list=list_obj, game=game)
+
+            return redirect('gamefolio_app:profile', username=request.user.username)
+        else:
+            lists = List.objects.all()
+            list = ListEntry.objects.all()
+
+            context_dict = {
+                'create_list_form': create_list_form,
+                'all_lists': lists,
+                'user_list': list,
+            }
+
+            return render(request, 'gamefolio_app/create_list.html', context_dict)
+        
+
 
 class AddListGame(View):
     @method_decorator(login_required)

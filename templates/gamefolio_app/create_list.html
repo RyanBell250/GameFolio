@@ -1,5 +1,6 @@
 {% extends 'gamefolio_app/base.html' %}
 {% load static %}
+{% load tags %}
 
 {% block title_block %}
     Create List 
@@ -30,10 +31,14 @@
                     <form role="form" method="post" action=".">
                         {% csrf_token %}
                         <h5>Title:</h5>
-                        {{ form.title }}
+                        {% if title %} 
+                            <input type="text" name="title" class="form-control" maxlength="128" required="" id="id_title" value = {{title}} readonly>
+                        {% else %}
+                            {{ form.title }}
+                        {% endif %}
                         <br/>
                         <h5>Description:</h5>
-                        {{ form.description }}
+                            {{ form.description }}
                         <br/>
                         <h5>Select your Games:</h5>
                         <div class="small row">
@@ -43,8 +48,11 @@
                                 
                         <br/>
                         <div class = "row" id = "list-games">
+                            {% for entry in entries %}
+                                {% render_list_entry entry.game %}
+                            {%endfor%}
                         </div>
-                        <button type="submit" class="btn btn-outline-success">Create List</button>
+                        <button type="submit" class="btn btn-outline-success">{% if title %}Save List{%else%}Create List{%endif%}</button>
                     </form>
                 </div>
             </div>

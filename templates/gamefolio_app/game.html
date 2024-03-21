@@ -56,9 +56,18 @@
                 <div class="col-md-6 offset-md-3">
                     <div class="card">
                         <div class="card-body">
-                            <form method="post" class="text-center">
+                            <form method="post" class = "text-center">
                                 {% csrf_token %}
-                                {{ form.as_p }}
+                                <p><label for="id_rating">Rating:</label>  </p>
+                                <div  id = "rating-input" class = "rating ">
+                                    <div id = "rating-hover" class = "rating rating-hover"></div>
+                                    <div id = "rating-actual" class = "rating rating-actual"></div>
+                                    <input name = "rating" id = "id_rating" style="opacity: 0%; width: 0px !important; min-width: 0px;" value="" required type="input"></input>
+                                </div>
+                                <p><label for="id_content">Review Content:</label> 
+                                <textarea name="content" cols="40" rows="5" class="form-control" required="" id="id_content"></textarea>
+                            </p>
+                            
                                 <button type="submit" class="btn btn-outline-success">Submit Review</button>
                             </form>
                         </div>

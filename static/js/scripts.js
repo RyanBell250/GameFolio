@@ -31,7 +31,7 @@ $(document).ready(function() {
 
     function calculateRating(e) {
         var mouseX = e.pageX;
-        var left = $("#rating-hover").position().left;
+        var left = $("#rating-hover").offset().left;
         var width = $("#rating-input").width();
         var relativeMouseX = mouseX-left;
         var percentage = relativeMouseX/width + 0.095;
@@ -40,7 +40,6 @@ $(document).ready(function() {
         }
         return Math.floor(10*percentage);
     }
-
     $('#rating-input').mousemove(function(e) {
         $("#rating-actual").addClass("d-none");
         $("#rating-hover").get(0).style.setProperty("--width", calculateSize(e)+"px");
@@ -53,7 +52,7 @@ $(document).ready(function() {
 
     $('#rating-input').click(function(e) {
         $("#rating-actual").removeClass("d-none");
-        $("#rating-value").attr("value", calculateRating(e));
+        $("#id_rating").attr("value", calculateRating(e));
         $("#rating-actual").get(0).style.setProperty("--width", calculateSize(e) + "px");
         $("#rating-hover").get(0).style.setProperty("--width", "0px");
     });

@@ -79,6 +79,28 @@
   --bs-highlight-bg: #fff3cd;
 }
 
+div.rating {
+  display:inline-block;
+  height:48px;
+  width: 240px;
+  background: url("/static/images/stars.png");
+  padding: 0px !important;
+  margin: 0px !important;
+}
+
+div.rating.rating-hover {
+  position: absolute;
+  --width: 0px;
+  width: var(--width) !important;
+  background: url("/static/images/stars.png") 0px -96px no-repeat !important;
+}
+
+div.rating.rating-actual {
+  position: absolute;
+  --width: 0px;
+  width: var(--width) !important;
+  background: url("/static/images/stars.png") 0px -48px no-repeat !important;
+
 .gap-between-select-and-button {
   margin-bottom: 20px; 
 }

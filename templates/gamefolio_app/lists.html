@@ -1,5 +1,6 @@
 {% extends 'gamefolio_app/base.html' %}
 {% load static %}
+{% load tags %}
 
 {% block title_block %}
     User Created Lists
@@ -27,13 +28,14 @@
                     {% for list in all_lists %}
                         <div class="col-lg-4 col-md-6 mt-3">  
                             <div class="card h-100 shadow border-0">
-                                <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
                                 <div class="card-body p-4 d-flex flex-column">
+                                    {% render_list_images list %}
                                     <h5 class="card-title mb-3">
                                         <a class="game-review-link" href="{% url 'gamefolio_app:list' list.author.user.username list.slug %}">
                                             {{ list.title }} by {{ list.author }}
                                         </a>
                                     </h5>
+                                    <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
                                     <p class="card-text mb-0">{{ list.description|truncatechars:75 }}</p>
                                 </div>
                             </div>

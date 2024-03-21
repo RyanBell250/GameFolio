@@ -4,4 +4,5 @@
     <div class="card h-100 shadow border-0"> 
         <img class="card-img-top list-entry-image" src="{% get_image game "720p" %}" alt="{{ game.title }} thumbnail" />
     </div>
+    <input type="hidden" value = "{{game.id}}" name = "games" id = "{{game.id}}">
 </div>

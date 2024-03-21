@@ -21,3 +21,4 @@ $(document).ready(function() {
 $(document).ready(function() {
     $('#like_btn').click(function() {
         var reviewIdVar;
+        reviewIdVar = $(this).attr('data-reviewid');

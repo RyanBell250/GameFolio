@@ -142,25 +142,45 @@ class ProfileView(View):
 class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
+        MAX_RESULTS_PER_PAGE = 9
         sort_by = request.GET.get('sort_by', 'reviews')
         profiles = Author.objects.annotate(total_reviews=Count('review'), total_likes=Sum('review__likes'))
+        profiles_count = len(profiles)
         
         if sort_by == 'likes':
             profiles = profiles.order_by('-total_likes')
         else:
             profiles = profiles.order_by('-total_reviews')
-
-        paginator = Paginator(profiles, 18)  
-        page_number = request.GET.get('page')
-
+        
         try:
-            page_obj = paginator.page(page_number)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            page_obj = paginator.page(paginator.num_pages)
+            page = request.GET['page'].strip()
+        except Exception as e:
+            page = 0
             
-        return render(request, 'gamefolio_app/list_profiles.html', {'authors': page_obj})
+        page_count = profiles_count/MAX_RESULTS_PER_PAGE
+        
+        if(page_count == int(page_count)):
+            page_count = int(page_count)
+        else:
+            page_count = int(page_count) + 1
+        page_count = max(page_count,1)  
+        
+        try:
+            page = int(page)
+            assert(page >= 0)
+            assert(page < page_count)
+        except Exception as e:
+            print(e)
+            return redirect("gamefolio_app:404")
+        
+        offset = page * MAX_RESULTS_PER_PAGE
+        actual_results = profiles[offset:MAX_RESULTS_PER_PAGE+offset]
+        current_page = page + 1
+        
+        pages = calculate_pages(page_count, current_page)
+        
+        context_dict = {"authors" : actual_results, "count": profiles_count, "pages": pages, "current_page": current_page, "page_count": page_count, "sort_by": sort_by}
+        return render(request, 'gamefolio_app/list_profiles.html', context_dict)
       
 class ListView(View):
     @method_decorator(login_required)

@@ -100,6 +100,19 @@ div.rating.rating-actual {
   --width: 0px;
   width: var(--width) !important;
   background: url("/static/images/stars.png") 0px -48px no-repeat !important;
+
+.gap-between-select-and-button {
+  margin-bottom: 20px; 
+}
+
+.checkboxes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.checkboxes input[type="checkbox"]:checked {
+  background-color: #198754;
 }
 
 .game-hover:hover .game-review-image {
@@ -138,6 +151,22 @@ div.rating.rating-actual {
   filter:  brightness(80%) saturate(150%) !important;
   border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
   --bs-border-width: 1px;
+}
+
+.rating-bar {
+  background-color: #59635f;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  margin-right: 1px;
+  min-width: 0px !important;
+  width: inherit !important;
+  padding: 0px !important;
+  flex-grow: 1 !important;
+}
+.rating-bar:hover {
+  background-color: #198754;
 }
 
 *,

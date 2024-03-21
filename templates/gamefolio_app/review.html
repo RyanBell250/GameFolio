@@ -4,7 +4,7 @@
 <div class = "col-md-12 col-lg-6 col-xl-4 my-3 py-3">
     <div class = "row d-flex align-items-end">
         <div class = "col-md-4">
-            <a href = "#!">
+            <a href="{% url 'gamefolio_app:game' review.game.id %}">
                 <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image review.game "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
             </a>
         </div>
@@ -20,7 +20,7 @@
                     </div>
                 </div>
             <div class = "row-2 mt-2">
-                <h4 class="mb-1 fw-semibold text-truncate"><a class="game-review-link " href="#!">{{ review.game.title }}</a></h4>
+                <h4 class="mb-1 fw-semibold text-truncate"><a class="game-review-link " href="{% url 'gamefolio_app:game' review.game.id %}">{{ review.game.title }}</a></h4>
                 <div style = "color: #198754">{{review.get_rating_display}}</div>
             </div>
         </div>

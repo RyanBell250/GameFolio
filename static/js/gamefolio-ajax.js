@@ -10,6 +10,10 @@ $(document).ready(function() {
                     response(data.split(","))
                 }
             });
-        }   
+        },
+        select: function(event, ui) {
+            $('#search-query-parameter').attr("value", ui.item.value);
+            $("#search-form").submit();
+        }
     })
 })

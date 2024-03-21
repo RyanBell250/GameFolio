@@ -1,15 +1,25 @@
 {% extends 'gamefolio_app/base.html' %}
+{% load static %}
 
 {% block title_block %}
     Register
 {% endblock %}
 
 {% block body_block %}
-    <div class="jumbotron p-4">
-        <div class="container">
-            <h1 class="jumbotron-heading">Register Here</h1> 
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">Register Here</h1>
+                </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="header-image-fixed rounded-3 my-5" src="{% static "images/homepage.png" %}" style="width: 250px; height: 250px;" alt="homepage image" /></div>
         </div>
     </div>
+</header>
+
+<br/>
 
     <div class="container"> 
         <div class="row">
@@ -35,6 +45,9 @@
                 Password:</label>
             <input class="form-control" id="id_password1" name="password1"
                 type="password" />
+            <span class="helptext">
+                Password must be at least 8 characters long and include at least 1 capital letter and 1 digit.
+            </span>
             </p>
             <p class="required">
             <label class="required" for="id_password2">

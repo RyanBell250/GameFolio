@@ -55,7 +55,7 @@
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
                 <div class="text-center">
-                    <h2 class="fw-bolder">Most Liked Reviews of the Day</h2>
+                    <h2 class="fw-bolder">Reviews</h2>
                 </div>
             </div>
         </div>
@@ -66,12 +66,12 @@
                         <div class="card-body">
                             <div class="row align-items-center mb-3">
                                 <div class="col-md-4">
-                                    <a href="#!">
+                                    <a href="{% url 'gamefolio_app:profile' review.author.user %}">
                                         <img class="border border-2 border-light shadow-sm img-fluid rounded game-review-image" src="{{ MEDIA_URL}}{{ review.author.picture }}" alt="{{ review.author.user }} profile picture" />
                                     </a>
                                 </div>
                                 <div class="col-md-8">
-                                    <a class="user-review-link text-decoration-none link-dark" href="#!">
+                                    <a class="user-review-link text-decoration-none link-dark" href="{% url 'gamefolio_app:profile' review.author.user %}">
                                         <h6 class="fw-semibold mb-0">{{ review.author.user }}</h6>
                                     </a>
                                     <div class="text-muted">{{ review.datePosted }}</div>

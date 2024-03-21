@@ -80,7 +80,7 @@
                         <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
                     </div>
                     <div class = "col-10">
-                        <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="#!">{{ result.title }}</a></h4>
+                        <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="{% url "gamefolio_app:game" result.id %}">{{ result.title }}</a></h4>
                         <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/5.0" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
                         <div row>
                             <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>

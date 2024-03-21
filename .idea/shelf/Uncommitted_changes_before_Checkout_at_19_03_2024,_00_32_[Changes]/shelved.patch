@@ -1,0 +1,836 @@
+Index: gamefolio_app/tests.py
+===================================================================
+diff --git a/gamefolio_app/tests.py b/gamefolio_app/tests.py
+deleted file mode 100644
+--- a/gamefolio_app/tests.py	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
++++ /dev/null	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
+@@ -1,37 +0,0 @@
+-from django.test import TestCase
+-from django.contrib.auth.models import User
+-from gamefolio_app.models import Game, Review, Author
+-
+-class ModelTests(TestCase):
+-
+-    def setUp(self):
+-        #Generate generic test objects
+-        self.game = Game(title = "Game")
+-        self.game.save()
+-        self.user = User.objects.create_user("Mario", "mario@mario.com", "yoshi123")
+-        self.author = Author(user = self.user)
+-        self.author.save()
+-        
+-    def tearDown(self):
+-        #delete everything once done
+-        self.game.delete()
+-        self.user.delete()
+-        self.author.delete()
+-
+-    #This will test that the game has a primary key that is generated as a slug
+-    def test_game_slug_id(self):
+-        gameOne = Game(title = "Test Game")
+-        gameOne.save()
+-        gameTwo = Game(title = "Test Game")
+-        gameTwo.save()
+-        self.assertEquals(gameOne.id, 'test-game')
+-        self.assertEqual(gameTwo.id, 'test-game-1')
+-
+-    #Ensures that rating can not be above 10 or below 1
+-    def test_review_values(self):
+-        review = Review(user = self.author, game = self.game, content = "This is a random review", rating = -1)
+-        review.save()
+-        self.assertEqual(review.rating, 1)
+-        review = Review(user = self.author, game = self.game, content = "This is a random review", rating = 11)
+-        review.save()
+-        self.assertEqual(review.rating, 10)
+Index: populate_gamefolio.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\nos.environ.setdefault('DJANGO_SETTINGS_MODULE','gamefolio.settings')\nimport django\ndjango.setup()\n\nimport requests\nfrom numpy import random\nfrom datetime import datetime, timedelta\n\nfrom gamefolio_app.models import Author, Game, Review, List, ListEntry\nfrom django.contrib.auth.models import User\n\n###########################################################- Parameters and Constants -###########################################################\n\n### General Parameters ###\nSEED = 42\n\n### Game Parameters ###\n#Secret API Key stuff, only reason its here is cos the repo is private\nCLIENT_ID = \"2w3wcvvgqis5plpiqbhxh7cud3szm0\"\nBEARER = \"5obg1bjuw5aniisksxd401n5sbca2f\"\nBASE_REQUEST = {'headers': {'Client-ID': CLIENT_ID, 'Authorization': f'Bearer {BEARER}'}, \"data\" : \"\"}\nNUMBER_OF_GAMES = 500 #Total number of games to load into database\nRESULTS_PER_QUERY = 500  #Max results per query is 500\n\n### User Parameters ###\nNUMBER_OF_USERS = 100\ndescriptors = [\"Little\", \"Big\", \"Small\", \"Hidden\", \"Crazy\", \"Blue\", \"Red\", \"Green\", \"Yellow\", \"Rainbow\", \"Silly\"]\nusernames = [\"Mario\", \"Link\", \"Zelda\", \"Luigi\", \"Yoshi\", \"DonkeyKong\", \"Sonic\", \"Peach\", \"Steve\", \"Mastercheif\", \"Pikachu\", \"Goomba\", \"Bowser\"]\n\n### Review Parameters ###\nAVG_REVIEWS_PER_GAME = 10\nreviews = [ \"Great game!\", \"I hated this.\", \":(\", \"This is maybe the best thing I've ever played in my life!\", \"This was so horrible\",\n            \"It was alright\", \"I've played better.\", \"How to refund?\", \n            \"This game blew me away! From the stunning graphics to the immersive gameplay, everything about it is top-notch. I couldn't put it down once I started playing. Highly recommended for everyone\",\n            \"This game is nothing short of a masterpiece. The attention to detail in the world design is astounding, and the gameplay is both challenging and rewarding. It's clear that a lot of love and care went into crafting this experience. Bravo to the developers for creating something truly special!\",\n            \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum\",\n            \"\"\"\n             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent cursus non nibh in viverra. Etiam ut luctus enim. Mauris egestas sed ligula a pharetra. Mauris eu finibus ex, non consequat quam. Integer vel venenatis lorem, sit amet pellentesque sapien. Suspendisse ut nibh posuere, dictum risus in, euismod ex. Vestibulum in egestas magna. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.\n             Vivamus eget orci ut risus viverra porta at quis elit. Vestibulum eu sollicitudin lectus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Ut cursus blandit elit. Sed luctus, mauris et malesuada facilisis, orci enim porta libero, ac ultrices leo turpis quis tellus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent commodo eleifend nulla, eu vulputate ante fermentum vel. Quisque faucibus vitae sem sit amet pulvinar. Donec iaculis elit eget fringilla consectetur. Cras vehicula sapien quis nibh ultricies, sed vestibulum mi venenatis.\n             Aenean in elit rhoncus, lobortis nulla sed, luctus tellus. Maecenas consectetur congue vehicula. In blandit magna vitae pulvinar luctus. Mauris id nisl maximus, malesuada nunc at, venenatis justo. Sed quis posuere massa. Integer eu dignissim augue, nec pharetra tellus. Quisque pharetra, dolor eget pretium vulputate, enim purus feugiat risus, id consectetur turpis dui vel orci. Integer viverra, mi sit amet condimentum hendrerit, est metus venenatis risus, eget malesuada metus mauris vitae metus. Donec eget sem ut velit tincidunt facilisis. Pellentesque quis dapibus enim. Phasellus et pharetra leo. Donec dictum turpis ex. Donec aliquet tincidunt turpis, in ullamcorper tellus dignissim pulvinar. Sed id elit id leo facilisis hendrerit id non nibh. In hac habitasse platea dictumst.\n             Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus eget nunc quis sem elementum iaculis. Integer maximus, arcu ac lacinia molestie, mauris elit tempor turpis, nec posuere orci ligula in sapien. Mauris tincidunt velit vitae maximus faucibus. Ut pharetra libero a lectus ornare, ac lacinia massa faucibus. Integer lacus lacus, finibus sit amet euismod congue, aliquam nec sapien. Nullam vulputate metus id metus interdum, sit amet tempus erat finibus. Nullam congue ipsum elit, nec ullamcorper dolor vulputate a. Morbi et velit leo. Mauris efficitur fermentum sagittis. Nullam nibh mi, gravida a suscipit sit amet, scelerisque quis ante. Nullam cursus vulputate ultrices.\n             Phasellus eu hendrerit quam. In eget luctus augue. Fusce sodales non orci eu sagittis. Duis vitae ipsum ultricies massa tempor ullamcorper. Maecenas luctus tempor velit, sit amet tincidunt quam commodo id. Nullam laoreet ultrices nunc, a sodales ligula condimentum id. Pellentesque maximus dictum cursus. Mauris lorem arcu, accumsan ut ex ut, pellentesque ornare nisl. Ut tempus felis sit amet dignissim efficitur. Aenean a interdum lacus, facilisis tincidunt erat. Proin mauris nibh, euismod nec ipsum vitae, rutrum laoreet massa. \n            \"\"\"]\nstart_date = datetime(2020, 1, 1)\nend_date = datetime.now()\n\n### List Parameters ###\nUSER_WITH_LIST_PERCENT = 0.5\nlist_names = [\"Worst games of all time\", \"{username}'s list of best games of all time\", \"Recommend\", \"Temp\", \"My list\", \"Good\", \"2024 Ranked\", \n              \"Games to play on the train\", \"Games to play on the plane\", \"Games to never play on the train\", \"Made me cry\", \"Good stories\",\n              \"Wishlist\", \"Play later\", \"These look good\", \"Interesting\", \"Try out?\"]\n\n###########################################################- Population and Deletion Methods -###########################################################\n\ndef populate_games():\n    print(\"Populating games...\")\n    query_count = 0\n    for games_left in range(NUMBER_OF_GAMES, 0, -RESULTS_PER_QUERY):\n\n        offset = query_count * RESULTS_PER_QUERY\n        games_this_query = min(RESULTS_PER_QUERY, games_left)\n\n        request = BASE_REQUEST\n        request['data'] += \"fields name, summary, genres.name, cover.image_id, slug;\"                     #Fields we want\n        request['data'] += f\"limit {games_this_query};\"                                                   #Maximum results per query, API only allows up to 500\n        request['data'] += f\"offset {offset};\"                                                            #Offsets the results\n        request['data'] += \"where version_parent =n & cover!=n & rating_count >= 0 & parent_game =n;\"     #Found this mixture of parameters removes most of the console editions and dlcs of games etc.\n        request['data'] += \"sort rating_count desc;\"                                                      #Only get the \"good/popular\" games first, still gets alot of weird ones first\n\n        response = requests.post('https://api.igdb.com/v4/games', **BASE_REQUEST)\n        games_data = response.json()\n\n        for entry in games_data:\n            try:\n                name = entry['name'] \n                slug = entry['slug']\n                if 'summary' in entry:\n                    description = entry['summary']\n                if 'genres' in entry:\n                    genre = entry['genres'][0]['name']\n                if 'cover' in entry:\n                    picture = entry['cover']['image_id']\n\n                game = Game(id = slug, title = name, description = description, genre = genre, pictureId = picture)\n                game.save()\n            except Exception as e:\n                print(e)\n                continue\n            \n        query_count+=1\n        print(f\"{Game.objects.count()}/{NUMBER_OF_GAMES}\")\n    print(\"Games populated!\")\n\ndef populate_users():\n    print(\"Populating authors and users...\")\n    for i in range(NUMBER_OF_USERS):\n        try:\n            username = random.choice(descriptors) +  random.choice(usernames) + str(random.randint(1000, 9999))\n            password = username #use username for password so it is easy to sign in to test account\n            email = username +\"@email.com\" #fake email\n            user = User.objects.create_user(username, email, password)\n\n            author = Author(user = user)\n            author.save()\n        except Exception as e:\n            print(e)\n            continue\n    print(f\"User and Author populated with {Author.objects.count()} entries!\")\n\ndef populate_reviews():\n    print(\"Populating reviews...\")\n    number_of_users = User.objects.count()\n    for game in Game.objects.all():\n\n        avg_rating = random.randint(1, 10)\n        number_of_reviews =int(abs(random.normal(loc = 1, scale = 1))*AVG_REVIEWS_PER_GAME)     #Random number of reviews for each game\n        number_of_reviews = min(number_of_reviews, number_of_users)                             #Dont want more reviews than users\n        number_of_reviews = max(0, number_of_reviews)                                           #Dont want negative number of reviews\n        authors = Author.objects.order_by('?')[:number_of_reviews]                              #Gets a random user for each review\n\n        game.views = number_of_reviews * NUMBER_OF_USERS\n        game.save()\n        \n        for author in authors:             \n            try:                    \n                content = random.choice(reviews)                                          #Generate random content for review\n                rating = int(random.normal(loc = avg_rating, scale = 2))                  #Generates reviews normally around a point for more realism\n                views = random.randint(0, game.views)                                     #A review shoudln't have more views than the game\n                likes = int(views * random.random()*0.5)                                  #Likes will be a percentage of the views\n                random_date = end_date - timedelta(random.randint(1,1000))                #Generate random date\n                datePosted = random_date\n                \n                review = Review(author = author, game = game, rating = rating, content = content, likes = likes, views = views, datePosted = datePosted)\n                review.save()\n            except Exception as e:\n                print(e)\n                continue\n    print(f\"Reviews populated with {Review.objects.count()} entries!\")\n\ndef populate_lists():\n    print(\"Populating lists and List Entries...\")\n    for author in Author.objects.all():\n        #Not every user is gonna have lists\n        if(random.random() > USER_WITH_LIST_PERCENT):\n            continue\n        \n        for i in range(1, 5):\n            try:\n                #Make List\n                list_name = random.choice(list_names).format(username = author.user.username)\n                description = random.choice([\"\", \"This is just a placeholder list description rather than nothing.\"])\n                list = List(author = author, title = list_name, description = description)\n                list.save()\n                \n                #Add entries\n                number_of_games = random.randint(5, 30)\n                games = Game.objects.order_by('?')[:number_of_games]    #Get first x random games\n\n                for game in games:\n                    listEntry = ListEntry(list = list, game = game)\n                    listEntry.save()\n            except Exception as e:\n                print(e)\n                continue\n\n    print(f\"List populated with {List.objects.count()} entries!\")\n    print(f\"List Entries populated with {ListEntry.objects.count()} entries!\")\n\ndef clear_database():\n    print(\"Deleting all records...\")\n    print(\"This may take a while\")\n    ENTRIES_DELETED = 500\n    try:\n        count = 0\n\n        count += ListEntry.objects.count()\n        for i in range(0, ListEntry.objects.count(), ENTRIES_DELETED):\n            pks = (ListEntry.objects.all().values_list('pk')[:ENTRIES_DELETED])\n            ListEntry.objects.filter(pk__in=pks).delete()\n\n        count += List.objects.count()\n        for i in range(0, List.objects.count(), ENTRIES_DELETED):\n            pks = (List.objects.all().values_list('pk')[:ENTRIES_DELETED])\n            List.objects.filter(pk__in=pks).delete()\n\n        count += Review.objects.count()\n        for i in range(0, Review.objects.count(), ENTRIES_DELETED):\n            pks = (Review.objects.all().values_list('pk')[:ENTRIES_DELETED])\n            Review.objects.filter(pk__in=pks).delete()\n\n        count += Game.objects.count()\n        for i in range(0, Game.objects.count(), ENTRIES_DELETED):\n            pks = (Game.objects.all().values_list('pk')[:ENTRIES_DELETED])\n            Game.objects.filter(pk__in=pks).delete()\n\n        count += Author.objects.count()\n        for i in range(0, Author.objects.count(), ENTRIES_DELETED):\n            pks = (Author.objects.all().values_list('pk')[:ENTRIES_DELETED])\n            Author.objects.filter(pk__in=pks).delete()\n\n        users = User.objects.filter(is_superuser = False, is_staff = False)\n        count += users.count()\n        for i in range(0, users.count(), ENTRIES_DELETED):\n            pks = (User.objects.filter(is_superuser = False, is_staff = False).all().values_list('pk')[:ENTRIES_DELETED])\n            User.objects.filter(pk__in=pks).delete()\n            \n        print(f\"Successfully deleted {count} records\")\n    except Exception as e:\n        print(\"Failed to delete records in database!\")\n        print(e)\n        exit()\n\n###########################################################- User Input Methods -###########################################################\n\ndef populate():\n    use_default_params = confirm(\"Do you want to use the default population parameters\")\n    all = True\n    if not use_default_params:\n        global NUMBER_OF_GAMES\n        global NUMBER_OF_USERS\n        global AVG_REVIEWS_PER_GAME\n        global USER_WITH_LIST_PERCENT\n        global SEED\n\n        all = confirm(\"Do you want populate all databases (User, Review, Author, List and ListEntry), not just the Game database\")\n        print(f\"How many games do you wish to add to the database? Default: {NUMBER_OF_GAMES}\")\n        NUMBER_OF_GAMES = get_integer_input()\n        if all:\n            print(f\"How many users do you wish to add to the database? Default: {NUMBER_OF_USERS}\")\n            NUMBER_OF_USERS = get_integer_input()\n            print(f\"How many reviews should there be on average per game? Default: {AVG_REVIEWS_PER_GAME}\")\n            AVG_REVIEWS_PER_GAME = get_integer_input()\n            print(f\"What percentage of users should have a list? Default: {USER_WITH_LIST_PERCENT*100}%\")\n            USER_WITH_LIST_PERCENT = get_integer_input()/100\n            print(f\"What seed would you like to use? Default: {SEED}\")\n            SEED = get_integer_input()\n    if confirm(\"Are you sure you want to populate the database?\"):\n        random.seed(SEED)\n        print(\"Populating the database...\")\n        populate_games()\n        if all:\n            populate_users()\n            populate_reviews()\n            populate_lists()\n    else:\n        print(\"Exiting the population program!\")\n\ndef get_integer_input():\n    answer = input(\">>\")\n    try:\n        answer = int(answer)\n        return answer\n    except:\n        print(\"Please enter a valid integer\")\n        return get_integer_input()\n\ndef confirm(task_to_confirm):\n    answer = input(f\"{task_to_confirm}? (Y/N)\")\n    answer = answer.lower()\n\n    if(answer == \"y\"):\n        return True\n    elif(answer == \"n\"):\n        return False\n    else:\n        print(\"Please enter either Y or N\")\n        return confirm(task_to_confirm)\n\ndef is_database_full():\n    if(ListEntry.objects.count() > 0):\n        return True\n    if(List.objects.count() > 0):\n        return True\n    if(Review.objects.count() > 0):\n        return True\n    if(Author.objects.count() > 0):\n        return True\n    if(Game.objects.count() > 0):\n        return True\n    if(User.objects.filter(is_superuser = False, is_staff = False).count() > 0):\n        return True\n    return False\n\ndef populate_or_delete():\n\n    answer = input(\"Do you want to delete the current database or populate it? (D/P)\")\n    answer = answer.lower()\n\n    if(answer == \"p\"):\n        if(is_database_full()):\n            print(\"Old entries were found in the database. Populating the database with entries could lead to duplicates and errors.\")\n            if(confirm(\"Do you want to delete all the old entries before continuing\")):\n                clear_database()\n            else:\n                print(\"Continuing without deleting old entries.\")\n        populate()\n    elif(answer == \"d\"):\n        if(confirm(\"Are you sure you want to delete all records in database except superusers and staff users\")):\n            clear_database()\n        else:\n            exit()\n    else:\n        print(\"Please enter either D or P\")\n        populate_or_delete()\n\nif __name__ == '__main__':\n    populate_or_delete()
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/populate_gamefolio.py b/populate_gamefolio.py
+--- a/populate_gamefolio.py	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
++++ b/populate_gamefolio.py	(date 1710787889049)
+@@ -305,4 +305,4 @@
+         populate_or_delete()
+ 
+ if __name__ == '__main__':
+-    populate_or_delete()
+\ No newline at end of file
++    populate_or_delete()
+Index: templates/gamefolio_app/index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'gamefolio_app/base.html' %}\n{% load staticfiles %}\n{% load tags %}\n\n{% block title_block %}\n    Home \n{% endblock %}\n\n{% block body_block %}\n<!-- Header-->\n<header class=\"bg-dark py-0\"> \n    <div class=\"container px-5\">\n        <div class=\"row gx-5 align-items-center justify-content-center\">\n            <div class=\"col-lg-8 col-xl-7 col-xxl-6\">\n                <div class=\"my-5 text-center text-xl-start\">\n                    <h1 class=\"display-5 fw-bolder text-white mb-2\">GameFolio HomePage</h1>\n                    <p class=\"lead fw-normal text-white-50 mb-4\">Welcome to GameFolio, view and critique trending games, comment and find your community, create your own personal Gamefolio filled with your favourite games.</p>\n                </div>\n            </div>\n            <div class=\"col-xl-5 col-xxl-6 d-none d-xl-block text-center\"><img class=\"img-fluid rounded-3 my-5\" src=\"{% static \"images/homepage.png\" %}\" style=\"width: 250px; height: 250px;\" alt=\"homepage image\" /></div>\n        </div>\n    </div>\n</header>\n\n\n<!-- Top Games-->\n<section class=\"py-5\">\n    <div class=\"container px-5 my-5\">\n        <div class=\"row gx-5 justify-content-center\">\n            <div class=\"col-lg-8 col-xl-6\">\n                <div class=\"text-center\">\n                    <h2 class=\"fw-bolder\">Highest Rated Games of the Day</h2>\n                </div>\n            </div>\n        </div>\n        <div class=\"row gx-5\">\n        {% for game in games %}\n        <div class=\"col-lg-4 mb-5\">\n            <div class=\"card h-100 shadow border-0\"> \n                <img class=\"card-img-top game-review-image\" src=\"{% get_image game \"720p\" %}\" alt=\"{{ game.title }} thumbnail\" />\n                <div class=\"card-body p-4\">\n                    <button type=\"genre\" class=\"btn btn-outline-success\">{{ game.genre }}</button>\n                    <h5 class=\"card-title mb-3\">\n\n                    </h5>\n                    <h3 class=\"card-title mb-3\"><a class=\"game-review-link\"><strong>{{ game.title }}</strong></a></h3>\n                    <p class=\"card-text mb-0\">{{ game.description|truncatechars:100 }}</p>\n                </div>\n            </div>\n        </div>\n        {% endfor %}\n        </div> \n    </div>\n</section>\n\n\n<!-- Top Reviews-->\n<section class=\"py-5\">\n    <div class=\"container px-5 my-5\">\n        <div class=\"row gx-5 justify-content-center\">\n            <div class=\"col-lg-8 col-xl-6\">\n                <div class=\"text-center\">\n                    <h2 class=\"fw-bolder\">Most Liked Reviews of the Day</h2>\n                </div>\n            </div>\n        </div>\n        <div class=\"row gx-5 d-flex justify-content-left\">\n        {% for review in reviews %}\n            <div class = \"col-md-8 col-lg-4 my-3 py-3\">\n                <div class = \"row d-flex align-items-end\">\n                    <div class = \"col-md-4\">\n                        <a href = \"#!\">\n                            <img class = \"border border-2 border-light shadow-sm img-fluid rounded game-review-image\" src={% get_image review.game \"cover_big\" %} alt=\"{{ review.game.title }} thumbnail\"  />\n                        </a>\n                    </div>\n                    <div class = \"col-8\">\n                        <div class = \"row-2 d-flex align-items-left mt-3\">\n                            <div class = \"col-2\">\n                                <a href = \"#!\">\n                                    <img class=\"shadow-sm rounded-circle me-3 img-fluid user-review-image\" src=\"{{ MEDIA_URL}}{{ review.author.picture }}\" alt=\"{{ review.author.user}} profile picture\" />\n                                </a>\n                            </div>\n                                <div class=\"col px-2 d-flex align-items-end\">\n                                    <a class = \"user-review-link text-decoration-none link-dark \" href = \"#!\"><h6 class = \"fw-semibold\"><small>{{ review.author.user}}</small></h6></a>\n                                </div>\n                            </div>\n                        <div class = \"row-2 mt-2\">\n                            <h4 class=\"mb-1 fw-semibold text-truncate\"><a class=\"game-review-link \" href=\"#!\">{{ review.game.title }}</a></h4>\n                            <div style = \"color: #198754\">{{review.get_rating_display}}</div>\n                        </div>\n                    </div>\n                </div>\n                <div class = \"row mt-3\">\n                    <div>{{review.content}}</div>\n                </div>\n                <div class=\"small row mt-4\">\n                    <div class =\"col-6 text-muted\"> {{ review.datePosted }}  </div>\n                    <div class =\"col-4 text-muted text-end\"> {{ review.likes }} likes </div>\n                </div>\n                <hr>\n            </div>\n        {% endfor %}\n        </div>\n    </div>\n</section>\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/gamefolio_app/index.html b/templates/gamefolio_app/index.html
+--- a/templates/gamefolio_app/index.html	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
++++ b/templates/gamefolio_app/index.html	(date 1710803898702)
+@@ -103,4 +103,4 @@
+         </div>
+     </div>
+ </section>
+-{% endblock %}
+\ No newline at end of file
++{% endblock %}
+Index: gamefolio_app/ModelTests.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio_app/ModelTests.py b/gamefolio_app/ModelTests.py
+new file mode 100644
+--- /dev/null	(date 1710799978177)
++++ b/gamefolio_app/ModelTests.py	(date 1710799978177)
+@@ -0,0 +1,149 @@
++from django.test import TestCase
++from django.contrib.auth.models import User
++from gamefolio_app.models import Game, Review, Author, List, ListEntry
++
++
++class ModelTests(TestCase):
++
++    def setUp(self):
++        # Generate generic test objects
++        self.user = User.objects.create(username='testuser', email='test@example.com')
++        self.author = Author.objects.create(user=self.user, website='https://www.google.com', picture='profile.jpg')
++        self.author.save()
++
++        self.game = Game.objects.create(id='test-game', title='Test Game', genre='Adventure', pictureId='abc123',
++                                        description='This is a test game.')
++        self.game.save()
++
++        self.review = Review.objects.create(author=self.author, game=self.game, content='Great game!', rating=5)
++        self.review.save()
++
++        self.list = List.objects.create(author=self.author, title='Test List', description='This is a test list.')
++        self.list.save()
++
++        self.list_entry = ListEntry.objects.create(list=self.list, game=self.game)
++        self.list_entry.save()
++
++
++
++    def test_author_creation(self):
++        """
++        Test whether the Author model is created correctly.
++        """
++        self.assertEqual(self.author.user, self.user)
++        self.assertEqual(self.author.website, 'https://www.google.com')
++        self.assertEqual(self.author.picture, 'profile.jpg')
++
++    def test_game_creation(self):
++        """
++        Test whether the Game model creates a game correctly.
++        """
++        game = Game.objects.get(id='test-game')
++        self.assertEqual(game.title, 'Test Game')
++        self.assertEqual(game.genre, 'Adventure')
++        self.assertEqual(game.pictureId, 'abc123')
++        self.assertEqual(game.description, 'This is a test game.')
++        self.assertEqual(game.views, 0)
++
++    def test_average_rating(self):
++        """
++        Test whether the average_rating method returns the correct average rating.
++        """
++        # Create reviews with different ratings for the game
++        Review.objects.create(game=self.game, rating=4)
++        Review.objects.create(game=self.game, rating=2)
++        Review.objects.create(game=self.game, rating=5)
++
++        # Calculate the expected average rating
++        expected_average_rating = (4 + 2 + 5) / 3
++
++        # Check if the calculated average rating matches the expected value
++        self.assertAlmostEqual(self.game.average_rating(), expected_average_rating)
++
++    def test_average_text_rating(self):
++        """
++        Test whether the average_text_rating method returns the correct text representation of the average rating.
++        """
++        # Create reviews with different ratings for the game
++        Review.objects.create(game=self.game, rating=4)
++        Review.objects.create(game=self.game, rating=2)
++        Review.objects.create(game=self.game, rating=5)
++
++        # Calculate the expected average rating
++        expected_average_rating = (4 + 2 + 5) / 3
++
++        # Check if the calculated average text rating matches the expected value
++        self.assertEqual(self.game.average_text_rating(), f"{expected_average_rating:.1f} stars")
++
++    def test_total_reviews(self):
++        """
++        Test whether the total_reviews method returns the correct number of reviews for the game.
++        """
++        # Create three reviews for the game
++        Review.objects.create(game=self.game, rating=4)
++        Review.objects.create(game=self.game, rating=2)
++        Review.objects.create(game=self.game, rating=5)
++
++        # Check if the total number of reviews matches the expected value
++        self.assertEqual(self.game.total_reviews(), 3)
++
++    def test_get_image(self):
++        """
++        Test the get_image method of the Game model.
++        """
++        # Test image URL retrieval
++        self.assertEqual(self.game.get_image(), 'profile.jpg', )
++
++    def test_review_creation(self):
++        """
++        Test whether the Review model creates a review correctly.
++        """
++        self.assertEqual(self.review.game, self.game)
++        self.assertEqual(self.review.author, self.author)
++        self.assertEqual(self.review.content, 'Great game!')
++        self.assertEqual(self.review.rating, 8)
++        self.assertEqual(self.review.views, 0)
++        self.assertEqual(self.review.likes, 0)
++
++    def test_list_creation(self):
++        """
++        Test whether the List model creates a list correctly.
++        """
++        self.assertEqual(self.list.author, self.author)
++        self.assertEqual(self.list.title, 'Test List')
++        self.assertEqual(self.list.description, 'This is a test list.')
++        self.assertEqual(self.list.slug, 'test-list')  # Slug should be the same as title
++
++    def test_list_entry_creation(self):
++        """
++        Test whether the ListEntry model creates a list entry correctly.
++        """
++
++        # Check if the ListEntry object is created correctly
++        self.assertEqual(self.list_entry.list, self.list)
++        self.assertEqual(self.list_entry.game, self.game)
++
++    def test_str_method(self):
++
++        #Test whether the __str__ method returns the expected string representation.
++
++        expected_str = f"{self.user.username}'s Profile"
++        self.assertEqual(str(self.author), expected_str)
++
++        expected_str = 'Test Game'
++        self.assertEqual(str(self.game), expected_str)
++
++        expected_str = f"{self.user.username}'s Profile - Test List"
++        self.assertEqual(str(self.list), expected_str)
++
++        expected_str = f"{self.user.username} - Test Game: ★★★★★"
++        self.assertEqual(str(self.review), expected_str)
++
++    def tearDown(self):
++        # delete everything once done
++        self.game.delete()
++        self.user.delete()
++        self.author.delete()
++        self.review.delete()
++        self.list.delete()
++        self.list_entry.delete()
+Index: gamefolio/urls.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"gamefolio URL Configuration\n\nThe `urlpatterns` list routes URLs to views. For more information please see:\n    https://docs.djangoproject.com/en/2.2/topics/http/urls/\nExamples:\nFunction views\n    1. Add an import:  from my_app import views\n    2. Add a URL to urlpatterns:  path('', views.home, name='home')\nClass-based views\n    1. Add an import:  from other_app.views import Home\n    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')\nIncluding another URLconf\n    1. Import the include() function: from django.urls import include, path\n    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))\n\"\"\"\nfrom django.contrib import admin\nfrom django.urls import include, path, reverse\nfrom django.conf import settings\nfrom django.conf.urls.static import static\nfrom registration.backends.simple.views import RegistrationView\n\nfrom gamefolio_app import views\n\nurlpatterns = [\n    path('', views.IndexView.as_view(), name =\"index\"),\n    path('gamefolio_app/', include('gamefolio_app.urls', namespace='gamefolio')),\n    path('admin/', admin.site.urls),\n    path('accounts/', include('registration.backends.simple.urls')),\n]+ static (settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio/urls.py b/gamefolio/urls.py
+--- a/gamefolio/urls.py	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
++++ b/gamefolio/urls.py	(date 1710434643256)
+@@ -26,4 +26,4 @@
+     path('gamefolio_app/', include('gamefolio_app.urls', namespace='gamefolio')),
+     path('admin/', admin.site.urls),
+     path('accounts/', include('registration.backends.simple.urls')),
+-]+ static (settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
++    ]+ static (settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+Index: gamefolio_app/ViewTests.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio_app/ViewTests.py b/gamefolio_app/ViewTests.py
+new file mode 100644
+--- /dev/null	(date 1710807229357)
++++ b/gamefolio_app/ViewTests.py	(date 1710807229357)
+@@ -0,0 +1,285 @@
++import os
++from django.core.files.uploadedfile import SimpleUploadedFile
++from django.test import TestCase, Client
++from django.urls import reverse
++from django.contrib.auth.models import User
++from django.utils.text import slugify
++
++from gamefolio_app.forms import CreateListForm
++from gamefolio_app.models import Game, Review, Author, List, ListEntry
++from gamefolio_app.views import MyRegistrationView
++from populate_gamefolio import populate, clear_database
++
++
++FAILURE_HEADER = f"{os.linesep}{os.linesep}{os.linesep}================{os.linesep}TwD TEST FAILURE =({os.linesep}================{os.linesep}"
++FAILURE_FOOTER = f"{os.linesep}"
++
++class IndexViewTests(TestCase):
++    def setUp(self):
++        populate()
++        self.response = self.client.get(reverse('gamefolio_app:index'))
++        self.content = self.response.content.decode()
++
++    def test_template_filename(self):
++        self.assertTemplateUsed(self.response, 'gamefolio_app/index.html', f"{FAILURE_HEADER}Are you using index.html for your index() view? Why not?!{FAILURE_FOOTER}")
++
++    def test_index_view(self):
++        # Test index view
++        response = self.client.get(reverse('gamefolio_app:index'))
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/index.html')
++
++        # Check if game list and reviews list are in the context
++        self.assertIn('games', response.context)
++        self.assertIn('reviews', response.context)
++
++        # Check if the context lists are not empty
++        self.assertTrue(len(response.context['games']) > 0)
++        self.assertTrue(len(response.context['reviews']) > 0)
++
++        # Check if game list and reviews list are instances of QuerySet
++        self.assertIsInstance(response.context['games'], Game.objects.all().__class__)
++        self.assertIsInstance(response.context['reviews'], Review.objects.all().__class__)
++
++
++    def tearDown(self):
++        clear_database()
++
++class MyRegistrationViewTests(TestCase):
++    def setUp(self):
++        self.registration_view = MyRegistrationView()
++
++    def test_get_success_url(self):
++        # Test if the get_success_url method returns the correct success URL
++        success_url = self.registration_view.get_success_url()
++        expected_url = reverse('gamefolio_app:register_profile')
++        self.assertEqual(success_url, expected_url, "The success URL returned by get_success_url method is incorrect.")
++
++class RegisterProfileViewTests(TestCase):
++    def setUp(self):
++        self.client = Client()
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++
++    def test_get(self):
++        self.client.force_login(self.user)
++        response = self.client.get(reverse('gamefolio_app:register_profile'))
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/profile_registration.html')
++
++    def test_post_valid_form(self):
++        self.client.force_login(self.user)
++        data = {
++            'field1': 'value1',
++            'field2': 'value2',
++            # Add other fields as needed
++        }
++        response = self.client.post(reverse('gamefolio_app:register_profile'), data)
++        self.assertEqual(response.status_code, 302)  # Check if redirected after successful form submission
++        self.assertEqual(response.url, reverse('gamefolio_app:index'))  # Check if redirected to the correct URL
++
++    def test_post_invalid_form(self):
++        self.client.force_login(self.user)
++        data = {}  # Invalid data, form should fail validation
++        response = self.client.post(reverse('gamefolio_app:register_profile'), data)
++        self.assertEqual(response.status_code, 200)  # Form submission should return to the same page
++        self.assertTemplateUsed(response, 'gamefolio_app/profile_registration.html')  # Check if correct template is used
++        # Add more assertions if needed to test form errors or other behavior
++
++
++class UserLoginViewTests(TestCase):
++    def setUp(self):
++        self.client = Client()
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++
++    def test_get(self):
++        response = self.client.get(reverse('gamefolio_app:user_login'))
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/registration/login.html')
++
++    def test_post_valid_credentials(self):
++        data = {
++            'username': 'testuser',
++            'password': 'testpassword',
++        }
++        response = self.client.post(reverse('gamefolio_app:user_login'), data)
++        self.assertEqual(response.status_code, 302)  # Check if redirected after successful login
++        self.assertEqual(response.url, reverse('gamefolio_app:profile'))  # Check if redirected to the correct URL
++
++    def test_post_invalid_credentials(self):
++        data = {
++            'username': 'invaliduser',
++            'password': 'invalidpassword',
++        }
++        response = self.client.post(reverse('gamefolio_app:user_login'), data)
++        self.assertEqual(response.status_code, 200)  # Login attempt should return to the same page
++        self.assertTemplateUsed(response, 'gamefolio_app/registration/login.html')  # Check if correct template is used
++
++class UserLogoutViewTests(TestCase):
++    def setUp(self):
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++        self.client.login(username='testuser', password='testpassword')
++
++    def test_logout(self):
++        response = self.client.get(reverse('gamefolio_app:user_logout'))
++        self.assertEqual(response.status_code, 302)  # Check if redirected after logout
++        self.assertEqual(response.url, reverse('gamefolio_app:index'))  # Check if redirected to the correct URL
++        self.assertFalse('_auth_user_id' in self.client.session)  # Check if user is logged out
++
++    def test_logout_redirect(self):
++        response = self.client.get(reverse('gamefolio_app:user_logout') + '?next=/some/other/url/')
++        self.assertEqual(response.status_code, 302)  # Check if redirected after logout
++        self.assertEqual(response.url, '/some/other/url/')  # Check if redirected to the correct URL
++        self.assertFalse('_auth_user_id' in self.client.session)  # Check if user is logged out
++
++class ProfileViewTests(TestCase):
++    def setUp(self):
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++        self.client.login(username='testuser', password='testpassword')
++        self.author = Author.objects.create(user=self.user, website='http://example.com')
++        self.review = Review.objects.create(author=self.author, content='Test review')
++        self.profile_url = reverse('gamefolio_app:profile', kwargs={'username': self.user.username})
++
++    def test_get_profile_view(self):
++        response = self.client.get(self.profile_url)
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/profile.html')
++
++    def test_post_profile_view(self):
++        # Prepare POST data
++        post_data = {
++            'website': 'http://updated-example.com',
++            'picture': SimpleUploadedFile('test_image.jpg', b'content', content_type='image/jpeg')
++        }
++        response = self.client.post(self.profile_url, post_data)
++        self.assertEqual(response.status_code, 302)  # Check if redirected after form submission
++        updated_author = Author.objects.get(user=self.user)
++        self.assertEqual(updated_author.website, 'http://updated-example.com')  # Check if website is updated
++        self.assertTrue(updated_author.picture)  # Check if picture is uploaded
++
++    def test_unauthorised_access(self):
++        another_user = User.objects.create_user(username='anotheruser', email='another@example.com', password='anotherpassword')
++        response = self.client.get(reverse('gamefolio_app:profile', kwargs={'username': another_user.username}))
++        self.assertEqual(response.status_code, 403)  # Check if access is forbidden for other users
++
++class ListProfilesViewTests(TestCase):
++    def setUp(self):
++        self.client = Client()
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++        self.client.login(username='testuser', password='testpassword')
++        self.author1 = Author.objects.create(user=self.user)
++        self.author2 = Author.objects.create(user=User.objects.create_user(username='testuser2', email='test2@example.com', password='testpassword'))
++        self.review1 = Review.objects.create(author=self.author1, content='Test review 1', likes=10)
++        self.review2 = Review.objects.create(author=self.author1, content='Test review 2', likes=5)
++        self.review3 = Review.objects.create(author=self.author2, content='Test review 3', likes=15)
++
++    def test_list_profiles_view_sort_by_reviews(self):
++        response = self.client.get(reverse('gamefolio_app:list_profiles'))
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/list_profiles.html')
++        authors = response.context['authors']
++        self.assertEqual(len(authors), 2)
++        self.assertEqual(authors[0].total_reviews, 2)
++        self.assertEqual(authors[1].total_reviews, 1)
++
++    def test_list_profiles_view_sort_by_likes(self):
++        response = self.client.get(reverse('gamefolio_app:list_profiles'), {'sort_by': 'likes'})
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/list_profiles.html')
++        authors = response.context['authors']
++        self.assertEqual(len(authors), 2)
++        self.assertEqual(authors[0].total_likes, 15)
++        self.assertEqual(authors[1].total_likes, 15)
++
++class ListViewTests(TestCase):
++    def setUp(self):
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++        self.client.login(username='testuser', password='testpassword')
++        self.list_author = User.objects.create_user(username='list_author', email='author@example.com', password='authorpassword')
++        self.list = List.objects.create(title='Test List', author=self.list_author.profile)
++        self.game = Game.objects.create(title='Test Game')
++        self.list_entry = ListEntry.objects.create(list=self.list, game=self.game)
++        self.list_url = reverse('gamefolio_app:list', kwargs={'author_username': self.list_author.username, 'list_title': slugify(self.list.title), 'slug': self.list.slug})
++
++    def test_get_list_view(self):
++        response = self.client.get(self.list_url)
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/list.html')
++        self.assertIn(self.list, response.context['list_obj'])
++        self.assertIn(self.list_entry, response.context['list_entries'])
++        self.assertIn(self.game, response.context['all_games'])
++
++    def test_post_list_view(self):
++        post_data = {'game': self.game.id}
++        response = self.client.post(self.list_url, post_data)
++        self.assertEqual(response.status_code, 302)  # Check if redirected after adding game
++        updated_list_entries = ListEntry.objects.filter(list=self.list)
++        self.assertTrue(updated_list_entries.exists())  # Check if list entry is created
++        self.assertEqual(updated_list_entries.count(), 2)  # Check if the number of list entries increased
++
++class ListsViewTests(TestCase):
++    def setUp(self):
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++        self.client.login(username='testuser', password='testpassword')
++
++    def test_get_lists_view(self):
++        response = self.client.get(reverse('gamefolio_app:lists'))
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'gamefolio_app/lists.html')
++        self.assertIsInstance(response.context['create_list_form'], CreateListForm)
++        self.assertQuerysetEqual(response.context['all_lists'], [])
++        self.assertQuerysetEqual(response.context['user_list'], [])
++
++    def test_post_lists_view(self):
++        post_data = {
++            'title': 'Test List',
++            'description': 'Test description',
++            'games': [],
++        }
++        response = self.client.post(reverse('gamefolio_app:lists'), post_data)
++        self.assertEqual(response.status_code, 302)  # Check if redirected after form submission
++        new_list = List.objects.first()
++        self.assertIsNotNone(new_list)  # Check if the new list is created
++        self.assertEqual(new_list.author, self.user.profile)  # Check if the author is set correctly
++        self.assertEqual(new_list.title, 'Test List')  # Check if the title is set correctly
++        self.assertEqual(new_list.description, 'Test description')  # Check if the description is set correctly
++        self.assertQuerysetEqual(new_list.games.all(), [])  # Check if no games are added to the list initially
++
++class NotFoundViewTests(TestCase):
++    def test_get_not_found_view(self):
++        response = self.client.get(reverse('gamefolio_app:not_found'))
++        self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
++        self.assertTemplateUsed(response, 'gamefolio_app/404.html')  # Ensure the correct template is used
++
++class SearchViewTests(TestCase):
++    def setUp(self):
++        self.client = Client()
++        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
++
++    def test_search_view_no_params(self):
++        response = self.client.get(reverse('gamefolio_app:search'))
++        self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
++        self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
++
++    def test_search_view_with_query(self):
++        response = self.client.get(reverse('gamefolio_app:search'), {'query': 'test'})
++        self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
++        self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
++
++    def test_search_view_with_params(self):
++        response = self.client.get(reverse('gamefolio_app:search'), {'query': 'test', 'page': 1, 'genre': 'Action', 'sort': 'rd'})
++        self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
++        self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
++
++    def test_search_view_different_sorting(self):
++        # Test with different sorting options
++        sorting_options = ['rd', 'ra', 'vd', 'va', 'ta', 'td']
++        for sort_option in sorting_options:
++            response = self.client.get(reverse('gamefolio_app:search'), {'query': 'test', 'sort': sort_option})
++            self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
++            self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
++
++    def test_search_view_different_page(self):
++        response = self.client.get(reverse('gamefolio_app:search'), {'query': 'test', 'page': 2})
++        self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
++        self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
++
+Index: gamefolio/settings.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\nDjango settings for gamefolio project.\n\nGenerated by 'django-admin startproject' using Django 2.2.28.\n\nFor more information on this file, see\nhttps://docs.djangoproject.com/en/2.2/topics/settings/\n\nFor the full list of settings and their values, see\nhttps://docs.djangoproject.com/en/2.2/ref/settings/\n\"\"\"\n\nimport os\n\n# Build paths inside the project like this: os.path.join(BASE_DIR, ...)\nBASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nTEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')\nSTATIC_DIR = os.path.join(BASE_DIR, 'static')\nMEDIA_DIR = os.path.join(BASE_DIR, 'media')\n\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/\n\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = '68y1in%#_2lwq2w^qw3tm!rpw@=3wgnm82rwyp_amf_!akh3c9'\n\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\n\nALLOWED_HOSTS = []\n\n# Registration config\n\nREGISTRATION_OPEN = True\n\nREGISTRATION_AUTO_LOGIN = True\n\nLOGIN_REDIRECT_URL = 'gamefolio_app:index'\n\nLOGIN_URL = 'auth_login'\n\n\n\n# Application definition\n\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'gamefolio_app',\n    'registration',\n]\n\nMIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\n\nROOT_URLCONF = 'gamefolio.urls'\n\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [TEMPLATE_DIR,],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',\n                'django.contrib.messages.context_processors.messages',\n                'django.template.context_processors.media',\n            ],\n        },\n    },\n]\n\nWSGI_APPLICATION = 'gamefolio.wsgi.application'\n\n\n# Database\n# https://docs.djangoproject.com/en/2.2/ref/settings/#databases\n\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),\n    }\n}\n\n\n# Password validation\n# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators\n\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',\n    },\n]\n\n\n# Internationalization\n# https://docs.djangoproject.com/en/2.2/topics/i18n/\n\nLANGUAGE_CODE = 'en-us'\n\nTIME_ZONE = 'UTC'\n\nUSE_I18N = True\n\nUSE_L10N = True\n\nUSE_TZ = False\n\n\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/2.2/howto/static-files/\n\nSTATICFILES_DIRS = [STATIC_DIR, ]\nSTATIC_URL = '/static/'\n\nMEDIA_ROOT = MEDIA_DIR\nMEDIA_URL = \"/media/\"
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio/settings.py b/gamefolio/settings.py
+--- a/gamefolio/settings.py	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
++++ b/gamefolio/settings.py	(date 1710435794313)
+@@ -137,4 +137,4 @@
+ STATIC_URL = '/static/'
+ 
+ MEDIA_ROOT = MEDIA_DIR
+-MEDIA_URL = "/media/"
+\ No newline at end of file
++MEDIA_URL = "/media/"
+Index: gamefolio_app/DBTests.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio_app/DBTests.py b/gamefolio_app/DBTests.py
+new file mode 100644
+--- /dev/null	(date 1710800988104)
++++ b/gamefolio_app/DBTests.py	(date 1710800988104)
+@@ -0,0 +1,62 @@
++import os
++import warnings
++from unittest import TestCase
++from django.conf import settings
++
++
++FAILURE_HEADER = f"{os.linesep}{os.linesep}{os.linesep}================{os.linesep}TwD TEST FAILURE =({os.linesep}================{os.linesep}"
++FAILURE_FOOTER = f"{os.linesep}"
++
++
++class Chapter5DatabaseConfigurationTests(TestCase):
++    """
++    Is your database configured as the book states?
++    These tests should pass if you haven't tinkered with the database configuration.
++    N.B. Some of the configuration values we could check are overridden by the testing framework -- so we leave them.
++    """
++
++    def setUp(self):
++        pass
++
++    def does_gitignore_include_database(self, path):
++        """
++        Takes the path to a .gitignore file, and checks to see whether the db.sqlite3 database is present in that file.
++        """
++        f = open(path, 'r')
++
++        for line in f:
++            line = line.strip()
++
++            if line.startswith('db.sqlite3'):
++                return True
++
++        f.close()
++        return False
++
++    def test_databases_variable_exists(self):
++        """
++        Does the DATABASES settings variable exist, and does it have a default configuration?
++        """
++        self.assertTrue(settings.DATABASES,
++                        f"{FAILURE_HEADER}Your project's settings module does not have a DATABASES variable, which is required. Check the start of Chapter 5.{FAILURE_FOOTER}")
++        self.assertTrue('default' in settings.DATABASES,
++                        f"{FAILURE_HEADER}You do not have a 'default' database configuration in your project's DATABASES configuration variable. Check the start of Chapter 5.{FAILURE_FOOTER}")
++
++    def test_gitignore_for_database(self):
++        """
++        If you are using a Git repository and have set up a .gitignore, checks to see whether the database is present in that file.
++        """
++        git_base_dir = os.popen('git rev-parse --show-toplevel').read().strip()
++
++        if git_base_dir.startswith('fatal'):
++            warnings.warn(
++                "You don't appear to be using a Git repository for your codebase. Although not strictly required, it's *highly recommended*. Skipping this test.")
++        else:
++            gitignore_path = os.path.join(git_base_dir, '.gitignore')
++
++            if os.path.exists(gitignore_path):
++                self.assertTrue(self.does_gitignore_include_database(gitignore_path),
++                                f"{FAILURE_HEADER}Your .gitignore file does not include 'db.sqlite3' -- you should exclude the database binary file from all commits to your Git repository.{FAILURE_FOOTER}")
++            else:
++                warnings.warn(
++                    "You don't appear to have a .gitignore file in place in your repository. We ask that you consider this! Read the Don't git push your Database paragraph in Chapter 5.")
+Index: gamefolio_app/models.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.db import models\nfrom django.db.models import Avg\nfrom django.contrib.auth.models import User\nfrom django.template.defaultfilters import slugify\nfrom django.utils import timezone\n\nclass Author(models.Model):\n    user = models.OneToOneField(User, on_delete = models.CASCADE) \n\n    website = models.URLField(blank = True)\n    picture = models.ImageField(upload_to=\"profile_images\", default=\"defaultprofile.png\")\n\n    def __str__(self):\n        return self.user.username\n\nclass Game(models.Model):\n    id = models.SlugField(unique = True, primary_key = True)\n\n    title = models.CharField(max_length = 128, blank = False, db_index = True)\n    genre = models.CharField(max_length = 128)                                   \n    pictureId = models.CharField(max_length = 32)                               \n    description = models.TextField(default = \"This game has no description.\")   \n    views = models.IntegerField(default = 0)\n\n    def average_rating(self):\n        average = Review.objects.filter(game=self.id).aggregate(Avg('rating'))['rating__avg']\n        average = average * 5 if average != None else 0\n        return int(average)/10\n    \n    def average_text_rating(self):\n        average = self.average_rating()\n        average = int(average*2+0.25)\n        return Review.RATING_CHOICES[average][1]\n    \n    def total_reviews(self):\n        return Review.objects.filter(game=self.id).count()\n    \n    #ImageTypes         Size\n    #micro              35 x 35\n    #thumb              90 x 90\n    #cover_small        90 x 128\n    #cover_big          264 x 374\n    #screenshot_huge    1280 x 720\n    #720p               720 x 1280\n    #1080p              1080 x 1920\n    def get_image(self, image_type):\n        return f\"https://images.igdb.com/igdb/image/upload/t_{image_type}/{self.pictureId}.jpg\"\n\n    def __str__(self):\n        return self.title\n\nclass Review(models.Model):\n    RATING_CHOICES = (\n        (0, \"No Ratings\"),\n        (1, \"½\"), \n        (2, \"★\"),\n        (3, \"★½\"),\n        (4, \"★★\"),\n        (5, \"★★½\"),\n        (6, \"★★★\"),\n        (7, \"★★★½\"),\n        (8, \"★★★★\"),\n        (9, \"★★★★½\"),\n        (10, \"★★★★★\"),\n    )\n\n    game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True, db_column='game')\n    author = models.ForeignKey(Author, on_delete = models.CASCADE)\n   \n    content = models.TextField(blank = False)\n    views = models.IntegerField(default = 0)\n    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)  #Only allows 1-10 ratings or 1/2-5 stars\n    datePosted = models.DateTimeField(default = timezone.now())\n    likes = models.IntegerField(default = 0)\n\n    def save(self, *args, **kwargs):\n        if int(self.rating) < 1 or int(self.rating) > 10:\n            self.rating = max(min(self.rating, 10), 1) #Clamps rating between 1 and 10\n        super(Review, self).save(*args, **kwargs)\n\n    def __str__(self):\n        return self.author.user.username + \" - \" + self.game.title + \": \" + self.RATING_CHOICES[self.rating-1][1]\n          \n\nclass List(models.Model):\n    author = models.ForeignKey(Author, on_delete = models.CASCADE)\n\n    slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name\n    title = models.CharField(max_length = 128, blank = False)\n    description = models.TextField(default = \"\", blank = True)\n\n    def save(self, *args, **kwargs):\n        #Same idea as gameslug, if user has list with two same names, create indexed slug\n        slug = slugify(self.title)                                      \n        index = List.objects.filter(author=self.author, slug__startswith=slug).count()    \n        if(index != 0):                                             \n            slug += \"-\" + str(index)                                \n        self.slug = slug                                              \n        super(List, self).save(*args, **kwargs)\n\n    def __str__(self):\n        return self.author.user.username + \" - \" + self.title\n    \nclass ListEntry(models.Model):\n    list = models.ForeignKey(List, on_delete = models.CASCADE)\n    game = models.ForeignKey(Game, on_delete = models.CASCADE)\n\n    class Meta:\n        verbose_name_plural = \"List Entries\"\n\n    def __str__(self):\n        return str(self.list) + \" : \" + str(self.game)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio_app/models.py b/gamefolio_app/models.py
+--- a/gamefolio_app/models.py	(revision 07e571722129805bfc6dad7bf39370a7274ab5b8)
++++ b/gamefolio_app/models.py	(date 1710799431142)
+@@ -5,13 +5,12 @@
+ from django.utils import timezone
+ 
+ class Author(models.Model):
+-    user = models.OneToOneField(User, on_delete = models.CASCADE) 
+-
++    user = models.OneToOneField(User, on_delete = models.CASCADE)
+     website = models.URLField(blank = True)
+-    picture = models.ImageField(upload_to="profile_images", default="defaultprofile.png")
++    picture = models.ImageField(upload_to="profile_images", blank = True)
+ 
+     def __str__(self):
+-        return self.user.username
++        return f"{self.user.username}'s Profile"
+ 
+ class Game(models.Model):
+     id = models.SlugField(unique = True, primary_key = True)
+@@ -24,7 +23,7 @@
+ 
+     def average_rating(self):
+         average = Review.objects.filter(game=self.id).aggregate(Avg('rating'))['rating__avg']
+-        average = average * 5 if average != None else 0
++        average = average * 5 if average is not None else 0
+         return int(average)/10
+     
+     def average_text_rating(self):
+@@ -65,13 +64,13 @@
+     )
+ 
+     game = models.ForeignKey(Game, on_delete = models.CASCADE, db_index = True, db_column='game')
+-    author = models.ForeignKey(Author, on_delete = models.CASCADE)
++    author = models.ForeignKey(Author, on_delete = models.CASCADE, null=True)
+    
+     content = models.TextField(blank = False)
+     views = models.IntegerField(default = 0)
+     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)  #Only allows 1-10 ratings or 1/2-5 stars
+-    datePosted = models.DateTimeField(default = timezone.now())
+-    likes = models.IntegerField(default = 0)
++    datePosted = models.DateTimeField(default=timezone.now())
++    likes = models.IntegerField(default=0)
+ 
+     def save(self, *args, **kwargs):
+         if int(self.rating) < 1 or int(self.rating) > 10:
+@@ -86,8 +85,8 @@
+     author = models.ForeignKey(Author, on_delete = models.CASCADE)
+ 
+     slug = models.SlugField()  #NOT UNIQUE as two users can have list with same name
+-    title = models.CharField(max_length = 128, blank = False)
+-    description = models.TextField(default = "", blank = True)
++    title = models.CharField(max_length=128, blank=False)
++    description = models.TextField(default="", blank=True)
+ 
+     def save(self, *args, **kwargs):
+         #Same idea as gameslug, if user has list with two same names, create indexed slug
+Index: gamefolio_app/PopulationScriptTests.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gamefolio_app/PopulationScriptTests.py b/gamefolio_app/PopulationScriptTests.py
+new file mode 100644
+--- /dev/null	(date 1710803803803)
++++ b/gamefolio_app/PopulationScriptTests.py	(date 1710803803803)
+@@ -0,0 +1,125 @@
++from django.test import TestCase
++from gamefolio_app.models import Game, Author, Review, List, ListEntry
++from django.contrib.auth.models import User
++from populate_gamefolio import *
++
++
++class PopulationScriptTests(TestCase):
++    """
++    Tests for the populate_gamefolio.py script.
++    """
++
++    def setUp(self):
++        """
++        Set up the environment for testing.
++        """
++        # Populate the database with sample data
++        populate_games()
++        populate_users()
++        populate_reviews()
++        populate_lists()
++
++        total_games = Game.objects.count()
++        avg_reviews_per_game = AVG_REVIEWS_PER_GAME
++        total_users = NUMBER_OF_USERS
++        user_with_list_percent = USER_WITH_LIST_PERCENT
++        avg_list_entry_per_list = 10
++
++        self.expected_review_count = total_games * avg_reviews_per_game
++        self.expected_list_count = total_users * user_with_list_percent
++        self.expected_list_entry_count = self.expected_list_count * avg_list_entry_per_list
++
++    def test_game_population(self):
++        """
++        Test if games are populated correctly.
++        """
++        # Check if the total number of games matches the expected value
++        self.assertEqual(Game.objects.count(), NUMBER_OF_GAMES)
++
++        # Get a sample game
++        sample_game = Game.objects.first()
++
++        # Check if the title is not empty
++        self.assertNotEqual(sample_game.title, "")
++
++        # Check if the genre is valid (if applicable)
++        if sample_game.genre:
++            self.assertTrue(sample_game.genre in ["Action", "Adventure", "RPG", "Strategy"])
++
++        # Check if the description is not empty
++        self.assertNotEqual(sample_game.description, "")
++
++        # Check if the picture ID is not empty
++        self.assertNotEqual(sample_game.pictureId, "")
++
++
++    def test_user_population(self):
++        """
++        Test if users are populated correctly.
++        """
++        # Check if the total number of users matches the expected value
++        self.assertEqual(User.objects.count(), NUMBER_OF_USERS)
++
++        # Get a sample user
++        sample_user = User.objects.first()
++
++        # Check if the username is not empty
++        self.assertNotEqual(sample_user.username, "")
++
++        # Check if the email is valid
++        self.assertTrue('@' in sample_user.email)
++
++        # Check if the author profile is created for the user
++        self.assertTrue(hasattr(sample_user, 'author'))
++
++    def test_review_population(self):
++        """
++        Test if reviews are populated correctly.
++        """
++        # Check if the total number of reviews matches the expected value
++        self.assertEqual(Review.objects.count(), self.expected_review_count)
++
++        # Get a sample review
++        sample_review = Review.objects.first()
++
++        # Check if the content is not empty
++        self.assertNotEqual(sample_review.content, "")
++
++        # Check if the rating is within the valid range
++        self.assertTrue(1 <= sample_review.rating <= 10)
++
++        # Check if the likes are non-negative
++        self.assertTrue(sample_review.likes >= 0)
++
++    def test_list_population(self):
++        """
++        Test if lists and list entries are populated correctly.
++        """
++        # Check if the total number of lists matches the expected value
++        self.assertEqual(List.objects.count(), self.expected_list_count)
++
++        # Check if the total number of list entries matches the expected value
++        self.assertEqual(ListEntry.objects.count(), self.expected_list_entry_count)
++
++        # Get a sample list and list entry
++        sample_list = List.objects.first()
++        sample_list_entry = ListEntry.objects.first()
++
++        # Check if the list title is not empty
++        self.assertNotEqual(sample_list.title, "")
++
++        # Check if the list description is not empty
++        self.assertNotEqual(sample_list.description, "")
++
++        # Check if the list entry is associated with a valid list and game
++        self.assertTrue(hasattr(sample_list_entry, 'list'))
++        self.assertTrue(hasattr(sample_list_entry, 'game'))
++
++
++    def tearDown(self):
++        """
++        Clean up after testing.
++        """
++        # Clear the database
++        clear_database()
++

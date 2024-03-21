@@ -61,9 +61,9 @@
 </div>
 <br/>
 <!-- Pagination -->
-<form method="get" action="{% url 'gamefolio_app:list_profiles' %}?{{ sort_by }}" id="page-form">
+<form method="get" action="{% url 'gamefolio_app:list_profiles' %}?sort_by={{ sort_by }}" id="page-form">
     <ul class="pagination justify-content-center">
-        
+        <input type="hidden" name="sort_by" value="{{ sort_by }}">
         {% if authors %}
             <!-- Previous Button -->
             {% if current_page > 1%}

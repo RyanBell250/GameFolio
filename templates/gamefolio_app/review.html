@@ -32,7 +32,8 @@
                 data-reviewid="{{ review.pk }}"
                 class="btn btn-primary btn-sm"
                 type="button">
-            </button>
+            <span data-feather="thumbs-up"></span>
+        </button>
     </div>
     <div class = "row mt-3">
         <div>{{review.content|truncatechars:100}}</div>

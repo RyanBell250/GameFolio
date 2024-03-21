@@ -26,3 +26,4 @@ $(document).ready(function() {
         $.get('/gamefolio_app/like_review/',
             {'review_id': reviewIdVar},
             function(data) {
+                $('#like_count').html(data);

@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body_block %}
-<header class="bg-dark py-0"> 
+<header class="bg-dark py-4"> 
     <div class="container px-5">
         <div class="row gx-5 align-items-center justify-content-center">
             <div class="col-lg-8 col-xl-7 col-xxl-6">
@@ -34,7 +34,9 @@
                     
                 </div>
             </div>
-            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5" src="{% static "images/homepage.png" %}" style="width: 250px; height: 250px;" alt="homepage image" /></div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
+                {% render_list_images list_obj %}
+            </div>
         </div>
     </div>
 </header>

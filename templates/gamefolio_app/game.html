@@ -23,33 +23,44 @@
 </header>
 
 {% if user.is_authenticated %}
-    <section class="py-5">
-        <div class="container px-5 my-5">
-            <div class="row gx-5 justify-content-center">
-                <div class="col-lg-8 col-xl-6">
-                    <div class="text-center">
-                        <h3 class="fw-bolder">Leave a review:</h3>
-                    </div>
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h3 class="fw-bolder">Leave a review:</h3>
                 </div>
             </div>
-            <div class="row gx-5 d-flex justify-content-left">
-                <div class="col-md-6 offset-md-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <form method="post" class="text-center">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                                <button type="submit" class="btn btn-outline-success">Submit Review</button>
-                            </form>
-                        </div>
+        </div>
+        <div class="row gx-5 d-flex justify-content-left">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" class="text-center">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-outline-success">Submit Review</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 {% else %}
-    <p>Please <a href="{% url 'auth_login' %}">login</a> to leave a review.</p>
+<div class="row gx-5 d-flex justify-content-left">
+    <div class="col-md-6 offset-md-3">
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-body">
+                <div class="text-center">
+                    <p class="fw-bolder">Please <a href="{% url 'auth_login' %}">login</a> to leave a review.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endif %}
+
 <section class="py-5">
     <div class="container px-5 my-5">
         <div class="row gx-5 justify-content-center">

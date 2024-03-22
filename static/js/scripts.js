@@ -32,6 +32,14 @@ $(document).ready(function() {
         }
     });
 
+    $(".list-selection-dropdown").click(function(e) {
+        $("#add-to-list-button").val($(this).val());
+    })
+
+    $("#add-to-list-button").click(function(e) {
+        window.location.href = "../../add_to_list_form/"+$(this).val()+"/"+$("#game-slug").val()
+    })
+
     //Ratings
     function calculateSize(e) {
         var rating = calculateRating(e);

@@ -8,6 +8,40 @@
 {% block body_block %}
 <header class="bg-dark py-0"> 
     <div class="container px-5">
+        {% if user == selected_user %}
+        <form id = "edit-profile-form" method="post" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">
+
+                            <div clas ="mb-4">{{ selected_user.username }}'s Profile</div>
+                           
+                            <input type="url" name="website" value = "{{user_profile.website}}" class="form-profile-control my-2 lead fw-normal text-white-50" maxlength="200" id="id_website" placeholder = "Website">
+                            <p class="lead fw-normal text-white-50 mb-2" style = "overflow-wrap: break-word">
+                                <textarea name="bio" cols="40" rows="5" class="form-profile-control lead fw-normal text-white-50" maxlength="250" required="" id="id_bio" style="height: 170px; resize:none">{{user_profile.bio}}</textarea>
+                            </p>
+                    </h1>
+                </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-flex text-center justify-content-end">
+                <input type="file" name="picture" class="d-none" accept="image/*" id="id_picture" >
+                {% if user_profile.picture %}
+                <img id = "profile-image" class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" alt="{{ selected_user.username }}'s profile image" />
+                {% else %}
+                <img id = "profile-image" class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}defaultprofile.png" alt="{{ selected_user.username }}'s profile image" />
+                {%endif%}
+            </div>
+            
+            <div class ="col-12 d-flex justify-content-start">
+                <div class="text-center gap-between-select-and-button">
+                    <button type="submit" class="btn btn-outline-success">Update</button>
+                </div>
+            </div>
+        </div>
+        </form>
+        {% else %}
         <div class="row gx-5 align-items-center justify-content-center">
             <div class="col-lg-8 col-xl-7 col-xxl-6">
                 <div class="my-5 text-center text-xl-start">
@@ -24,38 +58,9 @@
                 <img class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" alt="{{ selected_user.username }}'s profile image" />
             </div>
         </div>
+        {%endif%}
     </div>
 </header>
-
-<!-- Edit Profile -->
-{% if selected_user == user %}
-<section class="py-5">
-    <div class="container px-5 my-0">
-        <div class="row gx-5 justify-content-center">
-            <div class="col-lg-8 col-xl-6">
-                <div class="text-center">
-                    <h2 class="fw-bolder">Edit Your Profile</h2>
-                </div>
-            </div>
-        </div>
-        <div class="row gx-5 d-flex justify-content-left">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-body">
-                            <form method="post" action="." enctype="multipart/form-data">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                                <div class="text-center gap-between-select-and-button">
-                                    <button type="submit" class="btn btn-outline-success">Update</button>
-                                </div>
-                            </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
 
 <!-- Lists -->
 <section class="py-5">

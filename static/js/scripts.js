@@ -13,8 +13,10 @@ $(document).ready(function() {
     });
     $('#reset-button').click(function(e) {
         $('#search-bar').val("");
-        if($('#page-form').length) {
+        if($('#page-form').length && searchParams.has("query")) {
             $('#page-form').trigger("submit");
+        } else {
+            e.preventDefault();
         }
     });
 

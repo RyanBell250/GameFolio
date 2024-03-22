@@ -25,6 +25,17 @@
     <div class="container">
         <div class="row gx-5">
             {% if lists %}
+            <div class="row gx-5 justify-content-start">
+                <div class="col-lg-4 col-xl-4 text-start">
+                    <div class="btn-group" role="group" aria-label="Sort reviews">
+                        <a href="?sort=views" class="btn {% if sort_reviews_by == "views" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Views</a>
+                        <a href="?sort=alphabetical" class="btn {% if sort_reviews_by == "alphabetical" %} btn-success {% else %} btn-outline-success {%endif%}">Sort from A-Z</a>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            {% endif %}
+            {% if lists %}
                     {% for list in lists %}
                         <div class="col-lg-4 col-md-6 mt-3">  
                             <div class="card h-100 shadow border-0">

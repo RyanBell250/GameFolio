@@ -319,7 +319,14 @@ class ListsView(View):
             page = request.GET['page'].strip()
         except Exception as e:
             page = 0
-            
+
+        sort_reviews_by = request.GET.get('sort', 'views')
+        
+        if sort_reviews_by == 'views':
+            lists = lists.order_by('-views', 'title')
+        elif sort_reviews_by == 'alphabetical':
+            lists = lists.order_by('title')
+
         page_count = lists_count/MAX_RESULTS_PER_PAGE
         
         if(page_count == int(page_count)):
@@ -342,7 +349,7 @@ class ListsView(View):
         
         pages = calculate_pages(page_count, current_page)
         
-        context_dict = {"lists" : actual_results, "count": lists_count, "pages": pages, "current_page": current_page, "page_count": page_count}
+        context_dict = {"lists" : actual_results, "count": lists_count, "pages": pages, "current_page": current_page, "page_count": page_count, "sort_reviews_by": sort_reviews_by}
         return render(request, 'gamefolio_app/lists.html', context_dict)
     
 class InlineSuggestionsView(View):

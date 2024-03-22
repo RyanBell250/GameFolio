@@ -61,7 +61,7 @@
             <!-- Page Numbers -->
             {% for page in pages %}
                 {% if page == "type" %}
-                    <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="..."></input></li>
+                    <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="search"></input></li>
                 {% elif page == current_page %}  
                     <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
                 {% else %}

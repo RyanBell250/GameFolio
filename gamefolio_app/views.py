@@ -101,20 +101,50 @@ class ProfileView(View):
     @method_decorator(login_required)
     
     def get(self, request, username):
+        MAX_RESULTS_PER_PAGE = 8
         try:
             (user, lists, user_profile, form) = self.get_user_details(username)
             user_reviews = Review.objects.filter(author=user_profile)
+            user_reviews = user_reviews.annotate(likes_total=Sum('likes'))
+            user_reviews_count = len(user_reviews)
         except TypeError:
             return redirect(reverse('gamefolio_app:index'))
-
+        
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
-
+        
         if sort_reviews_by == 'liked':
-            user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+            user_reviews = user_reviews.order_by('-likes_total', '-datePosted')
         else:
             user_reviews = user_reviews.order_by('-datePosted')
+        
+        try:
+            page = request.GET['page'].strip()
+        except Exception as e:
+            page = 0
+            
+        page_count = user_reviews_count/MAX_RESULTS_PER_PAGE
+        
+        if(page_count == int(page_count)):
+            page_count = int(page_count)
+        else:
+            page_count = int(page_count) + 1
+        page_count = max(page_count,1)
+        
+        try:
+            page = int(page) +1
+            assert(page >= 0)
+            assert(page < page_count)
+        except Exception as e:
+            print(e)
+            return redirect("gamefolio_app:404")
+        
+        offset = page * MAX_RESULTS_PER_PAGE
+        actual_results = user_reviews[offset:MAX_RESULTS_PER_PAGE+offset]
+        current_page = page + 1
+        
+        pages = calculate_pages(page_count, current_page)
 
-        context_dict = {'user_profile': user_profile, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': user_reviews}
+        context_dict = {'user_profile': user_profile, 'count':user_reviews_count, 'pages':pages, 'current_page':page, 'page_count': page_count, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': actual_results, 'sort_reviews_by': sort_reviews_by}
         return render(request, 'gamefolio_app/profile.html', context_dict)
     
     @method_decorator(login_required)

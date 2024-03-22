@@ -62,6 +62,15 @@ class GamefolioTemplateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'gamefolio_app/create_list.html')
 
+    def test_registration_template(self):
+        """
+        Test whether the registration template exists and renders correctly.
+        """
+        response = self.client.get(reverse('gamefolio_app:profile_registration'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gamefolio_app/profile_registration.html')
+
+
     def test_template_title_blocks(self):
         """
         Test whether the title blocks in each template are the expected values.
@@ -84,6 +93,8 @@ class GamefolioTemplateTests(TestCase):
             reverse('gamefolio_app:lists'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Lists(\s*|\n*)</title>',
                                                   'template_filename': 'lists.html',
                                                   'block_title': 'Lists'},
+            reverse('gamefolio_app:profile_registration'): {'title_pattern': r'<title>(\s*|\n*)Register(\s*|\n*)-(\s*|\n*)Step 2(\s*|\n*)</title>',
+                                                         'template_filename': 'profile_registration.html'},
             reverse('gamefolio_app:base'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)User Profiles(\s*|\n*)</title>',
                                                       'template_filename': 'base.html'},
 

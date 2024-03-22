@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm, AddToListForm
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 from django.core.paginator import Paginator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -357,26 +357,13 @@ class InlineSuggestionsView(View):
             game_list = Game.objects.order_by('title')[:8]
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
         return return_val
-    
-class AddToListView(View):
-    def post(self, request, game_id):
-        game = get_object_or_404(Game, id=game_id)
-        form = AddToListForm(request.user, request.POST)
-        if form.is_valid():
-            list_id = form.cleaned_data['list'].id
-            list_obj = get_object_or_404(List, id=list_id)
-            if not list_obj.listentry_set.filter(game_id=game_id).exists():
-                ListEntry.objects.create(list=list_obj, game=game)
-                return redirect('gamefolio_app:game', game_id=game_id)
-            else:
-                return redirect('gamefolio_app:game', game_id=game_id)
-        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
    
 class AddToListFormView(View):
-    def get(self, request, game_id):
-        game = Game.objects.get(id=game_id)
-        form = AddToListForm(request.user, game)
-        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
+    def get(self, request, slug, game_id):
+        list = get_object_or_404(List, slug = slug, author = request.user.author)
+        game = get_object_or_404(Game, id = game_id)
+        ListEntry.objects.create(list = list, game = game)
+        return redirect("gamefolio_app:game", game_id = game_id);
 
 class GamePageView(View):
     def get(self, request, game_id):
@@ -399,6 +386,13 @@ class GamePageView(View):
         
         form = ReviewForm()
 
+        lists_to_add=[]
+        if(request.user.is_authenticated):   
+            game = Game.objects.get(id=game_id)
+            lists = List.objects.filter(author__user=request.user)
+            entries = ListEntry.objects.filter(list__in = lists, game = game).values("list_id")
+            lists_to_add = lists.exclude(pk__in=entries)
+
         context = {
             'game': game,
             'reviews': reviews,
@@ -407,6 +401,7 @@ class GamePageView(View):
             "review_ratings": get_game_ratings(game_id),
             'related_games': related_games,
             "stype": sort_reviews_by,
+            "lists_to_add": lists_to_add,
         }
         return render(request, 'gamefolio_app/game.html', context)
 

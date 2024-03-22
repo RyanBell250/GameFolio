@@ -19,15 +19,16 @@ $(document).ready(function() {
 })
 
 $(document).ready(function() {
-    $('#like_btn').click(function() {
+    $('.like_btn').click(function() {
         var reviewIdVar;
         reviewIdVar = $(this).attr('data-reviewid');
 
         $.get('/gamefolio/like_review/',
             {'review_id': reviewIdVar},
             function(data) {
-                $('#like_count').html(data);
-                $('#like_btn').hide();
+                console.log(data)
+                $(this).siblings("#like_count").html(data);
+                $(this).hide();
             }
         );
     });

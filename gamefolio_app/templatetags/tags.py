@@ -29,3 +29,8 @@ def render_game_card(context, game, *args, **kwargs):
 @register.inclusion_tag("gamefolio_app/review.html")
 def render_review(review):
     return {"review": review}
+
+@register.inclusion_tag("gamefolio_app/review.html", takes_context=True)
+def render_review(context, review):
+    user = context["user"]
+    return {"review": review, "user": user}

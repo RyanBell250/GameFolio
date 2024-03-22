@@ -17,3 +17,21 @@ $(document).ready(function() {
         }
     })
 })
+
+$(document).ready(function() {
+    $('.like-btn').click(function() {
+        var reviewIdVar;
+        reviewIdVar = $(this).attr('data-reviewid');
+        var $t =$(this)
+
+        $.get('/gamefolio/like_review/',
+            {'review_id':reviewIdVar},
+            function(data) {
+                $t.hide();
+                console.log($t.siblings())
+                $t.siblings(".like-count").html(data +" likes");
+            }
+        );
+    });
+});
+

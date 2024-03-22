@@ -475,7 +475,22 @@ class SearchView(View):
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
     
+class LikeReviewView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        review_id = request.GET.get('review_id')
+        try:
+            review = Review.objects.get(pk=review_id)
+        except Review.DoesNotExist:
+            return HttpResponse(-1)
+        except ValueError:
+            return HttpResponse(-1)
+        review.likes += 1
+        review.save()
+        
+        return HttpResponse(review.likes)
 
+    
 #Helper Functions
 def get_game_ratings(game_id):
 
@@ -577,3 +592,4 @@ def calculate_pages(page_count, current_page):
     
         pages.insert(jump_index, "type")
         return pages
+

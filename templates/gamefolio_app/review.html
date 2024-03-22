@@ -28,9 +28,18 @@
     <div class = "row mt-3">
         <div>{{review.content|truncatechars:100}}</div>
     </div>
-    <div class="small row mt-4">
+    <div class="small row mt-4 align-items-end d-flex">
         <div class ="col-6 text-muted"> {{ review.datePosted|date:"j M Y" }}  </div>
-        <div class ="col-4 text-muted text-end"> {{ review.likes }} likes </div>
+        <div class ="like-count col-4 text-muted text-end"> {{ review.likes }} likes </div>
+        {% if user.is_authenticated %}
+        <button 
+                data-reviewid="{{ review.pk }}"
+                class="col-2 like-btn btn btn-outline-primary btn-sm"
+                type="button"
+                style= "aspect: 1!important; width: 40px!important; min-wdith: 0px!important;">
+            <span data-feather="thumbs-up"></span>
+        </button>
+        {% endif %}
     </div>
     <hr>
 </div>

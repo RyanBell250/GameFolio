@@ -31,18 +31,19 @@
                                 <div class="card-body p-4 d-flex flex-column">
                                     {% render_list_images list %}
                                     <h5 class="card-title mb-3">
-                                        <a class="game-review-link" href="{% url 'gamefolio_app:list' list.author.user.username list.slug %}">
+                                        <a class="game-review-link display-6 d-inline fw-bolder text-black mb-2 pe-0" href="{% url 'gamefolio_app:list' list.author.user.username list.slug %}">
                                             {{ list.title }}
                                         </a>
-                                        by
-                                        <a class="game-review-link" href="{% url 'gamefolio_app:profile' list.author.user.username %}">
-                                            {{ list.author }}
-                                        </a>
                                     </h5>
-                                    <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
-                                    <p class="card-text mb-0">{{ list.description|truncatechars:75 }}</p>
+                                    <div class = "d-flex align-items-end my-2">              
+                                        <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
+                                        <a class ="game-review-link " href = "{% url 'gamefolio_app:profile' list.author.user.username %}"><p class = "my-1">{{ list.author }}</p></a>
+                                    </div>
+                                    <p class="card-text mt-2 py-0">{{ list.description|truncatechars:75 }}</p>
+                                </div>                                    
+                                <div class = "d-flex justify-content-end py-0 mb-3 me-4">
+                                    <p class="fw-bold text-black-50 py-0 mb-0">{{ list.views }} view{% if list.views != 1%}s{%endif%}</p> 
                                 </div>
-                                <p class="card-text mb-2 ms-2">{{ list.views }} views</p> 
                             </div>
                         </div>
                     {% endfor %}

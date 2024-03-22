@@ -11,7 +11,7 @@ class Author(models.Model):
     bio = models.TextField(default = "This user has no bio.")
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        return f"{self.user.username}"
 
 class Game(models.Model):
     id = models.SlugField(unique = True, primary_key = True)

@@ -21,6 +21,7 @@ from registration.backends.simple.views import RegistrationView
 
 from gamefolio_app import views
 
+handler404 = 'gamefolio_app.views.handler404'
 urlpatterns = [
     path('', views.IndexView.as_view(), name ="index"),
     path('admin/', admin.site.urls),

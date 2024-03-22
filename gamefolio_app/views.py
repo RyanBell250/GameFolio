@@ -18,6 +18,8 @@ from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListFor
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 from django.core.paginator import Paginator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.shortcuts import render_to_response
+from django.http import Http404 
 
 class IndexView(View):
     def get(self, request):
@@ -180,7 +182,7 @@ class ListProfilesView(View):
             assert(page < page_count)
         except Exception as e:
             print(e)
-            return redirect("gamefolio_app:404")
+            raise Http404  
         
         offset = page * MAX_RESULTS_PER_PAGE
         actual_results = profiles[offset:MAX_RESULTS_PER_PAGE+offset]
@@ -345,7 +347,7 @@ class ListsView(View):
             assert(page < page_count)
         except Exception as e:
             print(e)
-            return redirect("gamefolio_app:404")
+            raise Http404 
         
         offset = page * MAX_RESULTS_PER_PAGE
         actual_results = lists[offset:MAX_RESULTS_PER_PAGE+offset]
@@ -440,10 +442,11 @@ class GamePageView(View):
             "review_ratings": get_game_ratings(game_id),
         }
         return render(request, 'gamefolio_app/game.html', context)
-    
-class NotFoundView(View):
-    def get(self, request):
-        return render(request, "gamefolio_app/404.html")
+
+def handler404(request, exception, template_name="gamefolio_app/404.html"):
+    response = render_to_response(template_name)
+    response.status_code = 404
+    return response
 
 class SearchView(View):
     def get(self, request):
@@ -517,7 +520,7 @@ class SearchView(View):
             assert(page < page_count)
         except Exception as e:
             print(e)
-            return redirect("gamefolio_app:404")
+            raise Http404 
 
         offset = page * MAX_RESULTS_PER_PAGE
         actual_results = results[offset:MAX_RESULTS_PER_PAGE+offset]

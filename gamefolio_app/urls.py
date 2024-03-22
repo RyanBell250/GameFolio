@@ -21,7 +21,6 @@ urlpatterns = [
     
     path('suggest/', views.InlineSuggestionsView.as_view(), name='suggest'),
     path('search/', views.SearchView.as_view(), name='search'),
-    path('404/', views.NotFoundView.as_view(), name='404'),
     
     path('game/<slug:game_id>/', views.GamePageView.as_view(), name="game"),
     path('like_review/', views.LikeReviewView.as_view(), name='like_review'),

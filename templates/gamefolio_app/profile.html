@@ -110,7 +110,7 @@
                       </nav>
                     </ul>
                 {% else %}
-                    <p>No lists available.</p>
+                <div class = " text-center"><p>No lists available.</p></div>
                 {% endif %}
 
         </div>
@@ -134,15 +134,17 @@
 
         <br/>
         
+        {% if user_reviews %}
         <div class="row gx-5 justify-content-start">
             <div class="col-lg-4 col-xl-4 text-end">
                 <div class="btn-group" role="group" aria-label="Sort reviews">
-                    <a href="?sort_reviews=recent#reviews" class="btn btn-outline-success">Sort by Recent</a>
-                    <a href="?sort_reviews=liked#reviews" class="btn btn-outline-success">Sort by Likes</a>
-                    <a href="?sort_reviews=rating#reviews" class="btn btn-outline-success">Sort by Rating</a>
+                    <a href="?sort_reviews=recent#reviews" class="btn {% if sort_reviews_by == "recent" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Recent</a>
+                    <a href="?sort_reviews=liked#reviews" class="btn {% if sort_reviews_by == "liked" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Likes</a>
+                    <a href="?sort_reviews=rating#reviews" class="btn {% if sort_reviews_by == "rating" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Rating</a>
                 </div>
             </div>
         </div>
+        {% endif %}
         <br/>
         
         <div class="row gx-5">
@@ -151,7 +153,7 @@
                     {% render_review review %}
                 {% endfor %}
             {% else %}
-                <p>No reviews available.</p>
+                <div class = " text-center"><p>No reviews available.</p></div>
             {% endif %}
         </div>
     </div>

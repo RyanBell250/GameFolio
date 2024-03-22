@@ -70,7 +70,9 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:list_profiles' %}">Users</a></li>
+                        {% if user.is_authenticated %}
                         <img class="card-img-top" src="{{ MEDIA_URL }}{{ user.author.picture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 5px; margin-left: 20px;">
+                        {% endif %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if user.is_authenticated %}

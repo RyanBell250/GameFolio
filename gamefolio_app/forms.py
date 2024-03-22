@@ -73,4 +73,11 @@ class CreateListForm(forms.ModelForm):
             'games': 'Games',
         }
 
+class AddToListForm(forms.Form):
+    list = forms.ModelChoiceField(queryset=None)
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['list'].queryset = List.objects.filter(author__user=user)
+
 

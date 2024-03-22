@@ -283,12 +283,13 @@ class GamePageView(View):
         else:
             reviews = reviews.order_by('-datePosted')
         
-        form = ReviewForm()  
+        form = ReviewForm() 
+
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,  
-            'related_games': related_games
+            'related_games': related_games,
         }
         return render(request, 'gamefolio_app/game.html', context)
 

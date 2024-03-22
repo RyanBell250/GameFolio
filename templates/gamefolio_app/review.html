@@ -26,7 +26,7 @@
         </div>
     </div>
     <div>
-        <strong id ="like_count">{{review.likes}}</strong>likes
+        <strong class ="like_count">{{review.likes}}</strong>likes
         {% if user.is_authenticated %}
         <button class="like_btn"
                 data-reviewid="{{ review.pk }}"

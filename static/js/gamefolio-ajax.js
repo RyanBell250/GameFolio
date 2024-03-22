@@ -22,13 +22,13 @@ $(document).ready(function() {
     $('.like_btn').click(function() {
         var reviewIdVar;
         reviewIdVar = $(this).attr('data-reviewid');
+        var $t =$(this)
 
         $.get('/gamefolio/like_review/',
-            {'review_id': reviewIdVar},
+            {'review_id':reviewIdVar},
             function(data) {
-                console.log(data)
-                $(this).siblings("#like_count").html(data);
-                $(this).hide();
+                $t.hide();
+                $t.siblings(".like_count").html(data);
             }
         );
     });

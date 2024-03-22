@@ -375,8 +375,12 @@ class AddToListFormView(View):
 class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
-        reviews = Review.objects.filter(game=game).exclude(author__user=request.user)
-        user_reviews = Review.objects.filter(game=game).filter( author__user=request.user)
+        if request.user.is_authenticated:
+            reviews = Review.objects.filter(game=game).exclude(author__user=request.user)
+            user_reviews = Review.objects.filter(game=game).filter(author__user=request.user)
+        else:
+            reviews = Review.objects.filter(game=game)
+            user_reviews = Review.objects.none()
         related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:4]
 
         if(len(related_games) < 4):

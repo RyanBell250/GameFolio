@@ -101,9 +101,6 @@
                             </div>
                         </div>
                     {% endfor %}
-                    {% if selected_user == user %}
-                    <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
-                    {% endif %}
                     <ul class="pagination justify-content-center pt-5">
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
@@ -123,8 +120,11 @@
                     </ul>
                 {% else %}
                 <div class = " text-center"><p>No lists available.</p></div>
+                    {% if selected_user == user %}
+                            <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
+                    {% endif %}
+                </div>
                 {% endif %}
-
         </div>
     </div>
 </section>

@@ -12,23 +12,23 @@ def get_image(game, image_type):
 @register.inclusion_tag("gamefolio_app/list_image.html")
 def render_list_images(list):
     entries = ListEntry.objects.filter(list = list)[:4];
-    if(len(entries) < 4):
+    if(len(entries) < 4 and len(entries) > 0):
         entries =[entries[0]];
     return {"entries": entries, "list": list}
 
-@register.inclusion_tag("gamefolio_app/game_card.html", takes_context=True)
-def render_game_card(context, game, *args, **kwargs):
+@register.inclusion_tag("gamefolio_app/game_card.html")
+def render_game_card(game, *args, **kwargs):
+    try:
+        verbose = kwargs["verbose"]
+    except:
+        verbose = True
+    return {"game": game, "verbose":verbose}
 
-    context_dict = kwargs
-    context_dict["game"] = game;
-    context_dict["user"] = context["user"]
-    print(kwargs)
 
-    return context_dict
-
-@register.inclusion_tag("gamefolio_app/review.html")
-def render_review(review):
-    return {"review": review}
+@register.inclusion_tag("gamefolio_app/list_entry.html")
+def render_list_entry(game):
+    print("called", game)
+    return {"game": game}
 
 @register.inclusion_tag("gamefolio_app/review.html", takes_context=True)
 def render_review(context, review):

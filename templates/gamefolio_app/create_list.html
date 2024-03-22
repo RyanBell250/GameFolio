@@ -1,5 +1,6 @@
 {% extends 'gamefolio_app/base.html' %}
 {% load static %}
+{% load tags %}
 
 {% block title_block %}
     Create List 
@@ -23,30 +24,35 @@
 <br/>
 
 <div>
-    <div class="row gx-5 d-flex justify-content-left">
-        <div class="col-md-6 offset-md-3">
+    <div class="row d-flex justify-content-left">
+        <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-body">
-                    <form role="form" method="post" action=".">
+                    <form id = "list-form" role="form" method="post" action=".">
                         {% csrf_token %}
                         <h5>Title:</h5>
-                        {{ form.title }}
+                        {% if title %} 
+                            <input type="text" name="title" class="form-control" maxlength="128" required="" id="id_title" value = "{{title}}" readonly>
+                        {% else %}
+                            {{ form.title }}
+                        {% endif %}
                         <br/>
                         <h5>Description:</h5>
-                        {{ form.description }}
+                            {{ form.description }}
                         <br/>
                         <h5>Select your Games:</h5>
                         <div class="small row">
                             <div class ="col-8 text-muted text-end">Don't worry if you forget to add a game, you can always add it later.</div>
                         </div>
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id = "list-search-bar" value =>
+                                
                         <br/>
-                        <div class="checkboxes">
-                            {% for game in form.games %}
-                                {{ game }}
-                            {% endfor %}
+                        <div class = "row" id = "list-games">
+                            {% for entry in entries %}
+                                {% render_list_entry entry.game %}
+                            {%endfor%}
                         </div>
-                        <br/>
-                        <button type="submit" class="btn btn-outline-success">Create List</button>
+                        <button type="submit" class="btn btn-outline-success">{% if title %}Save List{%else%}Create List{%endif%}</button>
                     </form>
                 </div>
             </div>

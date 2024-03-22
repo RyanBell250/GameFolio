@@ -21,7 +21,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 class IndexView(View):
     def get(self, request):
-        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:6]
+        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:4]
         reviews_list = Review.objects.order_by('-likes')[:6]
         visitor_cookie_handler(request)
         
@@ -207,15 +207,54 @@ class ListView(View):
             ListEntry.objects.create(list=list_obj, game=game)
         return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
-class RemoveGameView(View):
+class EditListView(View):
     @method_decorator(login_required)
-    def post(self, request, author_username, slug):
+    def get(self, request, author_username, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
-        if request.user == list_obj.author.user:
-            game_id = request.POST.get('game_id')
-            game_to_remove = get_object_or_404(ListEntry, list=list_obj, game_id=game_id)
-            game_to_remove.delete()
-        return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
+        create_list_form = CreateListForm({"title": list_obj.title, "description": list_obj.description})
+        list = ListEntry.objects.all()
+        context_dict = {
+                        'user_list' : list,
+                        'form': create_list_form,
+                        "title": list_obj.title,
+                        "entries": ListEntry.objects.filter(list = list_obj)}
+        
+        return render(request, 'gamefolio_app/create_list.html', context_dict)
+    
+    @method_decorator(login_required)
+    def post(self, request, author_username, slug): 
+        create_list_form = CreateListForm(request.POST)
+        if "title" in create_list_form.data.keys():
+            list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
+            list_obj.description = create_list_form.data["description"]
+            list_obj.save()
+            listEntries = ListEntry.objects.filter(list = list_obj)
+            try:
+                games = create_list_form.data["games"]
+            except:
+                games = []
+            for entry in listEntries:
+                if(entry.game not in games):
+                    entry.delete()
+            for game in games:
+                if(len(ListEntry.objects.filter(game=game, list=list_obj))==0):
+                    ListEntry.objects.create(list=list_obj, game=game)
+
+            return redirect('gamefolio_app:profile', username=request.user.username)
+        else:
+            return redirect('gamefolio_app:list_edit', author_username=author_username, slug=slug)
+
+class AddListGame(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        if 'id' in request.GET:
+            id = request.GET['id']
+        else:
+            id = ''
+        game = get_object_or_404(Game, id = id) 
+        context = {'game': game}
+        value = render(request, 'gamefolio_app/list_entry.html', context)
+        return value
 
 class CreateListView(View):
     @method_decorator(login_required)
@@ -232,11 +271,13 @@ class CreateListView(View):
     @method_decorator(login_required)
     def post(self, request):
         create_list_form = CreateListForm(request.POST)
-        if create_list_form.is_valid():
+        if "title" in create_list_form.data.keys():
             new_list = create_list_form.save(commit=False)
             new_list.author = request.user.author
             new_list.save()
-            games = create_list_form.cleaned_data['games']
+            games = []
+            if("games" in create_list_form.data.keys()):
+                games = create_list_form.data['games']
             for game in games:
                 ListEntry.objects.create(list=new_list, game=game)
             return redirect('gamefolio_app:profile', username=request.user.username)
@@ -267,6 +308,7 @@ class ListDeleteView(View):
 class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):
+
         MAX_RESULTS_PER_PAGE = 9
         lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
         lists_count = len(lists)
@@ -313,7 +355,6 @@ class InlineSuggestionsView(View):
         if len(game_list) == 0:
             game_list = Game.objects.order_by('title')[:8]
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
-        print(game_list)
         return return_val
     
 class AddToListView(View):

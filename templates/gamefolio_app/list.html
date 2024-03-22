@@ -18,12 +18,18 @@
                     </p>
                     <p class="lead fw-normal text-white mb-4">{{ list_obj.description }}</p>
                     <p class="lead fw-normal text-white mb-4">views: {{ list_obj.views }}</p>
-
+                    
                     {% if user.is_authenticated and user == list_obj.author.user %}
-                        <form method="post" action="{% url 'gamefolio_app:list_delete' author_username=list_obj.author.user.username slug=list_obj.slug %}">
+                    <div class = "row d-flex">
+                        <form class = "col-3" method="get" action="{% url 'gamefolio_app:list_edit' author_username=list_obj.author.user.username slug=list_obj.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary">Edit List</button>
+                        </form>
+                        <form class = "col-3" method="post" action="{% url 'gamefolio_app:list_delete' author_username=list_obj.author.user.username slug=list_obj.slug %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger">Delete List</button>
                         </form>
+                    </div>
                     {% endif %}
                     
                 </div>
@@ -33,42 +39,8 @@
     </div>
 </header>
 
-{% if user.is_authenticated and user == list_obj.author.user %}
-    <section class="py-5">
-        <div class="container px-5 my-5">
-            <div class="row gx-5 justify-content-center">
-                <div class="col-lg-8 col-xl-6">
-                    <div class="text-center">
-                        <h2 class="fw-bolder">Add Game to List:</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row gx-5 d-flex justify-content-left">
-                <div class="col-md-6 offset-md-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <form method="post" class="text-center">
-                                {% csrf_token %}
-                                <div class="gap-between-select-and-button">
-                                    <label for="game">Select Game:</label>
-                                    <select name="game" id="game">
-                                        {% for game in all_games %}
-                                            <option value="{{ game.id }}">{{ game.title }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-outline-success">Add Game</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-{% endif %}
-
 <section class="py-5">
-    <div class="container px-5 my-5">
+    <div class="container px-5 my-2">
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
                 <div class="text-center">
@@ -76,9 +48,10 @@
                 </div>
             </div>
         </div>
+        <hr class ="mb-4">
         <div class="row gx-5">
             {% for entry in list_entries %}
-                {% render_game_card entry.game list=list_obj%}
+                {% render_game_card entry.game verbose=False%}
             {% endfor %}
         </div> 
     </div>

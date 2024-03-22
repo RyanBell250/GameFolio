@@ -14,9 +14,10 @@ urlpatterns = [
     
     path('lists/', views.ListsView.as_view(), name='lists'),
     path('create_list/', views.CreateListView.as_view(), name='create_list'),
+    path('get-game/', views.AddListGame.as_view(), name='get_game'),
     path('<str:author_username>/<slug:slug>/delete/', views.ListDeleteView.as_view(), name='list_delete'),
     path('list/<author_username>/<slug:slug>', views.ListView.as_view(), name='list'),
-    path('list/<str:author_username>/<str:slug>/remove_game/', views.RemoveGameView.as_view(), name='remove_game'),
+    path('list/<author_username>/<slug:slug>/edit/', views.EditListView.as_view(), name='list_edit'),
     
     path('suggest/', views.InlineSuggestionsView.as_view(), name='suggest'),
     path('search/', views.SearchView.as_view(), name='search'),

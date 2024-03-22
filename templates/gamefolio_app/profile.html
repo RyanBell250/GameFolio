@@ -77,7 +77,7 @@
             <div class="row gx-5">
                 {% if user_lists %}
                     {% for list in user_lists %}
-                        <div class="col-lg-4 col-md-6 mt-3">  
+                        <div class="col-lg-4 col-md-6 mt-3 user-list">  
                             <div class="card h-100 shadow border-0">
                                 <div class="card-body p-4 d-flex flex-column justify-content-center">
                                     {% render_list_images list %}
@@ -94,6 +94,23 @@
                         <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
                         {% endif %}
                     {% endfor %}
+                    <ul class="pagination justify-content-center pt-5">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" aria-label="Previous" id = "prev-list-button">
+                                <span aria-hidden="true">&laquo; Prev</span>
+                                </a>
+                            </li>
+                            <li class="page-item"><a class="page-link" id = "current-list-page">1</a></li>
+                            <li class="page-item">
+                                <a class="page-link" aria-label="Next" id = "next-list-button">
+                                <span aria-hidden="true">Next &raquo;</span>
+                                </a>
+                            </li>
+                            </ul>
+                      </nav>
+                    </ul>
                 {% else %}
                     <p>No lists available.</p>
                 {% endif %}
@@ -140,6 +157,30 @@
             {% endif %}
         </div>
     </div>
+    <!-- Pagination -->
+    <form method="get" action="{% url 'gamefolio_app:profile' selected_user.username %}?sort_reviews_by={{ sort_reviews_by }}" id="page-form">
+        <ul class="pagination justify-content-center">
+            <input type="hidden" name="sort_reviews_by" value="{{ sort_reviews_by }}">
+            {% if user_reviews %}  
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li class="page-item">
+                    <a class="page-link" aria-label="Previous" id = "prev-review-button">
+                      <span aria-hidden="true">&laquo; Prev</span>
+                    </a>
+                  </li>
+                  <li class="page-item"><a class="page-link" id = "current-review-page">1</a></li>
+                  <li class="page-item">
+                    <a class="page-link" aria-label="Next" id = "next-review-button">
+                      <span aria-hidden="true">Next &raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            {% endif %}
+        </ul>
+    </form>
+        
 </section>
 
 

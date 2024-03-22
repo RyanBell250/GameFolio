@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Avg, Count, Sum
@@ -15,7 +15,7 @@ from registration.backends.simple.views import RegistrationView
 from django.contrib import messages
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm, AddToListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 
 class IndexView(View):
@@ -270,6 +270,28 @@ class InlineSuggestionsView(View):
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
         print(game_list)
         return return_val
+    
+class AddToListView(View):
+    def post(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        form = AddToListForm(request.user, request.POST)
+        if form.is_valid():
+            list_id = form.cleaned_data['list'].id
+            list_obj = get_object_or_404(List, id=list_id)
+            if not list_obj.listentry_set.filter(game_id=game_id).exists():
+                ListEntry.objects.create(list=list_obj, game=game)
+                return redirect('gamefolio_app:game', game_id=game_id)
+            else:
+                return redirect('gamefolio_app:game', game_id=game_id)
+        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
+
+        
+    
+class AddToListFormView(View):
+    def get(self, request, game_id):
+        game = Game.objects.get(id=game_id)
+        form = AddToListForm(request.user, game)
+        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
 
 class GamePageView(View):
     def get(self, request, game_id):
@@ -283,12 +305,13 @@ class GamePageView(View):
         else:
             reviews = reviews.order_by('-datePosted')
         
-        form = ReviewForm()  
+        form = ReviewForm()
+
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,  
-            'related_games': related_games
+            'related_games': related_games,
         }
         return render(request, 'gamefolio_app/game.html', context)
 
@@ -297,19 +320,21 @@ class GamePageView(View):
         reviews = Review.objects.filter(game=game_id)
 
         form = ReviewForm(request.POST)  
+
         if form.is_valid():
             review = form.save(commit=False)
             review.game = game  
             review.author = request.user.author  
             review.save()
             return redirect('gamefolio_app:game', game_id=game_id)
+        
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,
         }
         return render(request, 'gamefolio_app/game.html', context)
-
+    
 class NotFoundView(View):
     def get(self, request):
         return render(request, "gamefolio_app/404.html")

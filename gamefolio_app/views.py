@@ -20,7 +20,7 @@ from gamefolio_app.models import Game, Review, Author, List, ListEntry
 
 class IndexView(View):
     def get(self, request):
-        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:6]
+        game_list = Game.objects.annotate(average_ratings=Avg('review__rating')).order_by('-average_ratings')[:4]
         reviews_list = Review.objects.order_by('-likes')[:6]
         visitor_cookie_handler(request)
         

@@ -3,9 +3,11 @@ $(document).ready(function() {
     const searchParams = new URLSearchParams(window.location.search);
     var ratingConfirmed = false;
     
-    $('#search-button').click(function(e) {
+    $('#search-form').submit(function(e) {
         var queryTerm = $('#search-bar').val();
-        $('#search-query-parameter').attr("value", queryTerm);
+        if($('#search-query-parameter').val() == ""){
+            $('#search-query-parameter').attr("value", queryTerm);
+        }
         if($('#page-form').length) {
             $('#page-form').trigger("submit");
             e.preventDefault();

@@ -13,6 +13,7 @@ $(document).ready(function() {
         },
         select: function(event, ui) {
             $('#search-query-parameter').attr("value", ui.item.value);
+            $("#search-bar").val(ui.item.value);
             $("#search-form").submit();
         },
         minLength: 0

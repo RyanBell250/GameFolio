@@ -90,6 +90,9 @@
                                 </div>
                             </div>
                         </div>
+                        {% if selected_user == user %}
+                        <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
+                        {% endif %}
                     {% endfor %}
                 {% else %}
                     <p>No lists available.</p>

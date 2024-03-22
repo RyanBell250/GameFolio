@@ -40,6 +40,11 @@ $(document).ready(function() {
         window.location.href = "../../add_to_list_form/"+$(this).val()+"/"+$("#game-slug").val()
     })
 
+    $("#edit-button").click(function(e) {
+        $("#edit-profile-form").removeClass("d-none");
+        $("#non-edit-profile").addClass("d-none");
+    })
+
     //Ratings
     function calculateSize(e) {
         var rating = calculateRating(e);

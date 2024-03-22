@@ -305,7 +305,8 @@ class ListsView(View):
     def get(self, request):
 
         MAX_RESULTS_PER_PAGE = 9
-        lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
+        entries = ListEntry.objects.all().values_list("list")
+        lists = List.objects.filter(id__in=entries).order_by('-views')
         lists_count = len(lists)
         
         try:

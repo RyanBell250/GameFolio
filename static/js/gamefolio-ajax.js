@@ -19,7 +19,7 @@ $(document).ready(function() {
 })
 
 $(document).ready(function() {
-    $('.like_btn').click(function() {
+    $('.like-btn').click(function() {
         var reviewIdVar;
         reviewIdVar = $(this).attr('data-reviewid');
         var $t =$(this)
@@ -28,7 +28,8 @@ $(document).ready(function() {
             {'review_id':reviewIdVar},
             function(data) {
                 $t.hide();
-                $t.siblings(".like_count").html(data);
+                console.log($t.siblings())
+                $t.siblings(".like-count").html(data +" likes");
             }
         );
     });

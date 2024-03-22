@@ -79,6 +79,11 @@
   --bs-highlight-bg: #fff3cd;
 }
 
+.rounded-left-button {
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem;
+}
+
 .ui-autocomplete {
   max-height: 200px;
   overflow-y: auto;
@@ -4610,10 +4615,10 @@ textarea.form-control-lg {
   --bs-pagination-padding-x: 0.75rem;
   --bs-pagination-padding-y: 0.375rem;
   --bs-pagination-font-size: 0.9rem;
-  --bs-pagination-color: #fff;
-  --bs-pagination-bg: #198754;
+  --bs-pagination-color: #146c43;;
+  --bs-pagination-bg: #fff;
   --bs-pagination-border-width: 1px;
-  --bs-pagination-border-color: #146c43;
+  --bs-pagination-border-color: #198754;;
   --bs-pagination-border-radius: 0.375rem;
   --bs-pagination-hover-color: #fff;
   --bs-pagination-hover-bg: #157347;

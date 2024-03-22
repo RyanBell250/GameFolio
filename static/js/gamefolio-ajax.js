@@ -44,7 +44,13 @@ $(document).ready(function() {
         },
         minLength: 0
     })
-    $("#list-games").on('click', "#list-entry", function() {
-        $(this).remove()
-    })
+    $("#list-games").on('click', ".list-entry-remove-btn", function() {
+        $(this).parents("#list-entry").remove()
+    });
+    $("#list-games").on('mouseover', "#list-entry", function() {
+        $(this).find(".list-entry-remove-btn").removeClass("d-none");
+    });
+    $("#list-games").on('mouseleave', "#list-entry", function() {
+        $(this).find(".list-entry-remove-btn").addClass("d-none");
+    });
 })

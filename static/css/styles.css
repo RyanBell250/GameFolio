@@ -114,9 +114,19 @@
 }
 
 .list-entry-image:hover {
-  filter: sepia(100%) saturate(300%) brightness(70%) hue-rotate(80deg) !important;
 }
-
+.list-entry-remove-btn {
+  background-color: var(--bs-gray-900);
+  color: white;
+  border-radius: 3px;
+  font-weight: bold;
+  border: none;
+  text-decoration: none;
+  text-align: center;
+}
+.list-entry-remove-btn:hover {
+  color: var(--bs-red)!important;
+}
 
 .game-hover:hover h5,
 .game-hover:hover h3 {

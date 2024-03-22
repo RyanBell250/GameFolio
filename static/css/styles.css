@@ -101,6 +101,7 @@ div.rating.rating-actual {
   --width: 0px;
   width: var(--width) !important;
   background: url("/static/images/stars.png") 0px -48px no-repeat !important;
+}
 
 .rounded-left-button {
   border-top-left-radius: .25rem;

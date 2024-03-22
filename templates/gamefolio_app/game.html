@@ -13,8 +13,7 @@
                 <div class="my-5 text-center text-xl-start">
                     <h1 class="display-5 fw-bolder text-white mb-2">{{ game.title }}</h1>
                     <hr class="hr-blurry text-white mt-1 mb-1 mx-1" style="width: 65%">
-                    <div style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
-                    <p style = "color: #198754;">Total Reviews: {{ game.total_reviews }}</p>
+                    <div class ="mb-2" style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
                     <a href = "{% url 'gamefolio_app:search' %}?genre={{game.genre}}"><button type="genre" class="btn btn-outline-success mb-2">{{ game.genre }}</button></a>
                     <a href="{% url 'gamefolio_app:add_to_list_form' game.id %}" class="btn btn-outline-success mb-2">Add to List</a>
                     <p class="lead fw-normal text-white-50 mb-4">{{ game.description }}</p>

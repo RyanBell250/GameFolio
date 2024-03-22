@@ -356,6 +356,7 @@ class GamePageView(View):
             'game': game,
             'reviews': reviews,
             'form': form,  
+            "review_ratings": get_game_ratings(game_id),
             'related_games': related_games,
         }
         return render(request, 'gamefolio_app/game.html', context)
@@ -377,6 +378,7 @@ class GamePageView(View):
             'game': game,
             'reviews': reviews,
             'form': form,
+            "review_ratings": get_game_ratings(game_id),
         }
         return render(request, 'gamefolio_app/game.html', context)
     
@@ -473,7 +475,37 @@ class SearchView(View):
         context_dict = {"results" : actual_results, "query" : query, "count": result_count, "pages": pages, "current_page": current_page, "page_count": page_count, "current_genre": genre, "genres": genres, "sort_id": sort, "sort_name": sort_name}
         return render(request, 'gamefolio_app/search.html', context_dict)
     
+
 #Helper Functions
+def get_game_ratings(game_id):
+
+    class RatingDistribution():
+        
+
+        def __init__(self, rating, count):
+            self.rating = ["½", "★", "★½","★★", "★★½", "★★★", "★★★½", "★★★★", "★★★★½", "★★★★★"][rating-1]
+            self.count = count
+            self.height = 0
+
+        def set_height(self, max_count):
+            if(max_count == 0):
+                self.height = 10
+                return
+            self.height = (self.count/max_count) * 90 + 10
+
+    reviews = []
+    max_count = 0
+    for i in range(10):
+        count = Review.objects.filter(game=game_id, rating=i+1).aggregate(Count("rating"))["rating__count"]
+        rating = RatingDistribution(i+1, count)
+        max_count = max(count, max_count)
+        reviews.append(rating)
+
+    for rating in reviews:
+        rating.set_height(max_count)
+
+    return reviews
+
 def visitor_cookie_handler(request):
     visits = int(get_server_side_cookie(request, 'visits', '1')) 
     last_visit_cookie = get_server_side_cookie(request,

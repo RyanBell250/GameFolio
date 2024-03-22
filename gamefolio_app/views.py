@@ -82,7 +82,7 @@ class UserLoginView(View):
 
 @method_decorator(login_required, name='dispatch')
 class UserLogoutView(LogoutView):
-    next_page = reverse_lazy('gamefolio_app:index')
+    next_page = reverse_lazy('gamefolio_app:auth_logout')
     
 class ProfileView(View):
     def get_user_details(self, username):

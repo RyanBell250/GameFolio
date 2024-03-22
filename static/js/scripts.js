@@ -18,10 +18,10 @@ $(document).ready(function() {
     });
     
     const reviewsPerPage = 4;
-    var currentPage = 1;
+    var currentReviewPage = 1;
     var currentReviews= Array.from(Array(reviewsPerPage).keys())
-    var maxPage = Math.floor($(".user-review").toArray().length/reviewsPerPage)+1;
-    console.log(maxPage);
+    var maxReviewPage = Math.ceil($(".user-review").toArray().length/reviewsPerPage)+1;
+    console.log(maxReviewPage);
     paginateReviews();
 
     function paginateReviews() {
@@ -32,32 +32,87 @@ $(document).ready(function() {
                 $(this).removeClass("d-none");
             }
         })
-        $("#current-review-page").text(currentPage);
+        $("#current-review-page").text(currentReviewPage);
         $("#prev-review-button").removeClass("disabled");
         $("#next-review-button").removeClass("disabled");
         
-        if(currentPage == 1) {
+        if(currentReviewPage == 1) {
             $("#prev-review-button").addClass("disabled");
         }
-        if(currentPage == maxPage) {
+        if(currentReviewPage >= maxReviewPage) {
             $("#next-review-button").addClass("disabled");
+        }
+        if(maxReviewPage <= 1) {
+            $("#prev-list-button").addClass("d-none");
+            $("#next-list-button").addClass("d-none");
+            $("#current-list-page").addClass("d-none");
+
         }
     }
 
     $("#next-review-button").click(function() {
-        currentPage++
+        currentReviewPage++
         for (let i = 0; i < currentReviews.length; i++) {
-            currentReviews[i] += 8;
+            currentReviews[i] += reviewsPerPage;
         }
         paginateReviews();
     })
 
     $("#prev-review-button").click(function() {
-        currentPage--;
+        currentReviewPage--;
         for (let i = 0; i < currentReviews.length; i++) {
-            currentReviews[i] -= 8;
+            currentReviews[i] -= reviewsPerPage;
         }
         paginateReviews();
+    })
+
+    const listsPerPage = 6;
+    var currentListPage = 1;
+    var currentLists = Array.from(Array(listsPerPage).keys())
+    var maxListPage = Math.ceil($(".user-list").toArray().length/listsPerPage);
+    paginateLists();
+
+    function paginateLists() {
+        const userLists = $(".user-list").each(function(i, el) {
+            if(!currentLists.includes(i)) {
+                $(this).addClass("d-none");
+            } else {
+                $(this).removeClass("d-none");
+            }
+        })
+        $("#current-list-page").text(currentListPage);
+        $("#prev-list-button").removeClass("disabled");
+        $("#next-list-button").removeClass("disabled");
+        
+        if(currentListPage == 1) {
+            $("#prev-list-button").addClass("disabled");
+        }
+        if(currentListPage >= maxListPage) {
+            $("#next-list-button").addClass("disabled");
+        }
+
+        if(maxListPage <= 1) {
+            $("#prev-list-button").addClass("d-none");
+            $("#next-list-button").addClass("d-none");
+            $("#current-list-page").addClass("d-none");
+
+        }
+    }
+
+    $("#next-list-button").click(function() {
+        currentListPage++
+        for (let i = 0; i < currentLists.length; i++) {
+            currentLists[i] += listsPerPage;
+        }
+        paginateLists();
+    })
+
+    $("#prev-list-button").click(function() {
+        currentListPage--;
+        for (let i = 0; i < currentLists.length; i++) {
+            currentLists[i] -= listsPerPage;
+        }
+        paginateLists();
     })
 
     //Tooltips

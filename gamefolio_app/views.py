@@ -146,7 +146,7 @@ class ProfileView(View):
 class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
-        MAX_RESULTS_PER_PAGE = 9
+        MAX_RESULTS_PER_PAGE = 12
         profiles = Author.objects.annotate(total_reviews=Count('review'), total_likes=Sum('review__likes'))
         profiles_count = len(profiles)
         sort_by = request.GET.get('sort', default='likes')

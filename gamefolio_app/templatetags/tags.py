@@ -31,6 +31,18 @@ def render_list_entry(game):
     return {"game": game}
 
 @register.inclusion_tag("gamefolio_app/review.html", takes_context=True)
-def render_review(context, review):
-    user = context["user"]
-    return {"review": review, "user": user}
+def render_review(context, review, *args, **kwargs):
+    context_dict={}
+    try:
+        context_dict["verbose"] = kwargs["verbose"]
+    except:
+        context_dict["verbose"] = True
+    
+    try:
+        context_dict["paginate"] = kwargs["paginate"]
+    except:
+        context_dict["paginate"] = True
+
+    context_dict["user"] = context["user"]
+    context_dict["review"] = review
+    return context_dict

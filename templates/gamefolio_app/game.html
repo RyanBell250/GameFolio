@@ -46,11 +46,11 @@
 </header>
 
 {% if user.is_authenticated %}
-<section class="py-5">
-    <div class="container px-5 my-5">
+<section class="pt-2 my-5">
+    <div class="container px-5 my-0">
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
-                <div class="text-center">
+                <div class="text-center pb-2">
                     <h3 class="fw-bolder">Leave a review:</h3>
                 </div>
             </div>
@@ -80,7 +80,7 @@
     </div>
 </section>
 {% else %}
-<div class="row gx-5 d-flex justify-content-left">
+<div class="row gx-5 d-flex justify-content-left my-0">
     <div class="col-md-6 offset-md-3">
         <div class="card" style="margin-top: 20px;">
             <div class="card-body">
@@ -92,9 +92,27 @@
     </div>
 </div>
 {% endif %}
+{% if user_reviews %}
+<section class="pt-2 my-5" id = "reviews">
+    <div class="container px-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h2 class="fw-bolder">Your Reviews</h2>
+                </div>
+            </div>
+        </div>
 
-<section class="py-5">
-    <div class="container px-5 my-5">
+        <div class="row gx-5">
+            {% for review in user_reviews %}
+                {% render_review review verbose=False paginate=False%}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+<section class="pt-2 my-5" id = "reviews">
+    <div class="container px-5">
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
                 <div class="text-center">
@@ -102,52 +120,54 @@
                 </div>
             </div>
         </div>
-
         <br/>
-        <div class="col-lg-4 col-xl-4 text-end">
-            <div class="btn-group" role="group" aria-label="Sort reviews">
-                <a href="?sort_reviews=recent" class="btn btn-outline-success">Sort by Recent</a>
-                <a href="?sort_reviews=liked" class="btn btn-outline-success">Sort by Likes</a>
+        <div class="row gx-5 justify-content-start">
+            <div class="col-lg-4 col-xl-4 text-end">
+                <div class="btn-group" role="group" aria-label="Sort reviews">
+                    <a href="?sort_reviews=recent#reviews" class="btn {% if stype == "recent" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Recent</a>
+                    <a href="?sort_reviews=liked#reviews" class="btn {% if stype == "liked" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Likes</a>
+                    <a href="?sort_reviews=rating#reviews" class="btn {% if stype == "rating" %} btn-success {% else %} btn-outline-success {%endif%}">Sort by Rating</a>
+                </div>
             </div>
         </div>
         <br/>
 
         <div class="row gx-5">
             {% for review in reviews %}
-                <div class="col-md-6 col-lg-4 my-3 py-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="row align-items-center mb-3">
-                                <div class="col-md-4">
-                                    <a href="{% url 'gamefolio_app:profile' review.author.user %}">
-                                        <img class="border border-2 border-light shadow-sm img-fluid rounded game-review-image" src="{{ MEDIA_URL}}{{ review.author.picture }}" alt="{{ review.author.user }} profile picture" />
-                                    </a>
-                                </div>
-                                <div class="col-md-8">
-                                    <a class="user-review-link text-decoration-none link-dark" href="{% url 'gamefolio_app:profile' review.author.user %}">
-                                        <h6 class="fw-semibold mb-0">{{ review.author.user }}</h6>
-                                    </a>
-                                    <div class="text-muted">{{ review.datePosted }}</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div style="color: #198754">{{ review.get_rating_display }}</div>
-                                <div>{{ review.content|truncatechars:200 }}</div>
-                            </div>
-                            <div class="small text-muted"> {{ review.likes }} likes </div>
-                        </div>
-                    </div>
-                </div>
+                {% render_review review verbose=False %}
             {% endfor %}
         </div>
     </div>
 </section>
 
-<section class="py-5">
+<form method="get" action="{% url 'gamefolio_app:game' game.id %}" id="pagination-form">
+    <ul class="pagination justify-content-center">
+        <input type="hidden" name="sort_reviews_by" value="{{ sort_reviews_by }}">
+        {% if reviews %}  
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li class="page-item">
+                <a class="page-link" aria-label="Previous" id = "prev-review-button">
+                  <span aria-hidden="true">&laquo; Prev</span>
+                </a>
+              </li>
+              <li class="page-item"><a class="page-link" id = "current-review-page">1</a></li>
+              <li class="page-item">
+                <a class="page-link" aria-label="Next" id = "next-review-button">
+                  <span aria-hidden="true">Next &raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        {% endif %}
+    </ul>
+</form>
+
+<section class="pt-2">
     <div class="container px-5 my-5">
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
-                <div class="text-center">
+                <div class="text-center pb-3">
                     <h2 class="fw-bolder">Related Games</h2>
                 </div>
             </div>

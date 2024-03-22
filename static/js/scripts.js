@@ -1,3 +1,14 @@
+window.addEventListener( "pageshow", function ( event ) {
+  var historyTraversal = event.persisted || 
+                         ( typeof window.performance != "undefined" && 
+                              window.performance.navigation.type === 2 );
+  if ( historyTraversal ) {
+    // Handle page restore.
+    window.location.reload();
+  }
+});
+
+
 $(document).ready(function() {
 
     const searchParams = new URLSearchParams(window.location.search);
@@ -10,7 +21,6 @@ $(document).ready(function() {
         }
         if($('#page-form').length) {
             $('#page-form').trigger("submit");
-            e.preventDefault();
         }
     });
     $('#reset-button').click(function(e) {
@@ -65,7 +75,6 @@ $(document).ready(function() {
     var currentReviewPage = 1;
     var currentReviews= Array.from(Array(reviewsPerPage).keys())
     var maxReviewPage = Math.ceil($(".user-review").toArray().length/reviewsPerPage);
-    console.log(maxReviewPage);
     paginateReviews();
 
     function paginateReviews() {
@@ -76,7 +85,7 @@ $(document).ready(function() {
                 $(this).removeClass("d-none");
             }
         })
-        $("#current-review-page").text(currentReviewPage);
+        $("#current-review-page").text(currentReviewPage.toString().concat("/").concat(maxReviewPage.toString()));
         $("#prev-review-button").removeClass("disabled");
         $("#next-review-button").removeClass("disabled");
         
@@ -124,7 +133,7 @@ $(document).ready(function() {
                 $(this).removeClass("d-none");
             }
         })
-        $("#current-list-page").text(currentListPage);
+        $("#current-list-page").text(currentListPage.toString().concat("/").concat(maxListPage.toString()));
         $("#prev-list-button").removeClass("disabled");
         $("#next-list-button").removeClass("disabled");
         

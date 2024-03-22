@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['2775752h.eu.pythonanywhere.com','127.0.0.1:8000', '127.0.0.1']
 
+
 # Registration config
 
 REGISTRATION_OPEN = True

@@ -15,6 +15,7 @@
                     <div style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
                     <p style = "color: #198754;">Total Reviews: {{ game.total_reviews }}</p>
                     <a href = "{% url 'gamefolio_app:search' %}?genre={{game.genre}}"><button type="genre" class="btn btn-outline-success mb-2">{{ game.genre }}</button></a>
+                    <a href="{% url 'gamefolio_app:add_to_list_form' game.id %}" class="btn btn-outline-success mb-2">Add to List</a>
                     <p class="lead fw-normal text-white-50 mb-4">{{ game.description }}</p>
                 </div>
             </div>

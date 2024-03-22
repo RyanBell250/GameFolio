@@ -24,11 +24,13 @@ def render_game_card(game, *args, **kwargs):
         verbose = True
     return {"game": game, "verbose":verbose}
 
-@register.inclusion_tag("gamefolio_app/review.html")
-def render_review(review):
-    return {"review": review}
 
 @register.inclusion_tag("gamefolio_app/list_entry.html")
 def render_list_entry(game):
     print("called", game)
     return {"game": game}
+
+@register.inclusion_tag("gamefolio_app/review.html", takes_context=True)
+def render_review(context, review):
+    user = context["user"]
+    return {"review": review, "user": user}

@@ -38,6 +38,14 @@ class GamefolioTemplateTests(TestCase):
         self.assertTemplateUsed(response, 'gamefolio_app/404.html')
         self.assertContains(response, '<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Page Not Found(\s*|\n*)</title>')
 
+    def test_list_template(self):
+        """
+        Test whether the list template exists and renders correctly.
+        """
+        response = self.client.get(reverse('gamefolio_app:list', kwargs={'author_username': 'testuser', 'list_title': 'test-list', 'slug': 'test-list'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gamefolio_app/list.html')  
+
     def test_create_list_template(self):
         """
         Test whether the create list template exists and renders correctly.
@@ -60,12 +68,14 @@ class GamefolioTemplateTests(TestCase):
                                                                                  'template_filename': 'profile.html'},
             reverse('gamefolio_app:not_found'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Page Not Found(\s*|\n*)</title>',
                                              'template_filename': '404.html'},
-            reverse('gamefolio_app:base'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)User Profiles(\s*|\n*)</title>',
-                                                      'template_filename': 'base.html'},
             reverse('gamefolio_app:create_list'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Create List(\s*|\n*)</title>',
                                                   'template_filename': 'create_list.html',
-                                                  'block_title': 'Create List'},
-
+                                                  'block_title': 'Create List'},                                         
+            reverse('gamefolio_app:lists'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Lists(\s*|\n*)</title>',
+                                                  'template_filename': 'lists.html',
+                                                  'block_title': 'Lists'},
+            reverse('gamefolio_app:base'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)User Profiles(\s*|\n*)</title>',
+                                                      'template_filename': 'base.html'},
 
         }
 

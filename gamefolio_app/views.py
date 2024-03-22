@@ -33,6 +33,14 @@ class IndexView(View):
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
 class MyRegistrationView(RegistrationView):
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        for field, errors in form.errors.items():
+            field_name = form.fields[field].label
+            for error in errors:
+                messages.error(self.request, f"{field_name}: {error}")
+        return response
+
     def get_success_url(self, user=None):
         return reverse('gamefolio_app:register_profile')
     

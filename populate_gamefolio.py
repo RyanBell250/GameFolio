@@ -27,6 +27,9 @@ RESULTS_PER_QUERY = 500  #Max results per query is 500
 NUMBER_OF_USERS = 100
 descriptors = ["Little", "Big", "Small", "Hidden", "Crazy", "Blue", "Red", "Green", "Yellow", "Rainbow", "Silly"]
 usernames = ["Mario", "Link", "Zelda", "Luigi", "Yoshi", "DonkeyKong", "Sonic", "Peach", "Steve", "Mastercheif", "Pikachu", "Goomba", "Bowser"]
+bios = ["I love gaming.", "Gaming enthusiast.", "Casual gamer.", "Hardcore gamer.", "I live to game.", "Gaming is my passion.", 
+        "Always looking for the next great game.", "Gaming is my life.", "I can't imagine life without gaming.", "Gaming is my escape from reality.",
+        "Some ordinary gamer doing ordinary things.", "This web app development group did a very good job"]
 
 ### Review Parameters ###
 AVG_REVIEWS_PER_GAME = 10
@@ -99,9 +102,9 @@ def populate_users():
             username = random.choice(descriptors) +  random.choice(usernames) + str(random.randint(1000, 9999))
             password = username #use username for password so it is easy to sign in to test account
             email = username +"@email.com" #fake email
+            bio = random.choice(bios)
             user = User.objects.create_user(username, email, password)
-
-            author = Author(user = user)
+            author = Author(user = user, bio = bio)
             author.save()
         except Exception as e:
             print(e)
@@ -150,7 +153,7 @@ def populate_lists():
                 #Make List
                 list_name = random.choice(list_names).format(username = author.user.username)
                 description = random.choice(["", "This is just a placeholder list description rather than nothing."])
-                list = List(author = author, title = list_name, description = description)
+                list = List(author = author, title = list_name, description = description, views = random.randint(0, 1000))
                 list.save()
                 
                 #Add entries

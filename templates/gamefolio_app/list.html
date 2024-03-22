@@ -1,0 +1,88 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load static %}
+{% load tags %}
+
+{% block title_block %}
+    {{ list_obj.title }} - Games List
+{% endblock %}
+
+{% block body_block %}
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">{{ list_obj.title }}</h1>
+                    <p class="lead fw-normal text-white mb-4">  by 
+                        <a class="list-profile-link" href="{% url 'gamefolio_app:profile' list_obj.author.user.username %}" >{{ list_obj.author.user.username }}</a>
+                    </p>
+                    <p class="lead fw-normal text-white mb-4">{{ list_obj.description }}</p>
+                    <p class="lead fw-normal text-white mb-4">views: {{ list_obj.views }}</p>
+
+                    {% if user.is_authenticated and user == list_obj.author.user %}
+                        <form method="post" action="{% url 'gamefolio_app:list_delete' author_username=list_obj.author.user.username slug=list_obj.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete List</button>
+                        </form>
+                    {% endif %}
+                    
+                </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5" src="{% static "images/homepage.png" %}" style="width: 250px; height: 250px;" alt="homepage image" /></div>
+        </div>
+    </div>
+</header>
+
+{% if user.is_authenticated and user == list_obj.author.user %}
+    <section class="py-5">
+        <div class="container px-5 my-5">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-8 col-xl-6">
+                    <div class="text-center">
+                        <h2 class="fw-bolder">Add Game to List:</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row gx-5 d-flex justify-content-left">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post" class="text-center">
+                                {% csrf_token %}
+                                <div class="gap-between-select-and-button">
+                                    <label for="game">Select Game:</label>
+                                    <select name="game" id="game">
+                                        {% for game in all_games %}
+                                            <option value="{{ game.id }}">{{ game.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-outline-success">Add Game</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h2 class="fw-bolder">Games</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row gx-5">
+            {% for entry in list_entries %}
+                {% render_game_card entry.game list=list_obj%}
+            {% endfor %}
+        </div> 
+    </div>
+</section>
+
+
+{% endblock %}

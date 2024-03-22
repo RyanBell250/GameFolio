@@ -15,7 +15,7 @@ from registration.backends.simple.views import RegistrationView
 from django.contrib import messages
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm, AddToListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 
 class IndexView(View):
@@ -283,13 +283,15 @@ class GamePageView(View):
         else:
             reviews = reviews.order_by('-datePosted')
         
-        form = ReviewForm() 
+        form = ReviewForm()
+        add_to_list_form = AddToListForm(user=request.user) 
 
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,  
             'related_games': related_games,
+            'add_to_list_form': add_to_list_form,
         }
         return render(request, 'gamefolio_app/game.html', context)
 
@@ -298,16 +300,24 @@ class GamePageView(View):
         reviews = Review.objects.filter(game=game_id)
 
         form = ReviewForm(request.POST)  
+        add_to_list_form = AddToListForm(request.POST)
+
         if form.is_valid():
             review = form.save(commit=False)
             review.game = game  
             review.author = request.user.author  
             review.save()
             return redirect('gamefolio_app:game', game_id=game_id)
+        elif add_to_list_form.is_valid():
+            list_id = add_to_list_form.cleaned_data['list']
+            list_obj = get_object_or_404(List, id=list_id)
+            ListEntry.objects.create(list=list_obj, game=game)
+            return redirect('gamefolio_app:game', game_id=game_id)
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,
+            'add_to_list_form': add_to_list_form,
         }
         return render(request, 'gamefolio_app/game.html', context)
 

@@ -35,7 +35,7 @@
     <div class="small row mt-4 align-items-end d-flex">
         <div class ="col-6 text-muted"> {{ review.datePosted|date:"j M Y" }}  </div>
         <div class ="like-count col-4 text-muted text-end"> {{ review.likes }} likes </div>
-        {% if user.is_authenticated and user != review.auther.user%}
+        {% if user.is_authenticated and user != review.author.user%}
         <button 
                 data-reviewid="{{ review.pk }}"
                 class="col-2 like-btn btn btn-outline-primary btn-sm"

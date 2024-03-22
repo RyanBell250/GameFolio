@@ -30,10 +30,10 @@
                 <div class="card-body">
                     <form id = "list-form" role="form" method="post" action=".">
                         {% csrf_token %}
-                        <h5>Title:</h5>
                         {% if title %} 
-                            <input type="text" name="title" class="form-control" maxlength="128" required="" id="id_title" value = "{{title}}" readonly>
+                            <input type="text" name="title" class="list-edit-control px-0 mx-0" maxlength="128" required="" id="id_title" value = "{{title}}" readonly>
                         {% else %}
+                            <h5>Title:</h5>
                             {{ form.title }}
                         {% endif %}
                         <br/>

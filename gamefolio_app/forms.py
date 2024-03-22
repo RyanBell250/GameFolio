@@ -35,7 +35,7 @@ class AuthorForm(forms.ModelForm):
         widgets = {
             'website': forms.URLInput(attrs={'class': 'form-control'}),
             'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': '5', 'maxlength': '250'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': '5', 'maxlength': '200'}),
         }
         labels = {
             'website': 'Website',
@@ -49,7 +49,7 @@ class ReviewForm(forms.ModelForm):
         fields = ['rating', 'content']
         widgets = {
             'rating': forms.Select(choices=Review.RATING_CHOICES, attrs={'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, "maxlength": 500}),
         }
         labels = {
             'rating': 'Rating',
@@ -64,7 +64,7 @@ class CreateListForm(forms.ModelForm):
         fields = ['title', 'description', 'games']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', "maxlength": 500}),
         }
         labels = {
             'title': 'Title',

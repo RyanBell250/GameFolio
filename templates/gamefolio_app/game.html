@@ -123,6 +123,7 @@
     </div>
 </section>
 {% endif %}
+{% if reviews %}
 <section class="pt-2 my-5" id = "reviews">
     <div class="container px-5">
         <div class="row gx-5 justify-content-center">
@@ -151,6 +152,7 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <form method="get" action="{% url 'gamefolio_app:game' game.id %}" id="pagination-form">
     <ul class="pagination justify-content-center">

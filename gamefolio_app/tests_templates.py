@@ -29,6 +29,16 @@ class GamefolioTemplateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'gamefolio_app/profile.html')
 
+    def test_404_template(self):
+        """
+        Test whether the 404 template exists and renders correctly.
+        """
+        response = self.client.get(reverse('gamefolio_app:not_found'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gamefolio_app/404.html')
+        self.assertContains(response, '<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Page Not Found(\s*|\n*)</title>')
+
+
     def test_template_title_blocks(self):
         """
         Test whether the title blocks in each template are the expected values.

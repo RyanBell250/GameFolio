@@ -105,11 +105,7 @@ class ProfileView(View):
 
         return (user, lists, user_profile, form)
     
-
-    @method_decorator(login_required)
-    
     def get(self, request, username):
-        MAX_RESULTS_PER_PAGE = 8
         try:
             (user, lists, user_profile, form) = self.get_user_details(username)
             user_reviews = Review.objects.filter(author=user_profile)
@@ -152,7 +148,6 @@ class ProfileView(View):
         return render(request, 'gamefolio_app/profile.html', context_dict)
 
 class ListProfilesView(View):
-    @method_decorator(login_required)
     def get(self, request):
         MAX_RESULTS_PER_PAGE = 9
         profiles = Author.objects.annotate(total_reviews=Count('review'), total_likes=Sum('review__likes'))
@@ -195,7 +190,6 @@ class ListProfilesView(View):
         return render(request, 'gamefolio_app/list_profiles.html', context_dict)
       
 class ListView(View):
-    @method_decorator(login_required)
     def get(self, request, author_username, slug):
         list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         list_obj.views += 1
@@ -316,11 +310,11 @@ class ListDeleteView(View):
         return redirect(reverse('gamefolio_app:profile', kwargs={'username': author_username}))
     
 class ListsView(View):
-    @method_decorator(login_required)
     def get(self, request):
 
         MAX_RESULTS_PER_PAGE = 9
-        lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
+        entries = ListEntry.objects.all().values_list("list")
+        lists = List.objects.filter(id__in=entries).order_by('-views')
         lists_count = len(lists)
         
         try:

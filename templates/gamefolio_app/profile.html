@@ -9,42 +9,44 @@
 <header class="bg-dark py-0"> 
     <div class="container px-5">
         {% if user == selected_user %}
-        <form id = "edit-profile-form" method="post" action="." enctype="multipart/form-data">
+        <form id = "edit-profile-form" method="post" action="." enctype="multipart/form-data" class = "d-none">
             {% csrf_token %}
-        <div class="row gx-5 align-items-center justify-content-center">
-            <div class="col-lg-8 col-xl-7 col-xxl-6">
-                <div class="my-5 text-center text-xl-start">
-                    <h1 class="display-5 fw-bolder text-white mb-2">
+            <div class="row gx-5 align-items-center justify-content-center">
+                <div class="col-lg-8 col-xl-7 col-xxl-6">
+                    <div class="my-5 text-center text-xl-start">
+                        <h1 class="display-5 fw-bolder text-white mb-2">
 
-                            <div clas ="mb-4">{{ selected_user.username }}'s Profile</div>
-                           
-                            <input type="url" name="website" value = "{{user_profile.website}}" class="form-profile-control mt-4 lead fw-normal text-white-50" maxlength="200" id="id_website" placeholder = "Website">
+                                <div clas ="mb-4">{{ selected_user.username }}'s Profile</div>
                             
-                            <label class="lead fw-bold text-white-50 py-0 my-0" for="bio">Bio</label>
-                            <p class="lead fw-normal text-white-50 mb-2" style = "overflow-wrap: break-word">
-                                <textarea name="bio" cols="40" rows="5" class="form-profile-control lead fw-normal text-white-50" maxlength="250" required="" id="id_bio" style="height: 170px; resize:none">{{user_profile.bio}}</textarea>
-                            </p>
-                    </h1>
+                                <input type="url" name="website" value = "{{user_profile.website}}" class="form-profile-control mt-4 lead fw-normal text-white-50" maxlength="200" id="id_website" placeholder = "Website">
+                                
+                                <label class="lead fw-bold text-white-50 py-0 my-0" for="bio">Bio</label>
+                                <p class="lead fw-normal text-white-50 mb-2" style = "overflow-wrap: break-word">
+                                    <textarea name="bio" cols="40" rows="5" class="form-profile-control lead fw-normal text-white-50" maxlength="250" required="" id="id_bio" style="height: 170px; resize:none">{{user_profile.bio}}</textarea>
+                                </p>
+                        </h1>
+                        
+                        <div class ="col-12 d-flex justify-content-start">
+                            <div class="text-center gap-between-select-and-button">
+                                <button type="submit" class="btn btn-outline-success">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-            </div>
-            <div class="col-xl-5 col-xxl-6 d-none d-xl-flex text-center justify-content-end">
-                <input type="file" name="picture" class="d-none" accept="image/*" id="id_picture" >
-                {% if user_profile.picture %}
-                <img id = "profile-image" class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" alt="{{ selected_user.username }}'s profile image" />
-                {% else %}
-                <img id = "profile-image" class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}defaultprofile.png" alt="{{ selected_user.username }}'s profile image" />
-                {%endif%}
-            </div>
+                <div class="col-xl-5 col-xxl-6 d-none d-xl-flex text-center justify-content-end">
+                    <input type="file" name="picture" class="d-none" accept="image/*" id="id_picture" >
+                    {% if user_profile.picture %}
+                    <img id = "profile-image" class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" alt="{{ selected_user.username }}'s profile image" />
+                    {% else %}
+                    <img id = "profile-image" class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}defaultprofile.png" alt="{{ selected_user.username }}'s profile image" />
+                    {%endif%}
+                </div>
             
-            <div class ="col-12 d-flex justify-content-start">
-                <div class="text-center gap-between-select-and-button">
-                    <button type="submit" class="btn btn-outline-success">Update</button>
-                </div>
             </div>
-        </div>
         </form>
-        {% else %}
-        <div class="row gx-5 align-items-center justify-content-center">
+        {% endif %}
+        <div id = "non-edit-profile" class="row gx-5 align-items-center justify-content-center">
             <div class="col-lg-8 col-xl-7 col-xxl-6">
                 <div class="my-5 text-center text-xl-start">
                     <h1 class="display-5 fw-bolder text-white mb-2">
@@ -57,12 +59,19 @@
                         <p class="lead fw-normal text-white-50 mb-4" style = "overflow-wrap: break-word" name="bio"> {{ user_profile.bio }}</a></small>
                     </h1>
                 </div>
+                
+                {% if user == selected_user %}
+                <div class ="col-12 d-flex justify-content-start">
+                    <div class="text-center gap-between-select-and-button">
+                        <button id = "edit-button" type="button" class="btn btn-outline-light">Edit</button>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             <div class="col-xl-5 col-xxl-6 d-none d-xl-flex text-center justify-content-end">
                 <img class="shadow-sm rounded img-fluid user-profile-image my-5" src="{{ MEDIA_URL }}{{ user_profile.picture }}" alt="{{ selected_user.username }}'s profile image" />
             </div>
         </div>
-        {%endif%}
     </div>
 </header>
 

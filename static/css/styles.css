@@ -236,6 +236,13 @@ display: none;
   cursor: pointer;
 }
 
+.flex-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .user-profile-image:hover {
   filter:  brightness(70%)  !important;
 }

@@ -305,3 +305,14 @@ class CreateListViewTests(TestCase):
         response = self.client.post(reverse('gamefolio_app:create_list'), {'title': 'New List', 'description': 'Description'})
         self.assertEqual(response.status_code, 302)  # Check if redirected after creating list
         self.assertTrue(List.objects.filter(title='New List', author=self.user.profile).exists())  # Check if the new list is created
+
+class ListDeleteViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+        self.list = List.objects.create(title='Test List', author=self.user.profile)
+
+    def test_delete_list(self):
+        response = self.client.post(reverse('gamefolio_app:list_delete', kwargs={'pk': self.list.pk}))
+        self.assertEqual(response.status_code, 302)  # Check if redirected after deleting list
+        self.assertFalse(List.objects.filter(pk=self.list.pk).exists())  # Check if the list is deleted

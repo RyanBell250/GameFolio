@@ -44,7 +44,7 @@ $(document).ready(function() {
         },
         minLength: 0
     })
-    $("#list-games").on('click', ".list-entry-remove-btn", function() {
+    $("#list-games").on('mouseup', ".list-entry-remove-btn", function(e) {   
         $(this).parents("#list-entry").remove()
     });
     $("#list-games").on('mouseover', "#list-entry", function() {
@@ -53,4 +53,9 @@ $(document).ready(function() {
     $("#list-games").on('mouseleave', "#list-entry", function() {
         $(this).find(".list-entry-remove-btn").addClass("d-none");
     });
+    $("#list-form").keydown(function (e) {
+        if(e.keyCode == 13){
+            e.preventDefault();
+        }
+    })
 })

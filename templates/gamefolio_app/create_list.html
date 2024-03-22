@@ -28,7 +28,7 @@
         <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-body">
-                    <form role="form" method="post" action=".">
+                    <form id = "list-form" role="form" method="post" action=".">
                         {% csrf_token %}
                         <h5>Title:</h5>
                         {% if title %} 

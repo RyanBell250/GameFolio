@@ -26,7 +26,6 @@ urlpatterns = [
     path('game/<slug:game_id>/', views.GamePageView.as_view(), name="game"),
     path('like_review/', views.LikeReviewView.as_view(), name='like_review'),
 
-    path('game/<slug:game_id>/add-to-list/', views.AddToListView.as_view(), name='add_to_list'),
-    path('add_to_list_form/<slug:game_id>/', views.AddToListFormView.as_view(), name='add_to_list_form'),
+    path('add_to_list_form/<slug:slug>/<slug:game_id>/', views.AddToListFormView.as_view(), name='add_to_list_form'),
 ]
 

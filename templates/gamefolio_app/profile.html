@@ -18,7 +18,9 @@
 
                             <div clas ="mb-4">{{ selected_user.username }}'s Profile</div>
                            
-                            <input type="url" name="website" value = "{{user_profile.website}}" class="form-profile-control my-2 lead fw-normal text-white-50" maxlength="200" id="id_website" placeholder = "Website">
+                            <input type="url" name="website" value = "{{user_profile.website}}" class="form-profile-control mt-4 lead fw-normal text-white-50" maxlength="200" id="id_website" placeholder = "Website">
+                            
+                            <label class="lead fw-bold text-white-50 py-0 my-0" for="bio">Bio</label>
                             <p class="lead fw-normal text-white-50 mb-2" style = "overflow-wrap: break-word">
                                 <textarea name="bio" cols="40" rows="5" class="form-profile-control lead fw-normal text-white-50" maxlength="250" required="" id="id_bio" style="height: 170px; resize:none">{{user_profile.bio}}</textarea>
                             </p>
@@ -48,9 +50,11 @@
                     <h1 class="display-5 fw-bolder text-white mb-2">
                         {{ selected_user.username }}'s Profile
                         {% if user_profile.website %}
-                        <p class="lead fw-normal text-white-50 mb-4"> - <a href="{{ user_profile.website }}" class="text-white">{{ user_profile.website }}</a></small>
+                        <p class="lead fw-normal text-white-50 mb-0"> - <a href="{{ user_profile.website }}" class="text-white">{{ user_profile.website }}</a></small>
                         {% endif %}
-                        <p class="lead fw-normal text-white-50 mb-4" style = "overflow-wrap: break-word"> {{ user_profile.bio }}</a></small>
+                        <div></div>
+                        <label class="lead fw-bold text-white-50 py-0" for="bio">Bio</label>
+                        <p class="lead fw-normal text-white-50 mb-4" style = "overflow-wrap: break-word" name="bio"> {{ user_profile.bio }}</a></small>
                     </h1>
                 </div>
             </div>
@@ -97,9 +101,6 @@
                             </div>
                         </div>
                     {% endfor %}
-                    {% if selected_user == user %}
-                    <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
-                    {% endif %}
                     <ul class="pagination justify-content-center pt-5">
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
@@ -119,8 +120,11 @@
                     </ul>
                 {% else %}
                 <div class = " text-center"><p>No lists available.</p></div>
+                    {% if selected_user == user %}
+                            <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
+                    {% endif %}
+                </div>
                 {% endif %}
-
         </div>
     </div>
 </section>

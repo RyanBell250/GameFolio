@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm, AddToListForm
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 from django.core.paginator import Paginator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -33,6 +33,14 @@ class IndexView(View):
         return render(request, 'gamefolio_app/index.html', context=context_dict)
       
 class MyRegistrationView(RegistrationView):
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        for field, errors in form.errors.items():
+            field_name = form.fields[field].label
+            for error in errors:
+                messages.error(self.request, f"{field_name}: {error}")
+        return response
+
     def get_success_url(self, user=None):
         return reverse('gamefolio_app:register_profile')
     
@@ -321,7 +329,14 @@ class ListsView(View):
             page = request.GET['page'].strip()
         except Exception as e:
             page = 0
-            
+
+        sort_reviews_by = request.GET.get('sort', 'views')
+        
+        if sort_reviews_by == 'views':
+            lists = lists.order_by('-views', 'title')
+        elif sort_reviews_by == 'alphabetical':
+            lists = lists.order_by('title')
+
         page_count = lists_count/MAX_RESULTS_PER_PAGE
         
         if(page_count == int(page_count)):
@@ -344,7 +359,7 @@ class ListsView(View):
         
         pages = calculate_pages(page_count, current_page)
         
-        context_dict = {"lists" : actual_results, "count": lists_count, "pages": pages, "current_page": current_page, "page_count": page_count}
+        context_dict = {"lists" : actual_results, "count": lists_count, "pages": pages, "current_page": current_page, "page_count": page_count, "sort_reviews_by": sort_reviews_by}
         return render(request, 'gamefolio_app/lists.html', context_dict)
     
 class InlineSuggestionsView(View):
@@ -359,32 +374,23 @@ class InlineSuggestionsView(View):
             game_list = Game.objects.order_by('title')[:8]
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
         return return_val
-    
-class AddToListView(View):
-    def post(self, request, game_id):
-        game = get_object_or_404(Game, id=game_id)
-        form = AddToListForm(request.user, request.POST)
-        if form.is_valid():
-            list_id = form.cleaned_data['list'].id
-            list_obj = get_object_or_404(List, id=list_id)
-            if not list_obj.listentry_set.filter(game_id=game_id).exists():
-                ListEntry.objects.create(list=list_obj, game=game)
-                return redirect('gamefolio_app:game', game_id=game_id)
-            else:
-                return redirect('gamefolio_app:game', game_id=game_id)
-        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
    
 class AddToListFormView(View):
-    def get(self, request, game_id):
-        game = Game.objects.get(id=game_id)
-        form = AddToListForm(request.user, game)
-        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
+    def get(self, request, slug, game_id):
+        list = get_object_or_404(List, slug = slug, author = request.user.author)
+        game = get_object_or_404(Game, id = game_id)
+        ListEntry.objects.create(list = list, game = game)
+        return redirect("gamefolio_app:game", game_id = game_id);
 
 class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
-        reviews = Review.objects.filter(game=game).exclude(author__user=request.user)
-        user_reviews = Review.objects.filter(game=game).filter( author__user=request.user)
+        if request.user.is_authenticated:
+            reviews = Review.objects.filter(game=game).exclude(author__user=request.user)
+            user_reviews = Review.objects.filter(game=game).filter(author__user=request.user)
+        else:
+            reviews = Review.objects.filter(game=game)
+            user_reviews = Review.objects.none()
         related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:4]
 
         if(len(related_games) < 4):
@@ -401,6 +407,13 @@ class GamePageView(View):
         
         form = ReviewForm()
 
+        lists_to_add=[]
+        if(request.user.is_authenticated):   
+            game = Game.objects.get(id=game_id)
+            lists = List.objects.filter(author__user=request.user)
+            entries = ListEntry.objects.filter(list__in = lists, game = game).values("list_id")
+            lists_to_add = lists.exclude(pk__in=entries)
+
         context = {
             'game': game,
             'reviews': reviews,
@@ -409,6 +422,7 @@ class GamePageView(View):
             "review_ratings": get_game_ratings(game_id),
             'related_games': related_games,
             "stype": sort_reviews_by,
+            "lists_to_add": lists_to_add,
         }
         return render(request, 'gamefolio_app/game.html', context)
 

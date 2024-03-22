@@ -32,6 +32,14 @@ $(document).ready(function() {
         }
     });
 
+    $(".list-selection-dropdown").click(function(e) {
+        $("#add-to-list-button").val($(this).val());
+    })
+
+    $("#add-to-list-button").click(function(e) {
+        window.location.href = "../../add_to_list_form/"+$(this).val()+"/"+$("#game-slug").val()
+    })
+
     //Ratings
     function calculateSize(e) {
         var rating = calculateRating(e);
@@ -180,19 +188,3 @@ $(document).ready(function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 });
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Get the profile dropdown menu element
-    var profileDropdown = document.getElementById('profileDropdown');
-    // Check if the user is authenticated
-    var isAuthenticated = "{{ user.is_authenticated }}";
-
-    if (isAuthenticated === "True") {
-        // If user is authenticated, show the profile dropdown menu
-        profileDropdown.style.display = 'block';
-    } else {
-        // If user is not authenticated, hide the profile dropdown menu
-        profileDropdown.style.display = 'none';
-    }
-}); 

@@ -13,9 +13,21 @@
                 <div class="my-5 text-center text-xl-start">
                     <h1 class="display-5 fw-bolder text-white mb-2">{{ game.title }}</h1>
                     <hr class="hr-blurry text-white mt-1 mb-1 mx-1" style="width: 65%">
-                    <div class ="mb-2" style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
+                    <div class ="mb-2" style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}
+                        
                     <a href = "{% url 'gamefolio_app:search' %}?genre={{game.genre}}"><button type="genre" class="btn btn-outline-success mb-2">{{ game.genre }}</button></a>
-                    <a href="{% url 'gamefolio_app:add_to_list_form' game.id %}" class="btn btn-outline-success mb-2">Add to List</a>
+                    </div>
+                    {% if lists_to_add %}
+                    <div>
+                        <input id="game-slug" value = "{{game.id}}" type ="hidden">
+                        <select class="dropdown btn btn-secondary dropdown-toggle mb-2">
+                            {% for list in lists_to_add %}
+                                <option class="list-selection-dropdown dropdown-item" value="{{list.slug}}">{{list.title}}</option>
+                            {%endfor%}
+                        </select>
+                            <button id = "add-to-list-button" class="btn btn-outline-success mb-2" value = "{{lists_to_add.0.slug}}">Add to List</button>
+                    </div>
+                    {%endif%}
                     <p class="lead fw-normal text-white-50 mb-4">{{ game.description }}</p>
                 </div>
             </div>

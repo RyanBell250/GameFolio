@@ -71,7 +71,9 @@
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:index' %}">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'gamefolio_app:list_profiles' %}">Users</a></li>
-                        <img class="card-img-top" src="{{ MEDIA_URL }}{{ user.author.picture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 5px; margin-left: 20px;">
+                        {% if user.is_authenticated %}
+                            <img class="card-img-top" src="{{ MEDIA_URL }}{{ user.author.picture }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 5px; margin-left: 20px;">
+                        {% endif %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if user.is_authenticated %}
@@ -83,11 +85,13 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="profileDropdown">
                                 {% if user.is_authenticated %}
                                 <li><a class="dropdown-item" href="{% url 'gamefolio_app:profile' user.username %}">My Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'gamefolio_app:lists' %}">Lists</a></li>
                                 <li><a class="dropdown-item" href="{% url 'gamefolio:list_profiles' %}">Users</a></li>
+                                <li><a class="dropdown-item" href="{% url 'gamefolio_app:lists' %}">Lists</a></li>
                                 <li><a class="dropdown-item" href="{% url 'auth_password_change' %}">Change Password</a></li>
                                 <li><a class="dropdown-item" href="{% url 'auth_logout' %}">Logout</a></li>
                                 {% else %}
+                                <li><a class="dropdown-item" href="{% url 'gamefolio:list_profiles' %}">Users</a></li>
+                                <li><a class="dropdown-item" href="{% url 'gamefolio_app:lists' %}">Lists</a></li>
                                 <li><a class="dropdown-item" href="{% url 'auth_login' %}">Login</a></li>
                                 <li><a class="dropdown-item" href="{% url 'gamefolio_app:registration_register' %}">Register</a></li>
                                 {% endif %}

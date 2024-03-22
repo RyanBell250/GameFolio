@@ -159,10 +159,19 @@ $(document).ready(function() {
         paginateLists();
     })
 
+    $("#profile-image").click(function() {
+        $("#id_picture").trigger("click");
+    })
+
+    $("#id_picture").change(function() {
+        $("#edit-profile-form").trigger("submit");
+    })
+
     //Tooltips
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 });
+
 
 document.addEventListener("DOMContentLoaded", function() {
     // Get the profile dropdown menu element
@@ -178,4 +187,3 @@ document.addEventListener("DOMContentLoaded", function() {
         profileDropdown.style.display = 'none';
     }
 }); 
-

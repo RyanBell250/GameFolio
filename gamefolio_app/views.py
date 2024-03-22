@@ -143,7 +143,6 @@ class ProfileView(View):
         context_dict = {'user_profile': user_profile, 'selected_user': user, 'form': form}
         return render(request, 'gamefolio_app/profile.html', context_dict)
 
-
 class ListProfilesView(View):
     @method_decorator(login_required)
     def get(self, request):
@@ -382,24 +381,29 @@ class AddToListFormView(View):
 class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
-        reviews = Review.objects.filter(game=game)
+        user_reviews = Review.objects.filter(game=game)
         related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:3]
-        
+  
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
+        
         if sort_reviews_by == 'liked':
-            reviews = reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
-        else:
-            reviews = reviews.order_by('-datePosted')
+            user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+        elif sort_reviews_by == 'recent':
+            user_reviews = user_reviews.order_by('-datePosted')
+        elif sort_reviews_by == 'rating':
+            user_reviews = user_reviews.order_by('-rating')
         
         form = ReviewForm()
 
         context = {
             'game': game,
-            'reviews': reviews,
+            'reviews': user_reviews,
             'form': form,  
             "review_ratings": get_game_ratings(game_id),
             'related_games': related_games,
+            "stype": sort_reviews_by,
         }
+        print(context)
         return render(request, 'gamefolio_app/game.html', context)
 
     def post(self, request, game_id):

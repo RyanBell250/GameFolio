@@ -283,3 +283,45 @@ class SearchViewTests(TestCase):
         self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
         self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
 
+class RemoveGameViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+        self.game = Game.objects.create(title='Test Game')
+        self.list = List.objects.create(title='Test List', author=self.user.profile)
+        self.list_entry = ListEntry.objects.create(list=self.list, game=self.game)
+
+    def test_remove_game(self):
+        response = self.client.post(reverse('gamefolio_app:remove_game', kwargs={'list_id': self.list.id, 'game_id': self.game.id}))
+        self.assertEqual(response.status_code, 302)  # Check if redirected after removing game
+        self.assertFalse(ListEntry.objects.filter(list=self.list, game=self.game).exists())  # Check if the game is removed from the list
+
+class CreateListViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
+    def test_create_list(self):
+        response = self.client.post(reverse('gamefolio_app:create_list'), {'title': 'New List', 'description': 'Description'})
+        self.assertEqual(response.status_code, 302)  # Check if redirected after creating list
+        self.assertTrue(List.objects.filter(title='New List', author=self.user.profile).exists())  # Check if the new list is created
+
+class ListDeleteViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+        self.list = List.objects.create(title='Test List', author=self.user.profile)
+
+    def test_delete_list(self):
+        response = self.client.post(reverse('gamefolio_app:list_delete', kwargs={'pk': self.list.pk}))
+        self.assertEqual(response.status_code, 302)  # Check if redirected after deleting list
+        self.assertFalse(List.objects.filter(pk=self.list.pk).exists())  # Check if the list is deleted
+
+class GamePageViewTests(TestCase):
+    def setUp(self):
+        self.game = Game.objects.create(title='Test Game')
+
+    def test_game_page_view(self):
+        response = self.client.get(reverse('gamefolio_app:game_page', kwargs={'slug': self.game.slug}))
+        self.assertEqual(response.status_code, 200)  # Check if the game page is accessible
+        self.assertTemplateUsed(response, 'gamefolio_app/game_page.html')  # Check if the correct template is used

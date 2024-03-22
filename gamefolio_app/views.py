@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Avg, Count, Sum
@@ -13,8 +13,8 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from registration.backends.simple.views import RegistrationView
 from django.contrib import messages
-
-from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from gamefolio_app.forms import ReviewForm, UserForm , AuthorForm, CreateListForm, AddToListForm
 from gamefolio_app.models import Game, Review, Author, List, ListEntry
 from django.core.paginator import Paginator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -83,7 +83,7 @@ class UserLoginView(View):
 
 @method_decorator(login_required, name='dispatch')
 class UserLogoutView(LogoutView):
-    next_page = reverse_lazy('gamefolio_app:index')
+    next_page = reverse_lazy('gamefolio_app:auth_logout')
     
 class ProfileView(View):
     def get_user_details(self, username):
@@ -113,10 +113,11 @@ class ProfileView(View):
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
         
         if sort_reviews_by == 'liked':
-            user_reviews = user_reviews.order_by('-likes_total', '-datePosted')
-        else:
+            user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+        elif sort_reviews_by == 'recent':
             user_reviews = user_reviews.order_by('-datePosted')
-        
+        elif sort_reviews_by == 'rating':
+            user_reviews = user_reviews.order_by('-rating')
 
         context_dict = {'user_profile': user_profile, 'count':user_reviews_count, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': user_reviews, 'sort_reviews_by': sort_reviews_by}
         return render(request, 'gamefolio_app/profile.html', context_dict)
@@ -188,8 +189,8 @@ class ListProfilesView(View):
       
 class ListView(View):
     @method_decorator(login_required)
-    def get(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def get(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         list_obj.views += 1
         list_obj.save()      
         list_entries = list_obj.listentry_set.all()
@@ -198,23 +199,23 @@ class ListView(View):
         return render(request, 'gamefolio_app/list.html', context)
     
     @method_decorator(login_required)
-    def post(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def post(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         if request.user == list_obj.author.user:
             game_id = request.POST.get('game')
             game = get_object_or_404(Game, id=game_id)
             ListEntry.objects.create(list=list_obj, game=game)
-        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
+        return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
 class RemoveGameView(View):
     @method_decorator(login_required)
-    def post(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def post(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         if request.user == list_obj.author.user:
             game_id = request.POST.get('game_id')
             game_to_remove = get_object_or_404(ListEntry, list=list_obj, game_id=game_id)
             game_to_remove.delete()
-        return redirect('gamefolio_app:list', author_username=author_username, list_title=list_title, slug=slug)
+        return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
 class CreateListView(View):
     @method_decorator(login_required)
@@ -252,8 +253,8 @@ class CreateListView(View):
             return render(request, 'gamefolio_app/create_list.html', context_dict)
         
 class ListDeleteView(View):
-    def post(self, request, author_username, list_title, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, title=list_title, slug=slug)
+    def post(self, request, author_username, slug):
+        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
 
         if request.user == list_obj.author.user:
             list_obj.delete()
@@ -314,11 +315,34 @@ class InlineSuggestionsView(View):
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
         print(game_list)
         return return_val
+    
+class AddToListView(View):
+    def post(self, request, game_id):
+        game = get_object_or_404(Game, id=game_id)
+        form = AddToListForm(request.user, request.POST)
+        if form.is_valid():
+            list_id = form.cleaned_data['list'].id
+            list_obj = get_object_or_404(List, id=list_id)
+            if not list_obj.listentry_set.filter(game_id=game_id).exists():
+                ListEntry.objects.create(list=list_obj, game=game)
+                return redirect('gamefolio_app:game', game_id=game_id)
+            else:
+                return redirect('gamefolio_app:game', game_id=game_id)
+        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
+
+        
+    
+class AddToListFormView(View):
+    def get(self, request, game_id):
+        game = Game.objects.get(id=game_id)
+        form = AddToListForm(request.user, game)
+        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
 
 class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
         reviews = Review.objects.filter(game=game)
+        related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:3]
         
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
         if sort_reviews_by == 'liked':
@@ -326,11 +350,13 @@ class GamePageView(View):
         else:
             reviews = reviews.order_by('-datePosted')
         
-        form = ReviewForm()  
+        form = ReviewForm()
+
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,  
+            'related_games': related_games,
         }
         return render(request, 'gamefolio_app/game.html', context)
 
@@ -339,19 +365,21 @@ class GamePageView(View):
         reviews = Review.objects.filter(game=game_id)
 
         form = ReviewForm(request.POST)  
+
         if form.is_valid():
             review = form.save(commit=False)
             review.game = game  
             review.author = request.user.author  
             review.save()
             return redirect('gamefolio_app:game', game_id=game_id)
+        
         context = {
             'game': game,
             'reviews': reviews,
             'form': form,
         }
         return render(request, 'gamefolio_app/game.html', context)
-
+    
 class NotFoundView(View):
     def get(self, request):
         return render(request, "gamefolio_app/404.html")

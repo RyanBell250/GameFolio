@@ -83,7 +83,7 @@
                         <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="{% url "gamefolio_app:game" result.id %}">{{ result.title }}</a></h4>
                         <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/5.0" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
                         <div row>
-                            <button class="btn btn-outline-success" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
+                            <button class="btn btn-outline-success genre-button" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
                         </div>
                     </br>
                     <p style = "color: #198754;">Total Reviews: {{ result.total_reviews }}</p>

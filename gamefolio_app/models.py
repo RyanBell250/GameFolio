@@ -5,14 +5,13 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete = models.CASCADE) 
-
+    user = models.OneToOneField(User, on_delete = models.CASCADE)
     website = models.URLField(blank = True)
     picture = models.ImageField(upload_to="profile_images", default="defaultprofile.png")
     bio = models.TextField(default = "This user has no bio.")
 
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username}'s Profile"
 
 class Game(models.Model):
     id = models.SlugField(unique = True, primary_key = True)
@@ -71,8 +70,8 @@ class Review(models.Model):
     content = models.TextField(blank = False)
     views = models.IntegerField(default = 0)
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)  #Only allows 1-10 ratings or 1/2-5 stars
-    datePosted = models.DateTimeField(default = timezone.now())
-    likes = models.IntegerField(default = 0)
+    datePosted = models.DateTimeField(default=timezone.now())
+    likes = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if int(self.rating) < 1 or int(self.rating) > 10:
@@ -100,7 +99,7 @@ class List(models.Model):
                 while(List.objects.filter(author=self.author, slug=slug+"-"+str(index)).count() > 0):
                     index += 1;                          
                 slug += "-" + str(index)                                
-            self.slug = slug                                              
+            self.slug = slug         
         super(List, self).save(*args, **kwargs)
 
     def __str__(self):

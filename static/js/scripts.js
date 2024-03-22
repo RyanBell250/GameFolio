@@ -119,3 +119,19 @@ $(document).ready(function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Get the profile dropdown menu element
+    var profileDropdown = document.getElementById('profileDropdown');
+    // Check if the user is authenticated
+    var isAuthenticated = "{{ user.is_authenticated }}";
+
+    if (isAuthenticated === "True") {
+        // If user is authenticated, show the profile dropdown menu
+        profileDropdown.style.display = 'block';
+    } else {
+        // If user is not authenticated, hide the profile dropdown menu
+        profileDropdown.style.display = 'none';
+    }
+}); 
+

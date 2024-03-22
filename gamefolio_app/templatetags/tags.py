@@ -16,7 +16,7 @@ def render_list_images(list):
         entries =[entries[0]];
     return {"entries": entries, "list": list}
 
-@register.inclusion_tag("gamefolio_app/game_card.html", takes_context=True)
+@register.inclusion_tag("gamefolio_app/game_card.html")
 def render_game_card(game):
     return {"game": game}
 

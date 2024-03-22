@@ -18,7 +18,6 @@ urlpatterns = [
     path('<str:author_username>/<slug:slug>/delete/', views.ListDeleteView.as_view(), name='list_delete'),
     path('list/<author_username>/<slug:slug>', views.ListView.as_view(), name='list'),
     path('list/<author_username>/<slug:slug>/edit/', views.EditListView.as_view(), name='list_edit'),
-    path('list/<str:author_username>/<str:slug>/remove_game/', views.RemoveGameView.as_view(), name='remove_game'),
     
     path('suggest/', views.InlineSuggestionsView.as_view(), name='suggest'),
     path('search/', views.SearchView.as_view(), name='search'),

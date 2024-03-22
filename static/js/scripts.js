@@ -17,10 +17,10 @@ $(document).ready(function() {
         }
     });
     
-    const reviewsPerPage = 4;
+    const reviewsPerPage = 6;
     var currentReviewPage = 1;
     var currentReviews= Array.from(Array(reviewsPerPage).keys())
-    var maxReviewPage = Math.ceil($(".user-review").toArray().length/reviewsPerPage)+1;
+    var maxReviewPage = Math.ceil($(".user-review").toArray().length/reviewsPerPage);
     console.log(maxReviewPage);
     paginateReviews();
 

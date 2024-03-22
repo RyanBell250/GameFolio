@@ -188,3 +188,18 @@ $(document).ready(function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 });
+
+document.getElementById('privacy-button').addEventListener('click', function(event) {
+    event.preventDefault();
+    alert('We make use of cookies to only store the most basic of data, none of which is shared with third parties.');
+});
+
+document.getElementById('terms-button').addEventListener('click', function(event) {
+    event.preventDefault();
+    alert('By using this website, you agree to the terms and conditions set out by the University Of Glasgow.');
+});
+
+document.getElementById('contact-button').addEventListener('click', function(event) {
+    event.preventDefault();
+    alert('Contact us at: 2775752h@student.gla.ac.uk or phone us at: 07909 916 436.');
+});

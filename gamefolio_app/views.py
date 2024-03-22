@@ -149,15 +149,17 @@ class ProfileView(View):
 
 class ListProfilesView(View):
     def get(self, request):
-        MAX_RESULTS_PER_PAGE = 9
+        MAX_RESULTS_PER_PAGE = 12
         profiles = Author.objects.annotate(total_reviews=Count('review'), total_likes=Sum('review__likes'))
         profiles_count = len(profiles)
-        sort_by = request.GET.get('sort_by', default='likes')
+        sort_by = request.GET.get('sort', default='likes')
         
         if sort_by == 'reviews':
             profiles = profiles.order_by('-total_reviews')
-        else:
+        elif sort_by == "likes":
             profiles = profiles.order_by('-total_likes')
+        elif sort_by == "alphabetical":
+            profiles = profiles.order_by('user__username')
                      
         try:
             page = request.GET['page'].strip()

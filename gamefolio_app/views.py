@@ -381,23 +381,25 @@ class AddToListFormView(View):
 class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
-        user_reviews = Review.objects.filter(game=game)
+        reviews = Review.objects.filter(game=game).exclude(author__user=request.user)
+        user_reviews = Review.objects.filter(game=game).filter( author__user=request.user)
         related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:3]
   
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
         
         if sort_reviews_by == 'liked':
-            user_reviews = user_reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
+            reviews = reviews.annotate(likes_total=Sum('likes')).order_by('-likes_total', '-datePosted')
         elif sort_reviews_by == 'recent':
-            user_reviews = user_reviews.order_by('-datePosted')
+            reviews = reviews.order_by('-datePosted')
         elif sort_reviews_by == 'rating':
-            user_reviews = user_reviews.order_by('-rating')
+            reviews = reviews.order_by('-rating')
         
         form = ReviewForm()
 
         context = {
             'game': game,
-            'reviews': user_reviews,
+            'reviews': reviews,
+            "user_reviews": user_reviews,
             'form': form,  
             "review_ratings": get_game_ratings(game_id),
             'related_games': related_games,

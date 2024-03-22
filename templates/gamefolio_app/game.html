@@ -92,7 +92,48 @@
     </div>
 </div>
 {% endif %}
+{% if user_reviews %}
+<section class="py-5" id = "reviews">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h2 class="fw-bolder">Your Reviews</h2>
+                </div>
+            </div>
+        </div>
 
+        <div class="row gx-5">
+            {% for review in user_reviews %}
+                <div class="col-md-6 col-lg-4 my-3 py-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center mb-3">
+                                <div class="col-md-4">
+                                    <a href="{% url 'gamefolio_app:profile' review.author.user %}">
+                                        <img class="border border-2 border-light shadow-sm img-fluid rounded game-review-image" src="{{ MEDIA_URL}}{{ review.author.picture }}" alt="{{ review.author.user }} profile picture" />
+                                    </a>
+                                </div>
+                                <div class="col-md-8">
+                                    <a class="user-review-link text-decoration-none link-dark" href="{% url 'gamefolio_app:profile' review.author.user %}">
+                                        <h6 class="fw-semibold mb-0">{{ review.author.user }}</h6>
+                                    </a>
+                                    <div class="text-muted">{{ review.datePosted }}</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div style="color: #198754">{{ review.get_rating_display }}</div>
+                                <div>{{ review.content|truncatechars:200 }}</div>
+                            </div>
+                            <div class="small text-muted"> {{ review.likes }} likes </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 <section class="py-5" id = "reviews">
     <div class="container px-5 my-5">
         <div class="row gx-5 justify-content-center">

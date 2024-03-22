@@ -1,3 +1,14 @@
+window.addEventListener( "pageshow", function ( event ) {
+  var historyTraversal = event.persisted || 
+                         ( typeof window.performance != "undefined" && 
+                              window.performance.navigation.type === 2 );
+  if ( historyTraversal ) {
+    // Handle page restore.
+    window.location.reload();
+  }
+});
+
+
 $(document).ready(function() {
 
     const searchParams = new URLSearchParams(window.location.search);
@@ -5,13 +16,11 @@ $(document).ready(function() {
     
     $('#search-form').submit(function(e) {
         var queryTerm = $('#search-bar').val();
-        e.preventDefault()
         if($('#search-query-parameter').val() == ""){
             $('#search-query-parameter').attr("value", queryTerm);
         }
         if($('#page-form').length) {
             $('#page-form').trigger("submit");
-            e.preventDefault();
         }
     });
     $('#reset-button').click(function(e) {

@@ -140,7 +140,7 @@
     </div>
 </section>
 
-<form method="get" action="{% url 'gamefolio_app:game' game.id %}" id="page-form">
+<form method="get" action="{% url 'gamefolio_app:game' game.id %}" id="pagination-form">
     <ul class="pagination justify-content-center">
         <input type="hidden" name="sort_reviews_by" value="{{ sort_reviews_by }}">
         {% if reviews %}  

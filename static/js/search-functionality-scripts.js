@@ -1,26 +1,11 @@
-$(window).bind("pageshow", function () {
-    
-    //When we go back, the parameters for the URL will stay so we must remove them
-    $("#page-parameter").remove();
-    $("#query-parameter").remove();
-    $("#sort-parameter").remove();
-    $("#genre-parameter").remove();
-    
-    //Clear search bar if we don't currently have a query
-    const searchParams = new URLSearchParams(window.location.search);
-    if(!searchParams.has("query")) {
-        $('#search-bar').val("")
-    }
-})
 
 $(document).ready(function() {
 
     const searchParams = new URLSearchParams(window.location.search);
 
     //Runs when any button is pressed
-    $("#page-form").on("submit", function(e) {
-
-        var $pageForm = $("#page-form");
+    $(".pagination-form").on("submit", function(e) {
+        var $pageForm = $(this);
         //Get the number from the page input
         var pageSearch = $("#page-search");
         var number = pageSearch.val();
@@ -88,7 +73,9 @@ $(document).ready(function() {
     var $pageButtons = jQuery('.number-button')
     $pageButtons.click(function(e) {
         var pageNumber = $(this).val();
-        var $pageForm = $("#page-form");
+        var $pageForm = $(this).parent().closest(".pagination-form");
+
+        console.log($pageForm)
 
         //This function takes priority for page number
         $("#page-parameter").remove();

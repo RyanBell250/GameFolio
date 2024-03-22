@@ -166,7 +166,7 @@
         </div>
     </div>
     <!-- Pagination -->
-    <form method="get" action="{% url 'gamefolio_app:profile' selected_user.username %}?sort_reviews_by={{ sort_reviews_by }}" id="page-form">
+    <form method="get" action="{% url 'gamefolio_app:profile' selected_user.username %}?sort_reviews_by={{ sort_reviews_by }}" id="pagination-form">
         <ul class="pagination justify-content-center">
             <input type="hidden" name="sort_reviews_by" value="{{ sort_reviews_by }}">
             {% if user_reviews %}  

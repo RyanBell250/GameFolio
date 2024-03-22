@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from gamefolio_app.models import Author, List, Game, Review
+from gamefolio_app.models import Author, List, Game, Review, ListEntry
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -76,8 +76,19 @@ class CreateListForm(forms.ModelForm):
 class AddToListForm(forms.Form):
     list = forms.ModelChoiceField(queryset=None)
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, game, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['list'].queryset = List.objects.filter(author__user=user)
+        self.game = game
+
+    def clean(self):
+        cleaned_data = super().clean()
+        list_obj = cleaned_data.get('list')
+
+        if list_obj and self.game:
+            if self.game in list_obj.game.all():
+                raise forms.ValidationError("This game is already in the selected list.")
+
+        return cleaned_data
 
 

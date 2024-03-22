@@ -23,5 +23,6 @@ urlpatterns = [
     path('404/', views.NotFoundView.as_view(), name='404'),
     
     path('game/<slug:game_id>/', views.GamePageView.as_view(), name="game"),
+    path('add_to_list_form/<int:game_id>/', views.AddToListFormView.as_view(), name='add_to_list_form'),
 ]
 

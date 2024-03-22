@@ -46,6 +46,14 @@ class GamefolioTemplateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'gamefolio_app/list.html')  
 
+    def test_lists_template(self):
+        """
+        Test whether the lists template exists and renders correctly.
+        """
+        response = self.client.get(reverse('gamefolio_app:lists'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gamefolio_app/lists.html')    
+
     def test_create_list_template(self):
         """
         Test whether the create list template exists and renders correctly.
@@ -70,7 +78,9 @@ class GamefolioTemplateTests(TestCase):
                                              'template_filename': '404.html'},
             reverse('gamefolio_app:create_list'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Create List(\s*|\n*)</title>',
                                                   'template_filename': 'create_list.html',
-                                                  'block_title': 'Create List'},                                         
+                                                  'block_title': 'Create List'},  
+            reverse('gamefolio_app:list'): {'title_pattern': r'<title>(\s*|\n*)User Created Lists(\s*|\n*)</title>',
+                                         'template_filename': 'list.html'},                                                                             
             reverse('gamefolio_app:lists'): {'title_pattern': r'<title>(\s*|\n*)Gamefolio(\s*|\n*)-(\s*|\n*)Lists(\s*|\n*)</title>',
                                                   'template_filename': 'lists.html',
                                                   'block_title': 'Lists'},

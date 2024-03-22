@@ -297,6 +297,22 @@ display: none;
   background-color: #19191a!important;
 }
 
+.list-edit-control {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.5;
+  background-color: #fff !important;
+  background-clip: padding-box;
+  border: none;
+  border-radius: 0.375rem;
+}
+.list-edit-control:focus {
+  outline: none;
+}
+
 .overflow-wrap-break-word{
   overflow-wrap: break-word;
 }

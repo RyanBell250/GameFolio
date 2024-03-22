@@ -54,35 +54,37 @@
     </div>
 </br>   
 <!-- Pagination -->
-<form method="get" class="pagination-form" action="." id="pagination-form">
-    <ul class="pagination justify-content-center">
-        
-        {% if lists %}
-            <!-- Previous Button -->
-            {% if current_page > 1%}
-                <li class = "page-item">    
-                    <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
-                    </a>
-                </li> 
-            {% endif %}
-            <!-- Page Numbers -->
-            {% for page in pages %}
-                {% if page == "type" %}
-                    <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="search"></input></li>
-                {% elif page == current_page %}  
-                    <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
-                {% else %}
-                    <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
+<form method="get" class="pagination-form" action="." id="pagination-form" >
+    <div class = "d-flex justify-content-center row">
+        <ul class="pagination justify-content-center d-flex w-50">
+            
+            {% if lists %}
+                <!-- Previous Button -->
+                {% if current_page > 1%}
+                    <li class = "page-item">    
+                        <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
+                        </a>
+                    </li> 
                 {% endif %}
-            {% endfor %}
-            <!-- Next Button -->
-            {% if current_page < page_count %}
-            <li class = "page-item">    
-                <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
-                </a>
-            </li>
+                <!-- Page Numbers -->
+                {% for page in pages %}
+                    {% if page == "type" %}
+                        <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="search"></input></li>
+                    {% elif page == current_page %}  
+                        <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                    {% else %}
+                        <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                    {% endif %}
+                {% endfor %}
+                <!-- Next Button -->
+                {% if current_page < page_count %}
+                <li class = "page-item">    
+                    <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
+                    </a>
+                </li>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </ul>
+        </ul>
+    </div>
 </form>
 {% endblock %}

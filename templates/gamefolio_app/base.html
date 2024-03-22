@@ -76,9 +76,10 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="profileDropdown">
                                 {% if user.is_authenticated %}
-                                <li><a class="dropdown-item" href="{% url 'auth_logout' %}">Logout</a></li>
+                                <li><a class="dropdown-item" href="{% url 'gamefolio_app:profile' user.username %}">Profile</a></li>
                                 <li><a class="dropdown-item" href="{% url 'gamefolio_app:lists' %}">Lists</a></li>
                                 <li><a class="dropdown-item" href="{% url 'gamefolio:list_profiles' %}">Users</a></li>
+                                <li><a class="dropdown-item" href="{% url 'auth_logout' %}">Logout</a></li>
                                 {% else %}
                                 <li><a class="dropdown-item" href="{% url 'auth_login' %}">Login</a></li>
                                 <li><a class="dropdown-item" href="{% url 'gamefolio_app:registration_register' %}">Register</a></li>

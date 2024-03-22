@@ -284,7 +284,8 @@ class ListDeleteView(View):
 class ListsView(View):
     @method_decorator(login_required)
     def get(self, request):
-        lists = List.objects.annotate(num_likes=Count('views')).order_by('-views')
+        entries = ListEntry.objects.all().values_list("list")
+        lists = List.objects.filter(id__in=entries).annotate(count=Count("listentry")).order_by('-views')
         paginator = Paginator(lists, 18)
         page_number = request.GET.get('page')
         

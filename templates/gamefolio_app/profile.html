@@ -113,7 +113,7 @@
         <div class="row gx-5">
             {% if user_reviews %}
                 {% for review in user_reviews %}
-                    <div class="col-lg-3 mb-4">
+                    <div class="col-lg-3 mb-4 user-review">
                         <div class="card h-100 border-0 shadow">
                             <a  href="{% url 'gamefolio_app:game' review.game.id %}">
                                 <img class="card-img-top game-review-image" src="{% get_image review.game "cover_big" %}" alt="{{ review.game.title }} thumbnail" />
@@ -147,31 +147,22 @@
     <form method="get" action="{% url 'gamefolio_app:profile' selected_user.username %}?sort_reviews_by={{ sort_reviews_by }}" id="page-form">
         <ul class="pagination justify-content-center">
             <input type="hidden" name="sort_reviews_by" value="{{ sort_reviews_by }}">
-            {% if user_reviews %}
-                <!-- Previous Button -->
-                {% if current_page > 1%}
-                    <li class = "page-item">    
-                        <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
-                        </a>
-                    </li> 
-                {% endif %}
-                <!-- Page Numbers -->
-                {% for page in pages %}
-                    {% if page == "type" %}
-                        <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="search"></input></li>
-                    {% elif page == current_page %}  
-                        <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
-                    {% else %}
-                        <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
-                    {% endif %}
-                {% endfor %}
-                <!-- Next Button -->
-                {% if current_page < page_count %}
-                <li class = "page-item">    
-                    <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
+            {% if user_reviews %}  
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li class="page-item">
+                    <a class="page-link" aria-label="Previous" id = "prev-review-button">
+                      <span aria-hidden="true">&laquo; Prev</span>
                     </a>
-                </li>
-                {% endif %}
+                  </li>
+                  <li class="page-item"><a class="page-link" id = "current-review-page">1</a></li>
+                  <li class="page-item">
+                    <a class="page-link" aria-label="Next" id = "next-review-button">
+                      <span aria-hidden="true">Next &raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             {% endif %}
         </ul>
     </form>

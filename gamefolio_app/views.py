@@ -117,34 +117,8 @@ class ProfileView(View):
         else:
             user_reviews = user_reviews.order_by('-datePosted')
         
-        try:
-            page = request.GET['page'].strip()
-        except Exception as e:
-            page = 0
-            
-        page_count = user_reviews_count/MAX_RESULTS_PER_PAGE
-        
-        if(page_count == int(page_count)):
-            page_count = int(page_count)
-        else:
-            page_count = int(page_count) + 1
-        page_count = max(page_count,1)
-        
-        try:
-            page = int(page) +1
-            assert(page >= 0)
-            assert(page < page_count)
-        except Exception as e:
-            print(e)
-            return redirect("gamefolio_app:404")
-        
-        offset = page * MAX_RESULTS_PER_PAGE
-        actual_results = user_reviews[offset:MAX_RESULTS_PER_PAGE+offset]
-        current_page = page + 1
-        
-        pages = calculate_pages(page_count, current_page)
 
-        context_dict = {'user_profile': user_profile, 'count':user_reviews_count, 'pages':pages, 'current_page':page, 'page_count': page_count, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': actual_results, 'sort_reviews_by': sort_reviews_by}
+        context_dict = {'user_profile': user_profile, 'count':user_reviews_count, 'selected_user': user, 'user_lists':lists,'form': form, 'user_reviews': user_reviews, 'sort_reviews_by': sort_reviews_by}
         return render(request, 'gamefolio_app/profile.html', context_dict)
     
     @method_decorator(login_required)

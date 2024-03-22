@@ -56,7 +56,6 @@ class Migration(migrations.Migration):
                 ('views', models.IntegerField(default=0)),
                 ('rating', models.PositiveSmallIntegerField(choices=[(0, 'No Ratings'), (1, '½'), (2, '★'), (3, '★½'), (4, '★★'), (5, '★★½'), (6, '★★★'), (7, '★★★½'), (8, '★★★★'), (9, '★★★★½'), (10, '★★★★★')])),
                 ('datePosted', models.DateTimeField(default=datetime.datetime(2024, 3, 21, 0, 45, 0, 379243))),
-                ('datePosted', models.DateTimeField(default=datetime.datetime(2024, 3, 22, 2, 25, 25, 856996))),
                 ('likes', models.IntegerField(default=0)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gamefolio_app.Author')),
                 ('game', models.ForeignKey(db_column='game', on_delete=django.db.models.deletion.CASCADE, to='gamefolio_app.Game')),

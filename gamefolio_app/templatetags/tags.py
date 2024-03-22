@@ -17,14 +17,8 @@ def render_list_images(list):
     return {"entries": entries, "list": list}
 
 @register.inclusion_tag("gamefolio_app/game_card.html", takes_context=True)
-def render_game_card(context, game, *args, **kwargs):
-
-    context_dict = kwargs
-    context_dict["game"] = game;
-    context_dict["user"] = context["user"]
-    print(kwargs)
-
-    return context_dict
+def render_game_card(game):
+    return {"game": game}
 
 @register.inclusion_tag("gamefolio_app/review.html")
 def render_review(review):

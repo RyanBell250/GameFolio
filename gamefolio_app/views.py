@@ -172,8 +172,6 @@ class ListView(View):
         list_entries = list_obj.listentry_set.all()
         all_games = Game.objects.all().order_by('title')
         context = {'list_obj': list_obj, 'list_entries': list_entries, 'all_games': all_games, 'views': request.session['visits']}
-        if(request.user == list_obj.author.user):
-            return redirect('gamefolio_app:list_edit', author_username=author_username, slug=slug);
         return render(request, 'gamefolio_app/list.html', context)
     
     @method_decorator(login_required)
@@ -191,8 +189,7 @@ class EditListView(View):
         list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
         create_list_form = CreateListForm({"title": list_obj.title, "description": list_obj.description})
         list = ListEntry.objects.all()
-        
-        context_dict = {'create_list_form': create_list_form,
+        context_dict = {
                         'user_list' : list,
                         'form': create_list_form,
                         "title": list_obj.title,
@@ -217,18 +214,7 @@ class EditListView(View):
 
             return redirect('gamefolio_app:profile', username=request.user.username)
         else:
-            lists = List.objects.all()
-            list = ListEntry.objects.all()
-
-            context_dict = {
-                'create_list_form': create_list_form,
-                'all_lists': lists,
-                'user_list': list,
-            }
-
-            return render(request, 'gamefolio_app/create_list.html', context_dict)
-        
-
+            return redirect('gamefolio_app:list_edit', author_username=author_username, slug=slug)
 
 class AddListGame(View):
     @method_decorator(login_required)
@@ -240,19 +226,7 @@ class AddListGame(View):
         game = get_object_or_404(Game, id = id) 
         context = {'game': game}
         value = render(request, 'gamefolio_app/list_entry.html', context)
-        print(value);
         return value
-
-
-class RemoveGameView(View):
-    @method_decorator(login_required)
-    def post(self, request, author_username, slug):
-        list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
-        if request.user == list_obj.author.user:
-            game_id = request.POST.get('game_id')
-            game_to_remove = get_object_or_404(ListEntry, list=list_obj, game_id=game_id)
-            game_to_remove.delete()
-        return redirect('gamefolio_app:list', author_username=author_username, slug=slug)
 
 class CreateListView(View):
     @method_decorator(login_required)
@@ -329,7 +303,6 @@ class InlineSuggestionsView(View):
         if len(game_list) == 0:
             game_list = Game.objects.order_by('title')[:8]
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
-        print(game_list)
         return return_val
 
 class GamePageView(View):

@@ -57,7 +57,7 @@ class ReviewForm(forms.ModelForm):
         }
 
 class CreateListForm(forms.ModelForm):
-    games = forms.ModelMultipleChoiceField(queryset=Game.objects.all().order_by('title'), widget=forms.CheckboxSelectMultiple)
+    games = forms.ModelMultipleChoiceField(queryset=Game.objects.all().order_by('title'), widget=forms.CheckboxSelectMultiple, required = False)
 
     class Meta:
         model = List
@@ -65,7 +65,6 @@ class CreateListForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
-            'games': forms.CheckboxSelectMultiple(),
         }
         labels = {
             'title': 'Title',

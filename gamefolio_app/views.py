@@ -200,15 +200,19 @@ class EditListView(View):
     @method_decorator(login_required)
     def post(self, request, author_username, slug): 
         create_list_form = CreateListForm(request.POST)
-        if create_list_form.is_valid():
+        if "title" in create_list_form.data.keys():
             list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
-            list_obj.description = create_list_form.cleaned_data["description"]
+            list_obj.description = create_list_form.data["description"]
             list_obj.save()
             listEntries = ListEntry.objects.filter(list = list_obj)
+            try:
+                games = create_list_form.data["games"]
+            except:
+                games = []
             for entry in listEntries:
-                if(entry.game not in create_list_form.cleaned_data["games"]):
+                if(entry.game not in games):
                     entry.delete()
-            for game in create_list_form.cleaned_data["games"]:
+            for game in games:
                 if(len(ListEntry.objects.filter(game=game, list=list_obj))==0):
                     ListEntry.objects.create(list=list_obj, game=game)
 
@@ -243,11 +247,13 @@ class CreateListView(View):
     @method_decorator(login_required)
     def post(self, request):
         create_list_form = CreateListForm(request.POST)
-        if create_list_form.is_valid():
+        if "title" in create_list_form.data.keys():
             new_list = create_list_form.save(commit=False)
             new_list.author = request.user.author
             new_list.save()
-            games = create_list_form.cleaned_data['games']
+            games = []
+            if("games" in create_list_form.data.keys()):
+                games = create_list_form.data['games']
             for game in games:
                 ListEntry.objects.create(list=new_list, game=game)
             return redirect('gamefolio_app:profile', username=request.user.username)

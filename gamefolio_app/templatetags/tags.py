@@ -12,7 +12,7 @@ def get_image(game, image_type):
 @register.inclusion_tag("gamefolio_app/list_image.html")
 def render_list_images(list):
     entries = ListEntry.objects.filter(list = list)[:4];
-    if(len(entries) < 4):
+    if(len(entries) < 4 and len(entries) > 0):
         entries =[entries[0]];
     return {"entries": entries, "list": list}
 

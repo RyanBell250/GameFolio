@@ -383,7 +383,10 @@ class GamePageView(View):
         game = get_object_or_404(Game, id=game_id)
         reviews = Review.objects.filter(game=game).exclude(author__user=request.user)
         user_reviews = Review.objects.filter(game=game).filter( author__user=request.user)
-        related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:3]
+        related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:4]
+
+        if(len(related_games) < 4):
+            related_games = Game.objects.all().exclude(id=game_id).order_by('?')[:4]
   
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
         
@@ -405,7 +408,6 @@ class GamePageView(View):
             'related_games': related_games,
             "stype": sort_reviews_by,
         }
-        print(context)
         return render(request, 'gamefolio_app/game.html', context)
 
     def post(self, request, game_id):

@@ -5,6 +5,7 @@ $(document).ready(function() {
     
     $('#search-form').submit(function(e) {
         var queryTerm = $('#search-bar').val();
+        e.preventDefault()
         if($('#search-query-parameter').val() == ""){
             $('#search-query-parameter').attr("value", queryTerm);
         }
@@ -65,7 +66,6 @@ $(document).ready(function() {
     var currentReviewPage = 1;
     var currentReviews= Array.from(Array(reviewsPerPage).keys())
     var maxReviewPage = Math.ceil($(".user-review").toArray().length/reviewsPerPage);
-    console.log(maxReviewPage);
     paginateReviews();
 
     function paginateReviews() {
@@ -76,7 +76,7 @@ $(document).ready(function() {
                 $(this).removeClass("d-none");
             }
         })
-        $("#current-review-page").text(currentReviewPage);
+        $("#current-review-page").text(currentReviewPage.toString().concat("/").concat(maxReviewPage.toString()));
         $("#prev-review-button").removeClass("disabled");
         $("#next-review-button").removeClass("disabled");
         
@@ -124,7 +124,7 @@ $(document).ready(function() {
                 $(this).removeClass("d-none");
             }
         })
-        $("#current-list-page").text(currentListPage);
+        $("#current-list-page").text(currentListPage.toString().concat("/").concat(maxListPage.toString()));
         $("#prev-list-button").removeClass("disabled");
         $("#next-list-button").removeClass("disabled");
         

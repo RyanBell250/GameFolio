@@ -275,6 +275,7 @@ class GamePageView(View):
     def get(self, request, game_id):
         game = get_object_or_404(Game, id=game_id)
         reviews = Review.objects.filter(game=game)
+        related_games = Game.objects.filter(genre=game.genre).exclude(id=game_id).order_by('?')[:3]
         
         sort_reviews_by = request.GET.get('sort_reviews', 'recent')
         if sort_reviews_by == 'liked':
@@ -287,6 +288,7 @@ class GamePageView(View):
             'game': game,
             'reviews': reviews,
             'form': form,  
+            'related_games': related_games
         }
         return render(request, 'gamefolio_app/game.html', context)
 

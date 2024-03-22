@@ -23,7 +23,7 @@ from gamefolio_app import views
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name ="index"),
-    path('gamefolio_app/', include('gamefolio_app.urls', namespace='gamefolio')),
     path('admin/', admin.site.urls),
     path('accounts/', include('registration.backends.simple.urls')),
+    path('gamefolio/', include('gamefolio_app.urls', namespace='gamefolio')),
 ]+ static (settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

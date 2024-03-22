@@ -14,13 +14,16 @@ urlpatterns = [
     
     path('lists/', views.ListsView.as_view(), name='lists'),
     path('create_list/', views.CreateListView.as_view(), name='create_list'),
-    path('<str:author_username>/<str:list_title>/<slug:slug>/delete/', views.ListDeleteView.as_view(), name='list_delete'),
-    path('list/<author_username>/<list_title>/<slug:slug>', views.ListView.as_view(), name='list'),
-    path('list/<str:author_username>/<str:list_title>/<str:slug>/remove_game/', views.RemoveGameView.as_view(), name='remove_game'),
+    path('<str:author_username>/<slug:slug>/delete/', views.ListDeleteView.as_view(), name='list_delete'),
+    path('list/<author_username>/<slug:slug>', views.ListView.as_view(), name='list'),
+    path('list/<str:author_username>/<str:slug>/remove_game/', views.RemoveGameView.as_view(), name='remove_game'),
     
+    path('suggest/', views.InlineSuggestionsView.as_view(), name='suggest'),
     path('search/', views.SearchView.as_view(), name='search'),
     path('404/', views.NotFoundView.as_view(), name='404'),
     
     path('game/<slug:game_id>/', views.GamePageView.as_view(), name="game"),
+    path('game/<slug:game_id>/add-to-list/', views.AddToListView.as_view(), name='add_to_list'),
+    path('add_to_list_form/<slug:game_id>/', views.AddToListFormView.as_view(), name='add_to_list_form'),
 ]
 

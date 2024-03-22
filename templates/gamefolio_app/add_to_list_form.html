@@ -1,0 +1,44 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load tags %}
+{% load static %}
+
+{% block title_block %}
+    Add Game to List
+{% endblock %}
+
+{% block body_block %}
+
+<header class="bg-dark py-0"> 
+    <div class="container px-5">
+        <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 text-center text-xl-start">
+                    <h1 class="display-5 fw-bolder text-white mb-2">Add "{{ game.title }}" to List</h1>
+                    <p class="text-muted">Note: You cannot add a game to a list if it already exists within that list</p>
+                </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="header-image-fixed rounded-3 my-5" src="{% static "images/homepage.png" %}" style="width: 250px; height: 250px;" alt="homepage image" /></div>
+        </div>
+    </div>
+</header>
+
+<div class="container px-5">
+    <div class="row gx-5 justify-content-center">
+        <div class="col-lg-8 col-xl-7 col-xxl-6">
+            <form method="post" action="{% url 'gamefolio_app:add_to_list' game.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_game_title" class="form-label">Game Title:</label>
+                    <input type="text" id="id_game_title" class="form-control" value="{{ game.title }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="id_list" class="form-label">Select List:</label>
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-outline-success">Add to List</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'gamefolio_app/base.html' %}
 {% load static %}
+{% load tags %}
 
 {% block title_block %}
     User Created Lists
@@ -23,19 +24,21 @@
 </br>
     <div class="container">
         <div class="row gx-5">
-            {% if all_lists %}
-                    {% for list in all_lists %}
+            {% if lists %}
+                    {% for list in lists %}
                         <div class="col-lg-4 col-md-6 mt-3">  
                             <div class="card h-100 shadow border-0">
-                                <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
                                 <div class="card-body p-4 d-flex flex-column">
+                                    {% render_list_images list %}
                                     <h5 class="card-title mb-3">
-                                        <a class="game-review-link" href="{% url 'gamefolio_app:list' list.author.user.username list.title list.slug %}">
+                                        <a class="game-review-link" href="{% url 'gamefolio_app:list' list.author.user.username list.slug %}">
                                             {{ list.title }} by {{ list.author }}
                                         </a>
                                     </h5>
+                                    <img class="shadow-sm rounded-circle me-3 img-fluid user-review-image" src="{{ MEDIA_URL }}{{ list.author.picture }}" alt="{{ author.user.username }} profile picture" style="width: 50px; height: 50px;" />
                                     <p class="card-text mb-0">{{ list.description|truncatechars:75 }}</p>
                                 </div>
+                                <p class="card-text mb-2 ms-2">{{ list.views }} views</p> 
                             </div>
                         </div>
                     {% endfor %}
@@ -45,21 +48,36 @@
         </div>
     </div>
 </br>   
-<div class="container">
-    <div class="row gx-5 justify-content-center">
-        <div class="col-md-4"></div> 
-        <div class="col-md-4 text-center"> 
-            {% if all_lists.has_previous %}
-                 <a href="?page={{ all_lists.previous_page_number }}">Previous</a>
+<!-- Pagination -->
+<form method="get" action="." id="page-form">
+    <ul class="pagination justify-content-center">
+        
+        {% if lists %}
+            <!-- Previous Button -->
+            {% if current_page > 1%}
+                <li class = "page-item">    
+                    <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
+                    </a>
+                </li> 
             {% endif %}
-            <span class="current">
-                Page {{ all_lists.number }} of {{ all_lists.paginator.num_pages }}.
-            </span>
-            {% if all_lists.has_next %}
-                <a href="?page={{ all_lists.next_page_number }}">Next</a>
+            <!-- Page Numbers -->
+            {% for page in pages %}
+                {% if page == "type" %}
+                    <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="search"></input></li>
+                {% elif page == current_page %}  
+                    <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                {% else %}
+                    <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                {% endif %}
+            {% endfor %}
+            <!-- Next Button -->
+            {% if current_page < page_count %}
+            <li class = "page-item">    
+                <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
+                </a>
+            </li>
             {% endif %}
-        </div>
-        <div class="col-md-4"></div> 
-    </div>
-</div>
+        {% endif %}
+    </ul>
+</form>
 {% endblock %}

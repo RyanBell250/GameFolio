@@ -80,51 +80,49 @@
                         <img class = "border border-2 border-light shadow-sm img-fluid rounded game-review-image" src={% get_image result "cover_big" %} alt="{{ review.game.title }} thumbnail"  />
                     </div>
                     <div class = "col-10">
-                        <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="#!">{{ result.title }}</a></h4>
+                        <h4 class="mb-1 fw-semibold text-truncate py-2"><a class="game-review-link " href="{% url "gamefolio_app:game" result.id %}">{{ result.title }}</a></h4>
                         <h5 class = "fw-bold"><a data-bs-toggle="tooltip" data-bs-title="{{result.average_rating}}/5.0" class = "text-decoration-none disabled" style = "color: #198754!important">{{ result.average_text_rating }}</a></h5>
                         <div row>
-                            <button class="genre-button badge bg-primary bg-gradient rounded-pill mb-2 border border-0" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
+                            <button class="btn btn-outline-success genre-button" value = "{{result.genre}}" type = "submit">{{ result.genre }}</button>
                         </div>
+                    </br>
+                    <p style = "color: #198754;">Total Reviews: {{ result.total_reviews }}</p>
                     </div>
                 </div>
                 <hr>
                 {% endfor %}
 
                 <!-- Page Numbers -->
-                <ul class="pagination justify-content-center">
+                <ul class="pagination  justify-content-center">
                     {% if results %}
-                    <!-- Previous Button -->
-                    {% if current_page > 1%}
-                    <li class = "page-item">    
-                        <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
-                        </a>
-                    </li> 
-                    {% endif %}
-                    <!-- Page Numbers -->
-                    {% for page in pages %}
-                        {% if page == "type" %}
-                            <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="..."></input></li>
-                        {% elif page == current_page %}  
-                            <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
-                        {% else %}
-                            <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                        <!-- Previous Button -->
+                        {% if current_page > 1%}
+                            <li class = "page-item">    
+                                <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"-1"}}><span aria-hidden="true">&laquo;</span></button>
+                                </a>
+                            </li> 
                         {% endif %}
-                    {% endfor %}
-                    <!-- Next Button -->
-                    {% if current_page < page_count %}
-                    <li class = "page-item">    
-                        <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
-                        </a>
-                    </li>
-                    {% endif %}
-                    
+                        <!-- Page Numbers -->
+                        {% for page in pages %}
+                            {% if page == "type" %}
+                                <li class="page-item col-1"><input id="page-search" class="number-button page-link col-12 g-0 justify-content-center" type="input" placeholder="search"></input></li>
+                            {% elif page == current_page %}  
+                                <li class="page-item"><button class="number-button page-link active" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                            {% else %}
+                                <li class="page-item"><button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ page }}>{{ page }}</button></li>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- Next Button -->
+                        {% if current_page < page_count %}
+                        <li class = "page-item">    
+                            <button class="number-button page-link d-sm-none d-none d-md-block" type = "submit" value = {{ current_page|add:"1"}}><span aria-hidden="true">&raquo;</span></button>
+                            </a>
+                        </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
             </form>
         </div>
     </div>
 </div>
-{% endblock %}
-{% block footer %}
-<script src="{% static 'js/search-functionality-scripts.js' %}"></script>
 {% endblock %}

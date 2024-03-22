@@ -13,6 +13,10 @@
                 <div class="my-5 text-center text-xl-start">
                     <h1 class="display-5 fw-bolder text-white mb-2">{{ game.title }}</h1>
                     <hr class="hr-blurry text-white mt-1 mb-1 mx-1" style="width: 65%">
+                    <div style = "color: #198754; font-size: 2em;">{{ game.average_text_rating }}</div>
+                    <p style = "color: #198754;">Total Reviews: {{ game.total_reviews }}</p>
+                    <a href = "{% url 'gamefolio_app:search' %}?genre={{game.genre}}"><button type="genre" class="btn btn-outline-success mb-2">{{ game.genre }}</button></a>
+                    <a href="{% url 'gamefolio_app:add_to_list_form' game.id %}" class="btn btn-outline-success mb-2">Add to List</a>
                     <p class="lead fw-normal text-white-50 mb-4">{{ game.description }}</p>
                 </div>
             </div>
@@ -43,13 +47,12 @@
 </header>
 
 {% if user.is_authenticated %}
-    <section class="py-5">
-        <div class="container px-5 my-5">
-            <div class="row gx-5 justify-content-center">
-                <div class="col-lg-8 col-xl-6">
-                    <div class="text-center">
-                        <h3 class="fw-bolder">Leave a review:</h3>
-                    </div>
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h3 class="fw-bolder">Leave a review:</h3>
                 </div>
             </div>
             <div class="row gx-5 d-flex justify-content-left">
@@ -75,19 +78,41 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 {% else %}
-    <p>Please <a href="{% url 'auth_login' %}">login</a> to leave a review.</p>
+<div class="row gx-5 d-flex justify-content-left">
+    <div class="col-md-6 offset-md-3">
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-body">
+                <div class="text-center">
+                    <p class="fw-bolder">Please <a href="{% url 'auth_login' %}">login</a> to leave a review.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endif %}
+
 <section class="py-5">
     <div class="container px-5 my-5">
         <div class="row gx-5 justify-content-center">
             <div class="col-lg-8 col-xl-6">
                 <div class="text-center">
-                    <h2 class="fw-bolder">Most Liked Reviews of the Day</h2>
+                    <h2 class="fw-bolder">Reviews</h2>
                 </div>
             </div>
         </div>
+
+        <br/>
+        <div class="col-lg-4 col-xl-4 text-end">
+            <div class="btn-group" role="group" aria-label="Sort reviews">
+                <a href="?sort_reviews=recent" class="btn btn-outline-success">Sort by Recent</a>
+                <a href="?sort_reviews=liked" class="btn btn-outline-success">Sort by Likes</a>
+            </div>
+        </div>
+        <br/>
+
         <div class="row gx-5">
             {% for review in reviews %}
                 <div class="col-md-6 col-lg-4 my-3 py-3">
@@ -95,12 +120,12 @@
                         <div class="card-body">
                             <div class="row align-items-center mb-3">
                                 <div class="col-md-4">
-                                    <a href="#!">
+                                    <a href="{% url 'gamefolio_app:profile' review.author.user %}">
                                         <img class="border border-2 border-light shadow-sm img-fluid rounded game-review-image" src="{{ MEDIA_URL}}{{ review.author.picture }}" alt="{{ review.author.user }} profile picture" />
                                     </a>
                                 </div>
                                 <div class="col-md-8">
-                                    <a class="user-review-link text-decoration-none link-dark" href="#!">
+                                    <a class="user-review-link text-decoration-none link-dark" href="{% url 'gamefolio_app:profile' review.author.user %}">
                                         <h6 class="fw-semibold mb-0">{{ review.author.user }}</h6>
                                     </a>
                                     <div class="text-muted">{{ review.datePosted }}</div>
@@ -114,6 +139,23 @@
                         </div>
                     </div>
                 </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container px-5 my-5">
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="text-center">
+                    <h2 class="fw-bolder">Related Games</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row gx-5">
+            {% for related_game in related_games %}
+                {% render_game_card related_game %}
             {% endfor %}
         </div>
     </div>

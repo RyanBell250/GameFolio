@@ -7,16 +7,16 @@
 {% endblock %}
 
 {% block body_block %}
-<header class="bg-dark py-4"> 
-    <div class="container px-5">
-        <div class="row gx-5 align-items-center justify-content-center">
-            <div class="col-lg-8 col-xl-7 col-xxl-6">
+<header class="bg-dark py-4 d-flex justify-content-center"> 
+    <div class="container px-5 mx-5">
+        <div class="row gx-5 align-items-center d-flex justify-content-center">
+            <div class="col-md-8 col-12">
                 <div class="my-5 text-center text-xl-start">
                     <h1 class="display-5 fw-bolder text-white mb-2">{{ list_obj.title }}</h1>
                     <p class="lead fw-normal text-white mb-4">  by 
                         <a class="list-profile-link" href="{% url 'gamefolio_app:profile' list_obj.author.user.username %}" >{{ list_obj.author.user.username }}</a>
                     </p>
-                    <p class="lead fw-normal text-white mb-4">{{ list_obj.description }}</p>
+                    <p class="lead fw-normal text-white mb-4 overflow-wrap-break-word">{{ list_obj.description }}</p>
                     <p class="lead fw-normal text-white mb-4">views: {{ list_obj.views }}</p>
                     
                     {% if user.is_authenticated and user == list_obj.author.user %}
@@ -34,8 +34,10 @@
                     
                 </div>
             </div>
-            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
+            <div class="col-md-4 d-md-block d-none text-center">
+                <div class = "row d-flex justify-content-end">
                 {% render_list_images list_obj %}
+                </div>
             </div>
         </div>
     </div>

@@ -35,7 +35,7 @@ class AuthorForm(forms.ModelForm):
         widgets = {
             'website': forms.URLInput(attrs={'class': 'form-control'}),
             'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': '5'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': '5', 'maxlength': '250'}),
         }
         labels = {
             'website': 'Website',

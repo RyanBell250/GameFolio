@@ -90,10 +90,10 @@
                                 </div>
                             </div>
                         </div>
-                        {% if selected_user == user %}
-                        <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
-                        {% endif %}
                     {% endfor %}
+                    {% if selected_user == user %}
+                    <a class="btn btn-outline-success mt-3" href="{% url 'gamefolio_app:create_list' %}">Create Your Own List Here</a>
+                    {% endif %}
                     <ul class="pagination justify-content-center pt-5">
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">

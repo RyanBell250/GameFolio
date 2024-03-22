@@ -106,7 +106,7 @@ $(document).ready(function() {
         paginateReviews();
     })
 
-    const listsPerPage = 6;
+    const listsPerPage =3;
     var currentListPage = 1;
     var currentLists = Array.from(Array(listsPerPage).keys())
     var maxListPage = Math.ceil($(".user-list").toArray().length/listsPerPage);

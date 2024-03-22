@@ -224,13 +224,14 @@ class EditListView(View):
     @method_decorator(login_required)
     def post(self, request, author_username, slug): 
         create_list_form = CreateListForm(request.POST)
+        create_list_form.is_valid()
         if "title" in create_list_form.data.keys():
             list_obj = get_object_or_404(List, author__user__username=author_username, slug=slug)
             list_obj.description = create_list_form.data["description"]
             list_obj.save()
             listEntries = ListEntry.objects.filter(list = list_obj)
             try:
-                games = create_list_form.data["games"]
+                games = create_list_form.cleaned_data['games']
             except:
                 games = []
             for entry in listEntries:
@@ -271,13 +272,15 @@ class CreateListView(View):
     @method_decorator(login_required)
     def post(self, request):
         create_list_form = CreateListForm(request.POST)
+        create_list_form.is_valid()
         if "title" in create_list_form.data.keys():
             new_list = create_list_form.save(commit=False)
             new_list.author = request.user.author
             new_list.save()
-            games = []
-            if("games" in create_list_form.data.keys()):
-                games = create_list_form.data['games']
+            try:
+                games = create_list_form.cleaned_data['games']
+            except:
+                games = []
             for game in games:
                 ListEntry.objects.create(list=new_list, game=game)
             return redirect('gamefolio_app:profile', username=request.user.username)
@@ -342,7 +345,6 @@ class ListsView(View):
         
         context_dict = {"lists" : actual_results, "count": lists_count, "pages": pages, "current_page": current_page, "page_count": page_count}
         return render(request, 'gamefolio_app/lists.html', context_dict)
-
     
 class InlineSuggestionsView(View):
     def get(self, request):
@@ -370,9 +372,7 @@ class AddToListView(View):
             else:
                 return redirect('gamefolio_app:game', game_id=game_id)
         return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
-
-        
-    
+   
 class AddToListFormView(View):
     def get(self, request, game_id):
         game = Game.objects.get(id=game_id)

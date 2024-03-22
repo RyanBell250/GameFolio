@@ -23,7 +23,7 @@ $(document).ready(function() {
         var reviewIdVar;
         reviewIdVar = $(this).attr('data-reviewid');
 
-        $.get('/gamefolio_app/like_review/',
+        $.get('/gamefolio/like_review/',
             {'review_id': reviewIdVar},
             function(data) {
                 $('#like_count').html(data);

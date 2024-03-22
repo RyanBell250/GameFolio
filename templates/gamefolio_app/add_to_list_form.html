@@ -1,0 +1,17 @@
+{% extends 'gamefolio_app/base.html' %}
+{% load tags %}
+
+{% block title_block %}
+    Add Game to List
+{% endblock %}
+
+{% block body_block %}
+
+<h1>Add "{{ game.title }}" to List</h1>
+    <form method="post" action="{% url 'gamefolio_app:add_to_list' game.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add to List</button>
+    </form>
+
+{% endblock %}

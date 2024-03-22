@@ -270,6 +270,12 @@ class InlineSuggestionsView(View):
         return_val =  render(request, 'gamefolio_app/games.html', {'games': game_list})
         print(game_list)
         return return_val
+    
+class AddToListFormView(View):
+    def get(self, request, game_id):
+        game = Game.objects.get(id=game_id)
+        form = AddToListForm(user=request.user)
+        return render(request, 'gamefolio_app/add_to_list_form.html', {'game': game, 'form': form})
 
 class GamePageView(View):
     def get(self, request, game_id):

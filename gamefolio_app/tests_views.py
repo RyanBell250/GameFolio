@@ -283,3 +283,15 @@ class SearchViewTests(TestCase):
         self.assertEqual(response.status_code, 200)  # Ensure the status code is correct
         self.assertTemplateUsed(response, 'gamefolio_app/search.html')  # Ensure the correct template is used
 
+class RemoveGameViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+        self.game = Game.objects.create(title='Test Game')
+        self.list = List.objects.create(title='Test List', author=self.user.profile)
+        self.list_entry = ListEntry.objects.create(list=self.list, game=self.game)
+
+    def test_remove_game(self):
+        response = self.client.post(reverse('gamefolio_app:remove_game', kwargs={'list_id': self.list.id, 'game_id': self.game.id}))
+        self.assertEqual(response.status_code, 302)  # Check if redirected after removing game
+        self.assertFalse(ListEntry.objects.filter(list=self.list, game=self.game).exists())  # Check if the game is removed from the list

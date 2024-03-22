@@ -38,7 +38,7 @@
         {% if user.is_authenticated and user != review.author.user%}
         <button 
                 data-reviewid="{{ review.pk }}"
-                class="col-2 like-btn btn btn-outline-primary btn-sm"
+                class="col-2 like-btn btn btn-outline-success btn-sm"
                 type="button"
                 style= "aspect: 1!important; width: 40px!important; min-wdith: 0px!important;">
             <span data-feather="thumbs-up"></span>

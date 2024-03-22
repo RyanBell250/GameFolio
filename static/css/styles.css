@@ -314,7 +314,7 @@ display: none;
 }
 
 .overflow-wrap-break-word{
-  overflow-wrap: break-word;
+  overflow-wrap: break-word!important;
 }
 
 /* clears the ‘X’ from Internet Explorer */
